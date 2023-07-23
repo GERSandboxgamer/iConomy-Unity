@@ -1,5 +1,7 @@
 package de.sbg.unity.iconomy.Listeners;
 
+import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
+import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import net.risingworld.api.events.EventMethod;
@@ -11,10 +13,12 @@ public class PlayerMoneyCommandListener implements Listener {
 
     private final iConomy plugin;
     private final icConsole Console;
+    private final TextFormat format;
 
     public PlayerMoneyCommandListener(iConomy plugin, icConsole Console) {
         this.plugin = plugin;
         this.Console = Console;
+        this.format = new TextFormat();
     }
 
     @EventMethod
@@ -69,7 +73,24 @@ public class PlayerMoneyCommandListener implements Listener {
 
                 if (cmd.length == 2) {
                     if (cmd[1].toLowerCase().equals("createbank") || cmd[1].toLowerCase().equals("cb")) {
-
+                        if (!plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
+                            if (plugin.Config.PlayerBankAccountCost > 0) {
+                                switch (plugin.CashSystem.removeCash(player, plugin.Config.PlayerBankAccountCost, RemoveCashEvent.Reason.Player)) {
+                                    case Successful -> {
+                                        plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
+                                        //TODO Msg
+                                    }
+                                    case NotEnoughMoney -> {
+                                        player.sendTextMessage(format.Color("red", "You have not enough money!"));
+                                    }
+                                }
+                            } else {
+                                plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
+                                //TODO Msg
+                            }
+                        } else {
+                            //TODO Msg
+                        }
                     }
 
                     if (cmd[1].toLowerCase().equals("send")) {

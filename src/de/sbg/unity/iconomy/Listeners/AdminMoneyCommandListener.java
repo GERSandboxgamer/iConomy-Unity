@@ -5,17 +5,18 @@ import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
 import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import de.sbg.unity.iconomy.Utils.TextFormat;
-import de.sbg.unity.iconomy.Utils.TransferResult;
 import static de.sbg.unity.iconomy.Utils.TransferResult.EventCancel;
-import static de.sbg.unity.iconomy.Utils.TransferResult.NotAnouthMoney;
 import static de.sbg.unity.iconomy.Utils.TransferResult.PlayerNotConnected;
 import static de.sbg.unity.iconomy.Utils.TransferResult.Successful;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
+import java.io.IOException;
+import java.sql.SQLException;
 import net.risingworld.api.Server;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
 import net.risingworld.api.events.player.PlayerCommandEvent;
+import net.risingworld.api.events.player.PlayerDisconnectEvent;
 import net.risingworld.api.objects.Player;
 
 public class AdminMoneyCommandListener implements Listener {
@@ -41,7 +42,47 @@ public class AdminMoneyCommandListener implements Listener {
             String[] cmd = event.getCommand().split(" ");
 
             if (cmd[0].toLowerCase().equals("/money") || cmd[0].toLowerCase().equals("/eco") || cmd[0].toLowerCase().equals("/$") || cmd[0].toLowerCase().equals("/ic") || cmd[0].toLowerCase().equals("/iconomy")) {
+                if (cmd.length == 2) {
+                    if (cmd[1].toLowerCase().equals("info")) {
+                        player.sendTextMessage(format.Color("orange", "========== iConomy-Info =========="));
+                        player.sendTextMessage(format.Color("orange", "Name: " + plugin.getDescription("name")));
+                        player.sendTextMessage(format.Color("orange", "Version: " + plugin.getDescription("version")));
+                        player.sendTextMessage(format.Color("orange", "Update: " + plugin.hasUpdate()));
+                        player.sendTextMessage(format.Color("orange", "Debug: " + plugin.Config.Debug));
+                        player.sendTextMessage(format.Color("orange", "Currency: " + plugin.Config.Currency));
+                        player.sendTextMessage(format.Color("orange", "MoneyFormat: " + plugin.Config.MoneyFormat));
+                        player.sendTextMessage(format.Color("orange", "MoneyInfoTime: " + plugin.Config.MoneyInfoTime));
+                        player.sendTextMessage(format.Color("orange", "PlayerBankAccountCost: " + plugin.Config.PlayerBankAccountCost));
+                        player.sendTextMessage(format.Color("orange", "PlayerBankStartAmounth: " + plugin.Config.PlayerBankStartAmounth));
+                        player.sendTextMessage(format.Color("orange", "PlayerCashStartAmounth: " + plugin.Config.PlayerCashStartAmounth));
+                        player.sendTextMessage(format.Color("orange", "SaveTimer: " + plugin.Config.SaveTimer));
+                        player.sendTextMessage(format.Color("orange", "ShowBalaceAtStart: " + plugin.Config.ShowBalaceAtStart));
+                        player.sendTextMessage(format.Color("orange", "=================================="));
+                    }
 
+                    if (cmd[1].toLowerCase().equals("save")) {
+                        try {
+                            plugin.Databases.saveAll();
+                        } catch (IOException ex) {
+                            player.sendTextMessage(format.Color("red", "IOException"));
+                        } catch (SQLException sql) {
+                            player.sendTextMessage(format.Color("red", "SQLException"));
+                        }
+                    }
+
+                }
+                if (cmd.length == 3) {
+                    if (cmd[1].toLowerCase().equals("test")) {
+                        if (cmd[2].toLowerCase().equals("suitcase")) {
+                            long c = plugin.CashSystem.getCash(player);
+                            if (c > 0) {
+                                plugin.GameObject.suitcase.spawn(player, c, player.getPosition());
+                                plugin.CashSystem.removeCash(player, c, RemoveCashEvent.Reason.Lost);
+                                player.sendTextMessage(format.Color("orange", "You lost your money!"));
+                            }
+                        }
+                    }
+                }
                 if (cmd.length == 4) {
                     if (cmd[1].toLowerCase().equals("givecash") || cmd[1].toLowerCase().equals("gc")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
@@ -80,12 +121,9 @@ public class AdminMoneyCommandListener implements Listener {
                         if (p2 != null && p2.isConnected()) {
                             try {
                                 long l = mFormat.getMoneyAsLong(cmd[3]);
-                                if (plugin.CashSystem.getCash(p2) - l < 0) {
-                                    player.sendTextMessage(format.Color("red", "Player has not anouth money!"));
-                                } else {
-                                    plugin.CashSystem.setCash(p2, l);
-                                    player.sendTextMessage(format.Color("green", "Set money!"));
-                                }
+                                plugin.CashSystem.setCash(p2, l);
+                                player.sendTextMessage(format.Color("green", "Set money!"));
+
                             } catch (NumberFormatException ex) {
                                 player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!"));
                             } catch (CashFormatExeption ex) {
@@ -131,8 +169,8 @@ public class AdminMoneyCommandListener implements Listener {
                                             player.sendTextMessage(format.Color("green", "Take money from bank successfuly!"));
                                         case EventCancel ->
                                             player.sendTextMessage(format.Color("red", "Can not change the bank!"));
-                                        case NotAnouthMoney ->
-                                            player.sendTextMessage(format.Color("red", "Player has not anouth money!"));
+                                        case NotEnoughMoney ->
+                                            player.sendTextMessage(format.Color("red", "Player has not enough money!"));
                                         case PlayerNotConnected ->
                                             player.sendTextMessage(format.Color("red", "Player not exist!"));
                                         default ->
@@ -167,6 +205,12 @@ public class AdminMoneyCommandListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventMethod
+    public void onPlayerDisconnectEvent(PlayerDisconnectEvent event) {
+        Player player = event.getPlayer();
+
     }
 
 }

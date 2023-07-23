@@ -17,6 +17,7 @@ import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import java.io.File;
 //import de.sbg.unity.iconomy.Objects.icSign;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class iConomy extends Plugin {
     private Attribute att;
     private ToolsAPI tools;
     private List<Listener> Events;
-    
+    private Update update;    
     public Config Config;
     public boolean StopPluginByDB;
     public MoneyFormate moneyFormat;
@@ -138,6 +139,13 @@ public class iConomy extends Plugin {
             registerEventListener(new PlayerMoneyCommandListener(this, Console));
             registerEventListener(new icPlayerListener(this, Console));
             registerEventListener(new AdminMoneyCommandListener(this, Console));
+            
+            Console.sendInfo("Check for Updates...");
+        try {
+            update = new Update(this, "http://gs.sandboxgamer.de/downloads/Plugins/risingworld/unity/AktiveSign/version.txt");
+        } catch (IOException | URISyntaxException ioex) {
+            Console.sendErr("Load", ioex.getMessage());
+        }
         }
         
     }
@@ -168,6 +176,10 @@ public class iConomy extends Plugin {
         
     }
     
+    public boolean hasUpdate() {
+        return update.hasUpdate();
+    }
+    
     public void showPlayerMoney(Player player, boolean bank) {
         if (bank) {
             GUI.MoneyInfoGui.showGUI(player, "Cash: " + CashSystem.getCashAsFormatedString(player), "Bank: " + Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString());
@@ -185,9 +197,9 @@ public class iConomy extends Plugin {
         
         public long PlayerCashStartAmounth, PlayerBankStartAmounth, PlayerBankAccountCost, FactoryCashStartAmounth, FactoryBankStartAmounth;
         public String Currency, MoneyFormat;
-        public float MoneyInfoTime, SaveTimer;
+        public float MoneyInfoTime, SaveTimer, SuitcaseTime;
         public int Debug;
-        public boolean ShowBalaceAtStart;
+        public boolean ShowBalaceAtStart, KillerGetMoney, LostMoneyByDeath;
         //public boolean AlwaysShowMoneyInfo;
 
         public Config(iConomy plugin, icConsole Console) {
@@ -244,6 +256,17 @@ public class iConomy extends Plugin {
                 Data.addCommend("# Bank start amounth for new factories");
                 Data.addSetting("FactoryBankStartAmounth", "0");
                 Data.addEmptyLine();
+                Data.addCommend("# ==== Suitcase ====");
+                Data.addEmptyLine();
+                Data.addCommend("# Killer gets the money automatically (PVP must be allowed)");
+                Data.addSetting("KillerGetMoney", "false");
+                Data.addEmptyLine();
+                Data.addCommend("# Player loses money when dying (drops suitcase)");
+                Data.addSetting("LostMoneyByDeath", "false");
+                Data.addEmptyLine();
+                Data.addCommend("# The time until the suitcase despawn in seconds (Default: 600 sek = 10 Min)");
+                Data.addSetting("SuitcaseTime", "600");
+                Data.addEmptyLine();
                 Console.sendInfo("Config", "Create / Load Config!");
                 Data.CreateConfig();
                 Console.sendInfo("Config", "Done!");
@@ -258,21 +281,26 @@ public class iConomy extends Plugin {
                 MoneyInfoTime = Float.parseFloat(Data.getSetting("MoneyInfoTime"));
                 SaveTimer = Float.parseFloat(Data.getSetting("SaveTimer"));
                 Debug = Integer.parseInt(Data.getSetting("Debug"));
-                ShowBalaceAtStart = Boolean.parseBoolean("ShowBalaceAtStart");
-                
+                ShowBalaceAtStart = Boolean.parseBoolean(Data.getSetting("ShowBalaceAtStart"));
+                KillerGetMoney = Boolean.parseBoolean(Data.getSetting("KillerGetMoney"));
+                LostMoneyByDeath = Boolean.parseBoolean(Data.getSetting("LostMoneyByDeath"));
+                SuitcaseTime = Float.parseFloat(Data.getSetting("SuitcaseTime"));
+                        
                 if (Debug > 0) {
                     Console.sendDebug("Config", "FactoryBankStartAmounth = " + FactoryBankStartAmounth);
                     Console.sendDebug("Config", "FactoryCashStartAmounth = " + FactoryCashStartAmounth);
-                    Console.sendDebug("Config", "PlayerBankAccountCost = " + PlayerBankAccountCost);
-                    Console.sendDebug("Config", "PlayerBankStartAmounth = " + PlayerBankStartAmounth);
-                    Console.sendDebug("Config", "PlayerCashStartAmounth = " + PlayerCashStartAmounth);
-                    Console.sendDebug("Config", "Currency = " + Currency);
-                    Console.sendDebug("Config", "MoneyFormat = " + MoneyFormat);
-                    Console.sendDebug("Config", "MoneyInfoTime = " + MoneyInfoTime);
-                    Console.sendDebug("Config", "SaveTimer = " + SaveTimer);
-                    Console.sendDebug("Config", "Debug = " + Debug);
-                    Console.sendDebug("Config", "ShowBalaceAtStart = " + ShowBalaceAtStart);
-                    
+                    Console.sendDebug("Config", "  PlayerBankAccountCost = " + PlayerBankAccountCost);
+                    Console.sendDebug("Config", " PlayerBankStartAmounth = " + PlayerBankStartAmounth);
+                    Console.sendDebug("Config", " PlayerCashStartAmounth = " + PlayerCashStartAmounth);
+                    Console.sendDebug("Config", "               Currency = " + Currency);
+                    Console.sendDebug("Config", "            MoneyFormat = " + MoneyFormat);
+                    Console.sendDebug("Config", "          MoneyInfoTime = " + MoneyInfoTime);
+                    Console.sendDebug("Config", "              SaveTimer = " + SaveTimer);
+                    Console.sendDebug("Config", "                  Debug = " + Debug);
+                    Console.sendDebug("Config", "      ShowBalaceAtStart = " + ShowBalaceAtStart);
+                    Console.sendDebug("Config", "         KillerGetMoney = " + KillerGetMoney);
+                    Console.sendDebug("Config", "       LostMoneyByDeath = " + LostMoneyByDeath);
+                    Console.sendDebug("Config", "           SuitcaseTime = " + SuitcaseTime);
                 }
                 
             }

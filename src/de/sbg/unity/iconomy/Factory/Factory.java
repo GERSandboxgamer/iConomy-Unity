@@ -149,7 +149,7 @@ public class Factory {
                 return TransferResult.Successful;
             }
         } else {
-            return TransferResult.NotAnouthMoney;
+            return TransferResult.NotEnoughMoney;
         }
         return TransferResult.EventCancel;
     }
@@ -171,7 +171,7 @@ public class Factory {
             }
 
         } else {
-            return TransferResult.NotAnouthMoney;
+            return TransferResult.NotEnoughMoney;
         }
         return TransferResult.EventCancel;
     }

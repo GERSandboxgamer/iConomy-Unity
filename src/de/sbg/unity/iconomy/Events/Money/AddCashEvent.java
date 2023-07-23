@@ -44,6 +44,6 @@ public class AddCashEvent extends Event implements Cancellable{
     }
     
     public enum Reason {
-        Player, BankToCash, Pickup, Sell, Factory;
+        Player, BankToCash, Pickup, Sell, Factory, Killing;
     }
 }

@@ -1,10 +1,12 @@
 package de.sbg.unity.iconomy.Objects;
 
+import de.sbg.unity.iconomy.Events.Suitcase.SuitcaseRemoveEvent;
 import de.sbg.unity.iconomy.Events.Suitcase.SuitcaseSpawnEvent;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.util.Arrays;
 import net.risingworld.api.Server;
+import net.risingworld.api.Timer;
 import net.risingworld.api.assets.PrefabAsset;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.utils.Vector3f;
@@ -16,6 +18,7 @@ public class SuitcaseObject extends GameObject{
     private long amounth;
     private final Player player;
     private boolean spawnned;
+    private final Timer SuitcaseTimer;
     
     
 
@@ -23,12 +26,17 @@ public class SuitcaseObject extends GameObject{
         Prefab prefabKoffer = new Prefab(KofferVorlage);
         this.addChild(prefabKoffer);
         this.setLocalPosition(pos);
+        this.SuitcaseTimer = new Timer(plugin.Config.SuitcaseTime, 0f, -1, () ->{
+            plugin.GameObject.suitcase.remove(player, SuitcaseRemoveEvent.Cause.Time);
+        });
+        
         Arrays.asList(Server.getAllPlayers()).forEach((p2) -> {
             p2.addGameObject(this);
         });
         this.player = player;
         
         plugin.triggerEvent(new SuitcaseSpawnEvent(player, this));
+        
     }
 
     public boolean isSpawnned() {

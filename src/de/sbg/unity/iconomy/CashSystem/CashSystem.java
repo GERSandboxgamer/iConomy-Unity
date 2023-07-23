@@ -115,11 +115,11 @@ public class CashSystem {
                         plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + MoneyFormate.getMoneyAsFormatedString(player, newCash), TextFormat.Color("red", "- " + MoneyFormate.getMoneyAsFormatedString(player, evt.getAmounth())));
                         return TransferResult.Successful;
                     } else {
-                        return TransferResult.NotAnouthMoney;
+                        return TransferResult.NotEnoughMoney;
                     }
                 }
             } else {
-                return TransferResult.NotAnouthMoney;
+                return TransferResult.NotEnoughMoney;
             }
         } else {
             return TransferResult.PlayerNotConnected;
@@ -163,11 +163,11 @@ public class CashSystem {
                         plugin.GUI.MoneyInfoGui.showGUI(to, "Cash: " + MoneyFormate.getMoneyAsFormatedString(to, newCash2), TextFormat.Color("green", "+ " + MoneyFormate.getMoneyAsFormatedString(to, evt.getAmounth())));
                         return TransferResult.Successful;
                     } else {
-                        return TransferResult.NotAnouthMoney;
+                        return TransferResult.NotEnoughMoney;
                     }
                 }
             } else {
-                return TransferResult.NotAnouthMoney;
+                return TransferResult.NotEnoughMoney;
             }
         } else {
             return TransferResult.PlayerNotConnected;
