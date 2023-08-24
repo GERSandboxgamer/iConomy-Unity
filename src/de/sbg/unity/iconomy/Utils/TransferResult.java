@@ -5,5 +5,6 @@ public enum TransferResult {
     EventCancel,
     NotEnoughMoney,
     PlayerNotConnected,
-    PlayerNotExist;
+    PlayerNotExist,
+    NoBankAccount;
 }

@@ -78,11 +78,11 @@ public class CashSystem {
             Console.sendDebug("getCashAsFormatedString", "MoneyFormat: " + MoneyFormate);
             Console.sendDebug("getCashAsFormatedString", "Currency: " + MoneyFormate.getCurrency());
         }
-        return MoneyFormate.getMoneyAsString(getCash(player)) + " " + MoneyFormate.getCurrency();
+        return MoneyFormate.getMoneyAsDefaultFormatedString(getCash(player));
     }
 
     public String getCashAsFormatedString(String uid) {
-        return MoneyFormate.getMoneyAsString(getCash(uid)) + " " + MoneyFormate.getCurrency();
+        return MoneyFormate.getMoneyAsDefaultFormatedString(getCash(uid));
     }
     
     public TransferResult addCash(Player player, long amounth, AddCashEvent.Reason reason) {

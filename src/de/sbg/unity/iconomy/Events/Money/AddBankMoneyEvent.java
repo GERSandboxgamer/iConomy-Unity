@@ -33,6 +33,13 @@ public class AddBankMoneyEvent extends Event implements Cancellable {
         this.bankAccount = account;
         this.sender = null;
     }
+    
+    public AddBankMoneyEvent(BankAccount account, long amounth, Reason r) {
+        this.reason = r;
+        this.amounth = amounth;
+        this.bankAccount = account;
+        this.sender = null;
+    }
 
     public Object getSender() {
         return sender;
@@ -66,6 +73,7 @@ public class AddBankMoneyEvent extends Event implements Cancellable {
 
     public enum Reason {
         BankAccount,
+        Sell,
         CashIn,
         Command,
         API;

@@ -30,17 +30,27 @@ public class MoneyFormate {
      * @return
      */
     public String getMoneyAsString(long money) {
-        return String.valueOf(money / 100);
+        float f = money / 100;
+        return String.valueOf(f);
     }
     
     public String getMoneyAsFormatedString(Player player, long money) {
         DecimalFormat df = new DecimalFormat(plugin.Config.MoneyFormat, DecimalFormatSymbols.getInstance(Locale.of(player.getLanguage())));
-        String st = df.format(money / 100) + " " + getCurrency();
+        double d = money / 100;
+        String st = df.format(d) + " " + getCurrency();
         return st;
-    }   
+    }
+    
+    public String getMoneyAsDefaultFormatedString(long money){
+        double d = money /100;
+        DecimalFormat df = new DecimalFormat(plugin.Config.MoneyFormat);
+        String st = df.format(d);
+        return st;
+    }
 
     public float getMoneyAsFloat(long money) {
-        return money / 100;
+        float f = money / 100;
+        return f;
     }
     
     public long getMoneyAsLong(String money) throws NumberFormatException{

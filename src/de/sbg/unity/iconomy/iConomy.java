@@ -142,7 +142,7 @@ public class iConomy extends Plugin {
             
             Console.sendInfo("Check for Updates...");
         try {
-            update = new Update(this, "http://gs.sandboxgamer.de/downloads/Plugins/risingworld/unity/AktiveSign/version.txt");
+            update = new Update(this, "http://gs.sandboxgamer.de/downloads/Plugins/risingworld/unity/iConomy/version.txt");
         } catch (IOException | URISyntaxException ioex) {
             Console.sendErr("Load", ioex.getMessage());
         }

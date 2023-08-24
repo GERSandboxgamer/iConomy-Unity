@@ -1,6 +1,7 @@
 package de.sbg.unity.iconomy.Listeners;
 
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
+import de.sbg.unity.iconomy.GUI.CashInOutGUI;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
@@ -95,6 +96,17 @@ public class PlayerMoneyCommandListener implements Listener {
 
                     if (cmd[1].toLowerCase().equals("send")) {
                         plugin.GUI.SendCashGui.showGUI(player);
+                    }
+                }
+                
+                if (cmd.length == 3 ) {
+                    if (cmd[1].toLowerCase().equals("bank")) {
+                        if (cmd[1].toLowerCase().equals("in")) {
+                            plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
+                        }
+                        if (cmd[1].toLowerCase().equals("out")) {
+                            plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
+                        }
                     }
                 }
 
