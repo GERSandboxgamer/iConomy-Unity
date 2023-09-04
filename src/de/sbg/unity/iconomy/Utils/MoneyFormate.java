@@ -2,6 +2,7 @@
 package de.sbg.unity.iconomy.Utils;
 
 import de.sbg.unity.iconomy.iConomy;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -30,8 +31,11 @@ public class MoneyFormate {
      * @return
      */
     public String getMoneyAsString(long money) {
-        float f = money / 100;
-        return String.valueOf(f);
+        DecimalFormat df = new DecimalFormat(plugin.Config.MoneyFormat);
+        double d = money;
+        double d2 = d / 100;
+        String st = df.format(d2);
+        return st;
     }
     
     public String getMoneyAsFormatedString(Player player, long money) {
@@ -42,15 +46,17 @@ public class MoneyFormate {
     }
     
     public String getMoneyAsDefaultFormatedString(long money){
-        double d = money /100;
+        double d = money;
+        double d2 = d / 100;
         DecimalFormat df = new DecimalFormat(plugin.Config.MoneyFormat);
-        String st = df.format(d);
+        String st = df.format(d2) + " " + getCurrency();
         return st;
     }
 
-    public float getMoneyAsFloat(long money) {
-        float f = money / 100;
-        return f;
+    public double getMoneyAsFloat(long money) {
+        double d = money;
+        double d2 = d / 100;
+        return d2;
     }
     
     public long getMoneyAsLong(String money) throws NumberFormatException{
@@ -60,12 +66,19 @@ public class MoneyFormate {
         } else {
             m2 = money;
         }
-        float fm = Float.parseFloat(m2);
-        return (long)(fm * 100);
+        System.out.println("m2 = " + m2);
+        BigDecimal bd = new BigDecimal(m2);
+        System.out.println("db = " + bd);
+        BigDecimal bd2 = bd.multiply(new BigDecimal(100));
+        System.out.println("db (neu) = " + bd2);
+        
+        return bd2.longValue();
+        
     }
     
-    public long getMoneyAsLong(float money) {
-        return (long)(money * 100);
+    public long getMoneyAsLong(BigDecimal money) {
+        BigDecimal bd2 = money.multiply(new BigDecimal(100));
+        return bd2.longValue();
     }
     
 }

@@ -37,17 +37,27 @@ public class icDatabases {
                 }
                 
             } catch (SQLException ex) {
+                Console.sendErr("DB-SQL", "========= iConomy-Exception =========");
                 Console.sendErr("DB-SQL", "Can not save all to Database!");
                 Console.sendErr("DB-SQL", "Ex-Msg: " + ex.getMessage());
                 Console.sendErr("DB-SQL", "Ex-SQLState: " + ex.getSQLState());
-                ex.printStackTrace();
+                for (StackTraceElement st : ex.getStackTrace()) {
+                    Console.sendErr("DB-SQL", st.toString());
+                }
+                plugin.StopPluginByDB = true;
                 Console.sendErr("SERVER", "STOP SERVER!");
+                Console.sendErr("DB-SQL", "=====================================");
                 Server.shutdown();
             } catch (IOException ex) {
+                Console.sendErr("DB-IO", "========= iConomy-Exception =========");
                 Console.sendErr("DB-IO", "Can not save all to Database!");
                 Console.sendErr("DB-IO", "Ex-Msg: " + ex.getMessage());
-                ex.printStackTrace();
+                for (StackTraceElement st : ex.getStackTrace()) {
+                    Console.sendErr("DB-IO", st.toString());
+                }
+                plugin.StopPluginByDB = true;
                 Console.sendErr("SERVER", "STOP SERVER!");
+                Console.sendErr("DB-IO", "=====================================");
                 Server.shutdown();
             }
         });

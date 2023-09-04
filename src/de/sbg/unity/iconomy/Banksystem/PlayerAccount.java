@@ -22,9 +22,15 @@ public class PlayerAccount  extends BankAccount{
         this.OwnerUID = OwnerUID;
         this.setMoney(plugin.Config.PlayerBankStartAmounth);
     }
-
+    
     public List<BankMember> getMembers() {
         return Members;
+    }
+    
+    public void addAllMembers(List<BankMember> mem){
+        mem.forEach(m -> {
+            getMembers().add(m);
+        });
     }
 
     public List<String> getMemberNames() {

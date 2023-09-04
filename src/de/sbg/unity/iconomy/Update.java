@@ -8,7 +8,7 @@ import net.risingworld.api.Plugin;
 import net.risingworld.api.Server;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
-import net.risingworld.api.events.player.PlayerConnectEvent;
+import net.risingworld.api.events.player.PlayerRespawnEvent;
 import net.risingworld.api.objects.Player;
 
 /**
@@ -91,14 +91,14 @@ public final class Update implements Listener {
     }
 
     @EventMethod
-    public void onPlayerConnectEvent(PlayerConnectEvent event) {
+    public void onPlayerSpawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         if (hasUpdate()) {
             if (Server.getType() == Server.Type.Singleplayer) {
-                player.sendTextMessage("[#ffa500][" + plugin.getDescription("name") + "] Plugin has an update!");
+                player.sendTextMessage("[" + plugin.getDescription("name") + "] Plugin has an update!");
             } else {
                 if (player.isAdmin()) {
-                    player.sendTextMessage("[#ffa500][" + plugin.getDescription("name") + "] Plugin has an update!");
+                    player.sendTextMessage("[" + plugin.getDescription("name") + "] Plugin has an update!");
                 }
             }
         }

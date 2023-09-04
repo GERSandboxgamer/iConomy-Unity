@@ -1,5 +1,6 @@
 package de.sbg.unity.iconomy;
 
+import de.chaoswg.ClassPluginJSONManager;
 import de.chaoswg.ToolsAPI;
 import de.sbg.unity.configmanager.ConfigData;
 import de.sbg.unity.configmanager.ConfigManager;
@@ -11,6 +12,7 @@ import de.sbg.unity.iconomy.Factory.FactorySystem;
 import de.sbg.unity.iconomy.GUI.GUIs;
 import de.sbg.unity.iconomy.Listeners.AdminMoneyCommandListener;
 import de.sbg.unity.iconomy.Listeners.PlayerMoneyCommandListener;
+import de.sbg.unity.iconomy.Listeners.icInputListener;
 import de.sbg.unity.iconomy.Objects.icGameObject;
 import de.sbg.unity.iconomy.Utils.Attribute;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
@@ -37,6 +39,7 @@ public class iConomy extends Plugin {
     public FactorySystem Factory;
     public icGameObject GameObject;
     public GUIs GUI;
+    public icLanguage Language;
     
     private icConsole Console;
     private Attribute att;
@@ -89,7 +92,7 @@ public class iConomy extends Plugin {
                 }
                 Console.sendInfo("ini", "Load Bundle to plugin: '" + fileAsset + "'");
                 AssetBundle bundle = AssetBundle.loadFromFile(fileAsset);
-                PrefabAsset asset = PrefabAsset.loadFromAssetBundle(bundle, "pref" + s + ".prefab"); //TODO NameÄndern
+                PrefabAsset asset = PrefabAsset.loadFromAssetBundle(bundle, "pref" + s + ".prefab");
                 GameObject.add(s, asset);
                 
             }
@@ -136,9 +139,24 @@ public class iConomy extends Plugin {
             //Sign = new icSign(this);
             GUI = new GUIs(this, Console);
             
+            Console.sendInfo("ini", "Load Languages...");
+                this.Language = new icLanguage();
+                File fileCongigPhat = new File(getPath() + System.getProperty("file.separator") + "Languages");
+                if (fileCongigPhat.mkdirs()) {
+                    Console.sendInfo("ini", "Erstelle: " + fileCongigPhat.getAbsolutePath());
+                }
+                ClassPluginJSONManager jm = new ClassPluginJSONManager();
+                
+                jm.getBanList().add("defaultLanguage");
+                String configFile = getPath()+System.getProperty("file.separator")+"Languages"+System.getProperty("file.separator")+"Language v" + this.getDescription("version") + ".json";
+                Console.sendInfo("ini", "Load Languages...Done!");
+                Language = (icLanguage)jm.update(Language, configFile);
+                Console.sendInfo("ini", "Load Languages...Done!");
+            
             registerEventListener(new PlayerMoneyCommandListener(this, Console));
             registerEventListener(new icPlayerListener(this, Console));
             registerEventListener(new AdminMoneyCommandListener(this, Console));
+            registerEventListener(new icInputListener(this, Console));
             
             Console.sendInfo("Check for Updates...");
         try {
@@ -195,11 +213,13 @@ public class iConomy extends Plugin {
         private final ConfigManager Manager;
         private final MoneyFormate mf;
         
-        public long PlayerCashStartAmounth, PlayerBankStartAmounth, PlayerBankAccountCost, FactoryCashStartAmounth, FactoryBankStartAmounth;
+        public long PlayerCashStartAmounth, PlayerBankStartAmounth, PlayerBankAccountCost, 
+                FactoryCashStartAmounth, FactoryBankStartAmounth;
         public String Currency, MoneyFormat;
         public float MoneyInfoTime, SaveTimer, SuitcaseTime;
         public int Debug;
-        public boolean ShowBalaceAtStart, KillerGetMoney, LostMoneyByDeath;
+        public boolean ShowBalaceAtStart, KillerGetMoney, LostMoneyByDeath, CreateAccountViaCommand, 
+                Command_Bank_OnlyAdmin, SaveAllByPlayerDisconnect;
         //public boolean AlwaysShowMoneyInfo;
 
         public Config(iConomy plugin, icConsole Console) {
@@ -236,6 +256,17 @@ public class iConomy extends Plugin {
                 Data.addEmptyLine();
                 Data.addCommend("# Database save timer in minutes");
                 Data.addSetting("SaveTimer", "5");
+                Data.addEmptyLine();
+                Data.addCommend("# Save all to database, if a player disconnect");
+                Data.addSetting("SaveAllByPlayerDisconnect", "true");
+                Data.addEmptyLine();
+                Data.addCommend("# ==== Commands ====");
+                Data.addEmptyLine();
+                Data.addCommend("# Open bank gui via command only admin");
+                Data.addSetting("Command_Bank_OnlyAdmin", "true");
+                Data.addEmptyLine();
+                Data.addCommend("# Create a bank account via command");
+                Data.addSetting("CreateAccountViaCommand", "false");
                 Data.addEmptyLine();
                 Data.addCommend("# ==== Player System ====");
                 Data.addEmptyLine();
@@ -285,7 +316,10 @@ public class iConomy extends Plugin {
                 KillerGetMoney = Boolean.parseBoolean(Data.getSetting("KillerGetMoney"));
                 LostMoneyByDeath = Boolean.parseBoolean(Data.getSetting("LostMoneyByDeath"));
                 SuitcaseTime = Float.parseFloat(Data.getSetting("SuitcaseTime"));
-                        
+                CreateAccountViaCommand = Boolean.parseBoolean(Data.getSetting("CreateAccountViaCommand"));
+                Command_Bank_OnlyAdmin = Boolean.parseBoolean(Data.getSetting("Command_Bank_OnlyAdmin"));
+                SaveAllByPlayerDisconnect = Boolean.parseBoolean(Data.getSetting("SaveAllByPlayerDisconnect"));
+                
                 if (Debug > 0) {
                     Console.sendDebug("Config", "FactoryBankStartAmounth = " + FactoryBankStartAmounth);
                     Console.sendDebug("Config", "FactoryCashStartAmounth = " + FactoryCashStartAmounth);

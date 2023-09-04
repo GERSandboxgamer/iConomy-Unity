@@ -1,5 +1,6 @@
 package de.sbg.unity.iconomy.Objects;
 
+import de.sbg.unity.iconomy.GUI.CashInOutGUI;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class icSign implements Listener {
     }
 
     private void iniSign() {
-        //SignList.add("[Bank]");
+        SignList.add("[Bank]");
         SignList.add("[Balance]");
     }
 
@@ -40,6 +41,7 @@ public class icSign implements Listener {
     @EventMethod
     public void onPlayerSetSignTextEvent(PlayerSetSignTextEvent event) {
         Player player = event.getPlayer();
+        String lang = player.getLanguage();
         String[] line = Utils.StringUtils.getLines(event.getText());
         Result r = Result.Nothing;
         if (!event.getText().isBlank() && !event.getText().isEmpty() && line.length > 1) {
@@ -67,12 +69,12 @@ public class icSign implements Listener {
         switch (r) {
             case Permission -> {
                 event.setCancelled(true);
-                player.sendTextMessage(format.Color("red", "You do not have anouth permission!")); //TODO Translate
+                player.sendTextMessage(format.Color("red", plugin.Language.getOther().getNoPermission(lang))); 
             }
             case OK ->
-                player.sendTextMessage(format.Color("green", "Set sign!")); //TODO Translate
+                player.sendTextMessage(format.Color("green", plugin.Language.getStatus().getSign_OK(lang))); 
             case Misspelled ->
-                player.sendTextMessage(format.Color("red", "The sign was not spelled correctly!")); //TODO Translate
+                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getSign_Misspelled(lang))); 
         }
     }
 
@@ -179,13 +181,13 @@ public class icSign implements Listener {
             switch (Line2.toLowerCase()) {
                 case "out" -> {
                     if (Interact) {
-                        //TODO GUI
+                        plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
                     }
                     return Result.OK;
                 }
                 case "in" -> {
                     if (Interact) {
-                        //TODO GUI
+                        plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
                     }
                     return Result.OK;
                 }

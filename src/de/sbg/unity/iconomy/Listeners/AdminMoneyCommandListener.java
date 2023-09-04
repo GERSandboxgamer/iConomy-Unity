@@ -10,6 +10,7 @@ import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import static de.sbg.unity.iconomy.Utils.TransferResult.EventCancel;
 import static de.sbg.unity.iconomy.Utils.TransferResult.PlayerNotConnected;
+import static de.sbg.unity.iconomy.Utils.TransferResult.PlayerNotExist;
 import static de.sbg.unity.iconomy.Utils.TransferResult.Successful;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
@@ -39,6 +40,7 @@ public class AdminMoneyCommandListener implements Listener {
     @EventMethod
     public void onPlayerCommandEvent(PlayerCommandEvent event) {
         Player player = event.getPlayer();
+        String lang = player.getLanguage();
 
         if (player.isAdmin()) {
 
@@ -65,7 +67,9 @@ public class AdminMoneyCommandListener implements Listener {
 
                     if (cmd[1].toLowerCase().equals("save")) {
                         try {
+                            player.sendTextMessage(format.Color("orange", "Save all...."));
                             plugin.Databases.saveAll();
+                            player.sendTextMessage(format.Color("green", "Done!"));
                         } catch (IOException ex) {
                             player.sendTextMessage(format.Color("red", "IOException"));
                         } catch (SQLException sql) {
@@ -81,7 +85,7 @@ public class AdminMoneyCommandListener implements Listener {
                             if (c > 0) {
                                 plugin.GameObject.suitcase.spawn(player, c, player.getPosition());
                                 plugin.CashSystem.removeCash(player, c, RemoveCashEvent.Reason.Lost);
-                                player.sendTextMessage(format.Color("orange", "You lost your money!")); //TODO Translate
+                                player.sendTextMessage(format.Color("orange", plugin.Language.getStatus().getLostMoney(lang)));
                             }
                         }
                     }
@@ -89,127 +93,133 @@ public class AdminMoneyCommandListener implements Listener {
                 if (cmd.length == 4) {
                     if (cmd[1].toLowerCase().equals("givecash") || cmd[1].toLowerCase().equals("gc")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
-                            try {
-                                long l = mFormat.getMoneyAsLong(cmd[3]);
-                                TransferResult tr = plugin.CashSystem.addCash(p2, l, AddCashEvent.Reason.Player);
-                                player.sendTextMessage(format.Color("green", "Give money!")); //TODO Translate
-                            } catch (NumberFormatException ex) {
-                                player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!")); //TODO Translate
-                            }
-                        
+                        try {
+                            long l = mFormat.getMoneyAsLong(cmd[3]);
+                            TransferResult tr = plugin.CashSystem.addCash(p2, l, AddCashEvent.Reason.Player);
+                            player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminGivecash(lang)));
+                        } catch (NumberFormatException ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
+                        }
                     }
                     if (cmd[1].toLowerCase().equals("takecash") || cmd[1].toLowerCase().equals("tc")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
-                        if (p2 != null && p2.isConnected()) {
-                            try {
-                                long l = mFormat.getMoneyAsLong(cmd[3]);
-                                if (plugin.CashSystem.getCash(p2) - l < 0) {
-                                    player.sendTextMessage(format.Color("red", "Player has not anouth money!")); //TODO Translate
-                                } else {
-                                    plugin.CashSystem.removeCash(p2, l, RemoveCashEvent.Reason.Player);
-                                    player.sendTextMessage(format.Color("green", "Take money!"));
+                        try {
+                            long l = mFormat.getMoneyAsLong(cmd[3]);
+                            if (plugin.CashSystem.getCash(p2) - l < 0) {
+                                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getOtherPlayerNotAnounthMoney(lang)));
+                            } else {
+                                switch (plugin.CashSystem.removeCash(p2, l, RemoveCashEvent.Reason.Player)) {
+                                    case EventCancel -> {
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getTransferCancel(lang)));
+                                    }
+                                    case PlayerNotConnected -> {
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotConnected(lang)));
+                                    }
+                                    case PlayerNotExist -> {
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotExist(lang)));
+                                    }
+                                    case Successful -> {
+                                        player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminTakecash(lang)));
+                                    }
                                 }
-                            } catch (NumberFormatException ex) {
-                                player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!")); //TODO Translate
                             }
-                        } else {
-                            player.sendTextMessage(format.Color("red", "Player is not connected!")); //TODO Translate
+                        } catch (NumberFormatException ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
                         }
                     }
                     if (cmd[1].toLowerCase().equals("setcash") || cmd[1].toLowerCase().equals("sc")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
-                        if (p2 != null && p2.isConnected()) {
-                            try {
-                                long l = mFormat.getMoneyAsLong(cmd[3]);
-                                plugin.CashSystem.setCash(p2, l);
-                                player.sendTextMessage(format.Color("green", "Set money!")); //TODO Translate
-
-                            } catch (NumberFormatException ex) {
-                                player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!")); //TODO Translate
-                            } catch (CashFormatExeption ex) {
-                                player.sendTextMessage(format.Color("red", "The amounth must be bigger then 0!")); //TODO Translate
+                        try {
+                            long l = mFormat.getMoneyAsLong(cmd[3]);
+                            TransferResult tr = plugin.CashSystem.setCash(p2, l);
+                            switch (tr) {
+                                case EventCancel -> {
+                                    player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getTransferCancel(lang)));
+                                }
+                                case PlayerNotConnected -> {
+                                    player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotConnected(lang)));
+                                }
+                                case PlayerNotExist -> {
+                                    player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotExist(lang)));
+                                }
+                                case Successful -> {
+                                    player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminSetcash(lang)));
+                                }
                             }
-                        } else {
-                            player.sendTextMessage(format.Color("red", "Player is not connected!")); //TODO Translate
+
+                        } catch (NumberFormatException ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
+                        } catch (CashFormatExeption ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getAmounthBigger(lang))); 
                         }
+
                     }
                     if (cmd[1].toLowerCase().equals("givebank") || cmd[1].toLowerCase().equals("gb")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
-                        if (p2 != null && p2.isConnected()) {
-                            try {
-                                long l = mFormat.getMoneyAsLong(cmd[3]);
-                                if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
-                                    switch (plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).addMoney(player, l, AddBankMoneyEvent.Reason.Command)) {
-                                        case Successful ->
-                                            player.sendTextMessage(format.Color("green", "Give money to bank successfuly!")); //TODO Translate
-                                        case EventCancel ->
-                                            player.sendTextMessage(format.Color("red", "Can not change the bank!")); //TODO Translate
-                                        case PlayerNotConnected ->
-                                            player.sendTextMessage(format.Color("red", "Player not exist!")); //TODO Translate
-                                        default ->
-                                            player.sendTextMessage(format.Color("red", "Player not exist!")); //TODO Translate
-                                    }
-                                } else {
-                                    player.sendTextMessage(format.Color("red", "Player has not a bank account!")); //TODO Translate
+                        try {
+                            long l = mFormat.getMoneyAsLong(cmd[3]);
+                            if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
+                                switch (plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).addMoney(player, l, AddBankMoneyEvent.Reason.Command)) {
+                                    case Successful ->
+                                        player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminGivebank(lang)));
+                                    case EventCancel ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getTransferCancel(lang)));
+                                    case PlayerNotConnected ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotConnected(lang)));
+                                    default ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotExist(lang)));
                                 }
-                            } catch (NumberFormatException ex) {
-                                player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!")); //TODO Translate
+                            } else {
+                                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getOtherPlayerHasNoAccount(lang)));
                             }
+                        } catch (NumberFormatException ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
                         }
+
                     }
                     if (cmd[1].toLowerCase().equals("takebank") || cmd[1].toLowerCase().equals("tb")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
-                            try {
-                                long l = mFormat.getMoneyAsLong(cmd[3]);
+                        try {
+                            long l = mFormat.getMoneyAsLong(cmd[3]);
 
-                                if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
-                                    switch (plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).removeMoney(player, l, RemoveBankMoneyEvent.Reason.Command)) {
-                                        case Successful -> 
-                                            player.sendTextMessage(format.Color("green", "Take money from bank successfuly!")); //TODO Translate
-                                        case EventCancel ->
-                                            player.sendTextMessage(format.Color("red", "Can not change the bank!")); //TODO Translate
-                                        case NotEnoughMoney ->
-                                            player.sendTextMessage(format.Color("red", "Player has not enough money!")); //TODO Translate
-                                        case PlayerNotConnected ->
-                                            player.sendTextMessage(format.Color("red", "Player not exist!")); //TODO Translate
-                                        default ->
-                                            player.sendTextMessage(format.Color("red", "Player not exist!")); //TODO Translate
-                                    }
-                                } else {
-                                    player.sendTextMessage(format.Color("red", "Player has not a bank account!")); //TODO Translate
+                            if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
+                                switch (plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).removeMoney(player, l, RemoveBankMoneyEvent.Reason.Command)) {
+                                    case Successful ->
+                                        player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminTakebank(lang)));
+                                    case EventCancel ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getTransferCancel(lang)));
+                                    case NotEnoughMoney ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang)));
+                                    case PlayerNotConnected ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotConnected(lang)));
+                                    default ->
+                                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotExist(lang)));
                                 }
-                            } catch (NumberFormatException ex) {
-                                player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!")); //TODO Translate
+                            } else {
+                                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getOtherPlayerHasNoAccount(lang)));
                             }
-                        
-
+                        } catch (NumberFormatException ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
+                        }
                     }
                     if (cmd[1].toLowerCase().equals("setbank") || cmd[1].toLowerCase().equals("sb")) {
                         Player p2 = Server.getPlayerByName(cmd[2]);
-                        if (p2 != null && p2.isConnected()) {
-                            try {
-                                long l = mFormat.getMoneyAsLong(cmd[3]);
-                                if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
-                                    plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).setMoney(0);
-                                    player.sendTextMessage(format.Color("green", "Change money of the bank successfuly!"));
+                        try {
+                            long l = mFormat.getMoneyAsLong(cmd[3]);
+                            if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
+                                plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).setMoney(0);
+                                player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminSetbank(lang)));
 
-                                } else {
-                                    player.sendTextMessage(format.Color("red", "Player has not a bank account!"));
-                                }
-                            } catch (NumberFormatException ex) {
-                                player.sendTextMessage(format.Color("red", "Money must be numers, ',' or '.'!"));
+                            } else {
+                                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getOtherPlayerHasNoAccount(lang)));
                             }
+                        } catch (NumberFormatException ex) {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
                         }
                     }
                 }
             }
         }
-    }
-
-    @EventMethod
-    public void onPlayerDisconnectEvent(PlayerDisconnectEvent event) {
-        Player player = event.getPlayer();
-
     }
 
 }

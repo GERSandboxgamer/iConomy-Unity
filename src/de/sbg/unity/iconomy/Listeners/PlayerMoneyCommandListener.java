@@ -26,13 +26,14 @@ public class PlayerMoneyCommandListener implements Listener {
     public void onPlayerCommandEvent(PlayerCommandEvent event) {
         String[] cmd = event.getCommand().split(" ");
         Player player = event.getPlayer();
+        String lang = player.getLanguage();
 
         if (cmd[0].toLowerCase().equals("/balance")) {
             if (cmd.length == 1) {
                 if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
                     plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: " + plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString());
                 } else {
-                    plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: (No Account)");
+                    plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: " + plugin.Language.getGui().getNoAccount(lang));
                 }
             }
             if (cmd.length == 2) {
@@ -40,7 +41,7 @@ public class PlayerMoneyCommandListener implements Listener {
                     if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
                         plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: " + plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString());
                     } else {
-                        plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: (No Account)");
+                        plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: " + plugin.Language.getGui().getNoAccount(lang));
                     }
                 }
                 if (cmd[1].toLowerCase().equals("cash")) {
@@ -50,7 +51,7 @@ public class PlayerMoneyCommandListener implements Listener {
                     if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
                         plugin.GUI.MoneyInfoGui.showGUI(player, "Bank: " + plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString());
                     } else {
-                        plugin.GUI.MoneyInfoGui.showGUI(player, "Bank: (No Account)");
+                        plugin.GUI.MoneyInfoGui.showGUI(player, "Bank: " + plugin.Language.getGui().getNoAccount(lang));
                     }
                 }
             }
@@ -67,30 +68,32 @@ public class PlayerMoneyCommandListener implements Listener {
                 if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
                     plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: " + plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString());
                 } else {
-                    plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: (No Account)");
+                    plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + plugin.CashSystem.getCashAsFormatedString(player), "Bank: " + plugin.Language.getGui().getNoAccount(lang));
                 }
             }
             if (cmd.length >= 2) {
 
                 if (cmd.length == 2) {
                     if (cmd[1].toLowerCase().equals("createbank") || cmd[1].toLowerCase().equals("cb")) {
-                        if (!plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
-                            if (plugin.Config.PlayerBankAccountCost > 0) {
-                                switch (plugin.CashSystem.removeCash(player, plugin.Config.PlayerBankAccountCost, RemoveCashEvent.Reason.Player)) {
-                                    case Successful -> {
-                                        plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
-                                        //TODO Msg
+                        if (plugin.Config.CreateAccountViaCommand) {
+                            if (!plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
+                                if (plugin.Config.PlayerBankAccountCost > 0) {
+                                    switch (plugin.CashSystem.removeCash(player, plugin.Config.PlayerBankAccountCost, RemoveCashEvent.Reason.Buy)) {
+                                        case Successful -> {
+                                            plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
+                                            //TODO Msg
+                                        }
+                                        case NotEnoughMoney -> {
+                                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang)));
+                                        }
                                     }
-                                    case NotEnoughMoney -> {
-                                        player.sendTextMessage(format.Color("red", "You have not enough money!"));
-                                    }
+                                } else {
+                                    plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
+                                    //TODO Msg
                                 }
                             } else {
-                                plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
                                 //TODO Msg
                             }
-                        } else {
-                            //TODO Msg
                         }
                     }
 
@@ -98,14 +101,18 @@ public class PlayerMoneyCommandListener implements Listener {
                         plugin.GUI.SendCashGui.showGUI(player);
                     }
                 }
-                
-                if (cmd.length == 3 ) {
+
+                if (cmd.length == 3) {
                     if (cmd[1].toLowerCase().equals("bank")) {
-                        if (cmd[1].toLowerCase().equals("in")) {
-                            plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
-                        }
-                        if (cmd[1].toLowerCase().equals("out")) {
-                            plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
+                        if (!plugin.Config.Command_Bank_OnlyAdmin || player.isAdmin()) {
+                            if (cmd[2].toLowerCase().equals("in")) {
+                                plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
+                            }
+                            if (cmd[2].toLowerCase().equals("out")) {
+                                plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
+                            }
+                        } else {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getOther().getNoPermission(lang)));
                         }
                     }
                 }

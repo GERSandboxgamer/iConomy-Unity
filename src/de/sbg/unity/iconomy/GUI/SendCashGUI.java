@@ -1,5 +1,6 @@
 package de.sbg.unity.iconomy.GUI;
 
+import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
@@ -25,6 +26,7 @@ public class SendCashGUI {
     private final TextFormat format;
     public UILabel butSend, butCancel;
     public UITextField Cash, Receiver;
+    private final String lang;
     
     public SendCashGUI(iConomy plugin, icConsole Console, Player player) {
         panel = new UIElement();
@@ -32,11 +34,12 @@ public class SendCashGUI {
         this.player = player;
         this.plugin = plugin;
         this.format = new TextFormat();
+        this.lang = player.getLanguage();
 
-        panel.setPosition(50, 50, true);  // <- true indicates we're using relative coordinates (0-100%)
+        panel.setPosition(50, 50, true);
         panel.setPivot(Pivot.MiddleCenter);
         panel.setSize(500, 500, false);
-        panel.setBackgroundColor(0, 0, 102, 1);  // black background
+        panel.setBackgroundColor(0, 0, 102, 1); 
         
         TitelBar();
         Body();
@@ -45,20 +48,20 @@ public class SendCashGUI {
     }
     
     private void Body(){
-        UILabel message = new UILabel("Send money to a player!"); //TODO Translate
+        UILabel message = new UILabel(plugin.Language.getGui().getSendCashGUI_BodyText(lang));
         message.setPosition(50, 15, true);
         message.setPivot(Pivot.UpperCenter);
         message.setSize(800, 50, false);
         message.setFontSize(25);
         panel.addChild(message);
         
-        UILabel PlayerCash = new UILabel("Yor Cash: " + format.Bold(format.Color("yellow", plugin.CashSystem.getCashAsFormatedString(player))));
+        UILabel PlayerCash = new UILabel(plugin.Language.getGui().getSendCashGUI_YourCash(lang) + " " + format.Bold(format.Color("yellow", plugin.CashSystem.getCashAsFormatedString(player))));
         PlayerCash.setPosition(50, 25, true);
         PlayerCash.setPivot(Pivot.UpperCenter);
         PlayerCash.setFontSize(25);
         panel.addChild(PlayerCash);
         
-        UILabel labReceiver = new UILabel("Playername:");
+        UILabel labReceiver = new UILabel(plugin.Language.getGui().getSendCashGUI_Player(lang));
         labReceiver.setPosition(50, 37, true);
         labReceiver.setPivot(Pivot.UpperCenter);
         labReceiver.setFontSize(25);
@@ -71,7 +74,7 @@ public class SendCashGUI {
         Receiver.setFontSize(25);
         panel.addChild(Receiver);
         
-        UILabel labCash = new UILabel("Amounth:");
+        UILabel labCash = new UILabel(plugin.Language.getGui().getSendCashGUI_Amounth(lang));
         labCash.setPosition(50, 57, true);
         labCash.setPivot(Pivot.UpperCenter);
         labCash.setFontSize(25);
@@ -84,14 +87,14 @@ public class SendCashGUI {
         Cash.setFontSize(25);
         panel.addChild(Cash);
         
-        butSend = new UILabel(format.Bold(format.Color("green", "[Send]")));
+        butSend = new UILabel(format.Bold(format.Color("green", "[" + plugin.Language.getGui().getSend(lang) + "]")));
         butSend.setPosition(95, 95, true);
         butSend.setPivot(Pivot.LowerRight);
         butSend.setClickable(true);
         butSend.setFontSize(25);
         panel.addChild(butSend);
         
-        butCancel = new UILabel(format.Bold(format.Color("red", "[Cancel]")));
+        butCancel = new UILabel(format.Bold(format.Color("red", "[" + plugin.Language.getGui().getCancel(lang) + "]")));
         butCancel.setPosition(5, 95, true);
         butCancel.setPivot(Pivot.LowerLeft);
         butCancel.setFontSize(25);
@@ -102,12 +105,12 @@ public class SendCashGUI {
     private void TitelBar() {
         
         UIElement tielBar = new UIElement();
-        tielBar.setPosition(50, 0, true);  // <- true indicates we're using relative coordinates (0-100%)
+        tielBar.setPosition(50, 0, true);  
         tielBar.setPivot(Pivot.UpperCenter);
         tielBar.setSize(500, 50, false);
         tielBar.setBackgroundColor(255, 153, 51, 1);
         
-        UILabel titel = new UILabel("Send Money");
+        UILabel titel = new UILabel(plugin.Language.getGui().getSendCashGUI_Title(lang));
         titel.setPosition(50, 50, true);
         titel.setPivot(Pivot.MiddleCenter);
         titel.setFontSize(25);
@@ -149,20 +152,20 @@ public class SendCashGUI {
                                     TransferResult tr = plugin.CashSystem.removeCash(player, l, RemoveCashEvent.Reason.Player);
                                     switch (tr) {
                                         case Successful -> {
-                                            //TODO Send Money
+                                            plugin.CashSystem.addCash(p2, l, AddCashEvent.Reason.Player);
                                             plugin.GUI.SendCashGui.hideGUI(player);
                                         }
                                         case NotEnoughMoney -> {
-                                            
+                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
                                         }
                                         case PlayerNotExist -> {
-                                            
+                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotExist(lang));
                                         }
                                         case PlayerNotConnected -> {
-                                            
+                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotConnected(lang));
                                         }
                                         case EventCancel -> {
-                                            
+                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getTransferCancel(lang));
                                         }
                                             
                                     }
@@ -171,10 +174,10 @@ public class SendCashGUI {
                                 }
                             });
                         } else {
-                            player.showErrorMessageBox("iConomy - Send Money", "You can not send money to you!"); //TODO Translate
+                            player.showErrorMessageBox("iConomy - Send Money", plugin.Language.getStatus().getSendCashToSelf(lang));
                         }
                     } else {
-                        player.showErrorMessageBox("iConomy - Send Money", "Player not connected!"); //TODO Translate
+                        player.showErrorMessageBox("iConomy - Send Money", plugin.Language.getStatus().getPlayerNotConnected(lang)); 
                     }
                 });
             }

@@ -28,40 +28,56 @@ public class CashInOutGUI {
     private final UILabel butSend, butCancel, labAmounth, /*labCashPlayer, labBankPlayer,*/ labTitle;
     private final UITextField txtCash;
     private final Modus modus;
+    private String lang;
 
     public CashInOutGUI(iConomy plugin, icConsole Console, Player player, Modus modus) {
         this.plugin = plugin;
         this.Console = Console;
         this.modus = modus;
         this.format = new TextFormat();
+        this.lang = player.getLanguage();
 
         this.panel = new UIElement();
         panel.setPosition(50, 50, true);
         panel.setPivot(Pivot.MiddleCenter);
         panel.setSize(500, 500, false);
         panel.setBackgroundColor(0, 0, 102, 1);
+        
+        UIElement titelBar = new UIElement();
+        titelBar.setPosition(50, 0, true);  
+        titelBar.setPivot(Pivot.UpperCenter);
+        titelBar.setSize(500, 50, false);
+        titelBar.setBackgroundColor(255, 153, 51, 1);
 
         if (modus == Modus.In) {
-            this.labTitle = new UILabel(format.Bold(format.Underline("iConomy - Cash to Bank")));
+            this.labTitle = new UILabel(format.Bold(format.Underline("iConomy - Cash > Bank")));
         } else {
-            this.labTitle = new UILabel(format.Bold(format.Underline("iConomy - Bank to Cash")));
+            this.labTitle = new UILabel(format.Bold(format.Underline("iConomy - Bank > Cash")));
         }
         labTitle.setPosition(50, 2, true);
-        labTitle.setPivot(Pivot.UpperCenter);
+        labTitle.setPivot(Pivot.MiddleCenter);
+        titelBar.addChild(labTitle);
+        panel.addChild(titelBar);
 
         this.labAmounth = new UILabel("Amounth:");
         labAmounth.setPosition(5, 45, true);
+        panel.addChild(labAmounth);
 
         this.txtCash = new UITextField();
         txtCash.setPosition(50, 50, true);
         txtCash.setSize(500, 50, false);
         txtCash.setFontSize(20);
+        panel.addChild(txtCash);
 
-        this.butSend = new UILabel(format.Bold(format.Color("green", "[Send]"))); //TODO Translate
+        this.butSend = new UILabel(format.Bold(format.Color("green", "[" + plugin.Language.getGui().getSend(lang) + "]"))); 
         butSend.setPosition(95, 98, true);
+        butSend.setClickable(true);
+        panel.addChild(butSend);
 
-        this.butCancel = new UILabel(format.Bold(format.Color("red", "[Cancel]"))); //TODO Translate
+        this.butCancel = new UILabel(format.Bold(format.Color("red", "[" + plugin.Language.getGui().getCancel(lang) + "]")));
         butCancel.setPosition(5, 98, true);
+        butCancel.setClickable(true);
+        panel.addChild(butCancel);
 
         plugin.registerEventListener(new CashInOutGuiListener());
         player.addUIElement(panel);
@@ -90,7 +106,7 @@ public class CashInOutGUI {
     public enum Modus {
         In,
         Out;
-    }
+    } 
 
     public class CashInOutGuiListener implements Listener {
 
@@ -114,10 +130,10 @@ public class CashInOutGUI {
                                 TransferResult tr = plugin.CashSystem.removeCash(player, l, RemoveCashEvent.Reason.CashToBank);
                                 switch (tr) {
                                     case EventCancel -> {
-                                        
+                                        player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getTransferCancel(lang));
                                     }
                                     case NotEnoughMoney -> {
-                                        player.showErrorMessageBox("iConomy - Bank", "You do not have anouth money!");//TODO Translate
+                                        player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
                                     }
                                     case Successful -> {
                                         plugin.Bankystem.PlayerSystem.getPlayerAccount(player).cashIn(player, l);
@@ -127,10 +143,10 @@ public class CashInOutGUI {
                                 TransferResult tr = plugin.Bankystem.PlayerSystem.getPlayerAccount(player).cashOut(player, l);
                                 switch (tr) {
                                     case EventCancel -> {
-                                        
+                                        player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getTransferCancel(lang));
                                     }
                                     case NotEnoughMoney -> {
-                                        player.showErrorMessageBox("iConomy - Bank", "You do not have anouth money!");//TODO Translate
+                                        player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
                                     }
                                     case Successful -> {
                                         plugin.CashSystem.addCash(player, l, AddCashEvent.Reason.BankToCash);
@@ -138,10 +154,10 @@ public class CashInOutGUI {
                                 }
                             }
                         } catch (NumberFormatException ex) {
-                            player.showErrorMessageBox("iConomy - Bank", "The format of the money is wrong!");//TODO Translate
+                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getMoneyMustBeNumber(lang));
                         }
                     } else {
-                        player.showErrorMessageBox("iConomy - Bank", "The amounth can not be empty!");//TODO Translate
+                        player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getEmptyAmounth(lang));
                     }
                 });
 

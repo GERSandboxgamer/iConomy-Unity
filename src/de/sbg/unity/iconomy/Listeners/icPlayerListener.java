@@ -7,12 +7,14 @@ import de.sbg.unity.iconomy.Objects.SuitcaseObject;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
+import java.io.IOException;
 import java.sql.SQLException;
 import net.risingworld.api.Server;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
 import net.risingworld.api.events.player.PlayerCommandEvent;
 import net.risingworld.api.events.player.PlayerDeathEvent;
+import net.risingworld.api.events.player.PlayerDisconnectEvent;
 import net.risingworld.api.events.player.PlayerGameObjectInteractionEvent;
 import net.risingworld.api.events.player.PlayerSpawnEvent;
 import net.risingworld.api.objects.Player;
@@ -39,10 +41,14 @@ public class icPlayerListener implements Listener {
                 player.sendTextMessage(format.Color("orange", "Hello new Player! You become for start: " + plugin.CashSystem.getCashAsFormatedString(player)));
             }
         } catch (SQLException ex) {
+            Console.sendErr("DB-SQL", "========= iConomy-Exception =========");
             Console.sendErr("DB-SQL", "Can not save player to Database!");
             Console.sendErr("DB-SQL", "Ex-Msg: " + ex.getMessage());
             Console.sendErr("DB-SQL", "Ex-SQLState: " + ex.getSQLState());
-            ex.printStackTrace();
+            for (StackTraceElement st : ex.getStackTrace()) {
+                Console.sendErr("DB-SQL", st.toString());
+            }
+            Console.sendErr("DB-SQL", "=====================================");
             Console.sendErr("SERVER", "STOP SERVER!");
             Server.shutdown();
         }
@@ -98,6 +104,7 @@ public class icPlayerListener implements Listener {
     @EventMethod
     public void onPlayerDeathEvent(PlayerDeathEvent event) {
         Player player = event.getPlayer();
+        String lang = player.getLanguage();
 
         if (event.getCause() == PlayerDeathEvent.Cause.KilledByPlayer) {
             if (plugin.Config.KillerGetMoney) {
@@ -107,9 +114,8 @@ public class icPlayerListener implements Listener {
                     if (c > 0) {
                         plugin.CashSystem.addCash(killer, c, AddCashEvent.Reason.Killing);
                         plugin.CashSystem.removeCash(player, c, RemoveCashEvent.Reason.Lost);
-                        //TODO Msg
-                    } else {
-                        //TODO Msg
+                        player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getLostMoney(lang)));
+
                     }
                 }
             } else if (plugin.Config.LostMoneyByDeath) {
@@ -117,6 +123,7 @@ public class icPlayerListener implements Listener {
                 if (c > 0) {
                     plugin.GameObject.suitcase.spawn(player, c, event.getDeathPosition());
                     plugin.CashSystem.removeCash(player, c, RemoveCashEvent.Reason.Lost);
+                    player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getLostMoney(lang)));
                 }
             }
         } else if (plugin.Config.LostMoneyByDeath) {
@@ -124,9 +131,42 @@ public class icPlayerListener implements Listener {
             if (c > 0) {
                 plugin.GameObject.suitcase.spawn(player, c, event.getDeathPosition());
                 plugin.CashSystem.removeCash(player, c, RemoveCashEvent.Reason.Lost);
+                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getLostMoney(lang)));
             }
         }
 
+    }
+
+    @EventMethod
+    public void onPlayerDisconnectEvent(PlayerDisconnectEvent event) {
+        if (plugin.Config.SaveAllByPlayerDisconnect) {
+            try {
+                plugin.Databases.saveAll();
+            } catch (SQLException ex) {
+                Console.sendErr("DB-SQL", "========= iConomy-Exception =========");
+                Console.sendErr("DB-SQL", "Can not save all to Database!");
+                Console.sendErr("DB-SQL", "Ex-Msg: " + ex.getMessage());
+                Console.sendErr("DB-SQL", "Ex-SQLState: " + ex.getSQLState());
+                for (StackTraceElement st : ex.getStackTrace()) {
+                    Console.sendErr("DB-SQL", st.toString());
+                }
+                plugin.StopPluginByDB = true;
+                Console.sendErr("SERVER", "STOP SERVER!");
+                Console.sendErr("DB-SQL", "=====================================");
+                Server.shutdown();
+            } catch (IOException ex) {
+                Console.sendErr("DB-IO", "========= iConomy-Exception =========");
+                Console.sendErr("DB-IO", "Can not save all to Database!");
+                Console.sendErr("DB-IO", "Ex-Msg: " + ex.getMessage());
+                for (StackTraceElement st : ex.getStackTrace()) {
+                    Console.sendErr("DB-IO", st.toString());
+                }
+                plugin.StopPluginByDB = true;
+                Console.sendErr("SERVER", "STOP SERVER!");
+                Console.sendErr("DB-IO", "=====================================");
+                Server.shutdown();
+            }
+        }
     }
 
 }

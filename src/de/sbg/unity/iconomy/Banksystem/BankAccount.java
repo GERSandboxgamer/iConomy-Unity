@@ -1,7 +1,10 @@
 package de.sbg.unity.iconomy.Banksystem;
 
 import de.sbg.unity.iconomy.Events.Money.AddBankMoneyEvent;
+import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveBankMoneyEvent;
+import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
+import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
 import de.sbg.unity.iconomy.Utils.AccountTyp;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import de.sbg.unity.iconomy.Utils.TransferResult;
@@ -47,6 +50,12 @@ public class BankAccount {
 
     public void addStatement(String s) {
         Statements.add(0, s);
+    }
+    
+    public void addAllStatements(List<String> st) {
+        st.forEach(s -> {
+            addStatement(s);
+        });
     }
 
     public void clearStatement() {
@@ -142,29 +151,79 @@ public class BankAccount {
             }
             return TransferResult.NotEnoughMoney;
         }
-
         return TransferResult.EventCancel;
     }
 
-    public TransferResult removeMoney(long amounth) {
-        //TODO
+    public TransferResult removeMoney(long amounth, String statement) {
         RemoveBankMoneyEvent event = new RemoveBankMoneyEvent(this, amounth);
         plugin.triggerEvent(event);
-        return null;
+        if (!event.isCancelled()) {
+            long newMoney = Money - amounth;
+            if (newMoney >= getMin()) {
+                Money -= amounth;
+                addStatement(" - " + statement + " -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money));
+                return TransferResult.Successful;
+            }
+            return TransferResult.NotEnoughMoney;
+        }
+        return TransferResult.EventCancel;
     }
 
     public String getMoneyAsFormatedString() {
-        return MoneyFormat.getMoneyAsString(Money) + " " + MoneyFormat.getCurrency();
+        return MoneyFormat.getMoneyAsString(Money) + " " + plugin.Config.Currency;
     }
 
     public TransferResult cashOut(Player player, long amounth) {
-        //TODO
-        return null;
+        if (player != null) {
+            if (player.isConnected()) {
+                RemoveBankMoneyEvent event = new RemoveBankMoneyEvent(player, this, amounth, RemoveBankMoneyEvent.Reason.CashOut);
+                AddCashEvent event2 = new AddCashEvent(player, amounth, AddCashEvent.Reason.BankToCash);
+                plugin.triggerEvent(event);
+                plugin.triggerEvent(event);
+                if (!event.isCancelled() && !event2.isCancelled()) {
+                    long newMoney = Money - amounth;
+                    if (newMoney >= getMin()) {
+                        long c = plugin.CashSystem.getCash(player);
+                        c += amounth;
+                        try {
+                            plugin.CashSystem.setCash(player, c);
+                            Money -= amounth;
+                        } catch (CashFormatExeption ex) {
+                            return TransferResult.MoneyFormat;
+                        }
+                        addStatement(" - Cash out -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money));
+                        return TransferResult.Successful;
+                    }
+                    return TransferResult.NotEnoughMoney;
+                }
+                return TransferResult.EventCancel;
+            }
+            return TransferResult.PlayerNotConnected;
+        }
+        return TransferResult.PlayerNotExist;
     }
 
     public TransferResult cashIn(Player player, long amounth) {
-        //TODO
-        return null;
+        RemoveCashEvent event = new RemoveCashEvent(player, amounth, RemoveCashEvent.Reason.CashToBank);
+        AddBankMoneyEvent event2 = new AddBankMoneyEvent(player, this, amounth, AddBankMoneyEvent.Reason.CashIn);
+        plugin.triggerEvent(event);
+        plugin.triggerEvent(event2);
+        if (!event.isCancelled() && !event2.isCancelled()) {
+            long c = plugin.CashSystem.getCash(player);
+            long newC = c - amounth;
+            if (newC >= 0) {
+                try {
+                    plugin.CashSystem.setCash(player, newC);
+                    Money += amounth;
+                    addStatement(" - Cash in -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money));
+                    return TransferResult.Successful;
+                } catch (CashFormatExeption ex) {
+                    return TransferResult.MoneyFormat;
+                }
+            }
+            return TransferResult.NotEnoughMoney;
+        }
+        return TransferResult.EventCancel;
     }
 
     private String getAccountName(BankAccount sender) {

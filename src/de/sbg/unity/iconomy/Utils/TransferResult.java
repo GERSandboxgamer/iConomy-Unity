@@ -6,5 +6,6 @@ public enum TransferResult {
     NotEnoughMoney,
     PlayerNotConnected,
     PlayerNotExist,
+    MoneyFormat,
     NoBankAccount;
 }
