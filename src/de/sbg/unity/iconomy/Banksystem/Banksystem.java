@@ -9,20 +9,23 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import net.risingworld.api.Server;
 import net.risingworld.api.objects.Player;
 
 public class Banksystem {
 
     public final PlayerSystem PlayerSystem;
-    public final FactoryBankSystem FactoryBankSystem;
+
+    /**
+     * @hidden 
+     */
+    //public final FactoryBankSystem FactoryBankSystem; //TODO Factory
     private final icConsole Console;
 
     public Banksystem(iConomy plugin, icConsole Console) {
         this.Console = Console;
         this.PlayerSystem = new PlayerSystem(plugin, Console);
-        this.FactoryBankSystem = new FactoryBankSystem(plugin, Console);
+        //this.FactoryBankSystem = new FactoryBankSystem(plugin, Console); //TODO Factory
     }
 
     public class PlayerSystem {
@@ -43,12 +46,12 @@ public class Banksystem {
         }
 
         public PlayerAccount addPlayerAccount(String uid) {
-            PlayerAccount pa = new PlayerAccount(plugin, uid);
+            PlayerAccount pa = new PlayerAccount(plugin, Console, uid);
             Player p = Server.getPlayerByUID(uid);
             PlayerAddBankEvent event = new PlayerAddBankEvent(p, pa);
             plugin.triggerEvent(event);
             if (!event.isCancelled()) {
-                try{
+                try {
                     plugin.Databases.Money.Bank.add(pa);
                 } catch (SQLException ex) {
                     Console.sendErr("addPlayerAccount", "========== iConomy-Exception ==========");
@@ -77,11 +80,12 @@ public class Banksystem {
             return false;
         }
 
-        public boolean hasPlayerAccount(String uid) {
+        public boolean hasPlayerAccount(String st) {
+            boolean b = getPlayerAccount(st) != null;
             if (plugin.Config.Debug > 0) {
-                Console.sendDebug("Banksystem", "hasPlayerAccount = " + PlayerAccounts.containsKey(uid));
+                Console.sendDebug("Banksystem", "hasPlayerAccount = " + b);
             }
-            return PlayerAccounts.containsKey(uid);
+            return b;
         }
 
         public PlayerAccount getPlayerAccount(Player player) {
@@ -92,14 +96,25 @@ public class Banksystem {
         }
 
         public PlayerAccount getPlayerAccount(String st) {
+            if (plugin.Config.Debug > 0) {
+                Console.sendDebug("getPlayerAccount", "Show: " + st);
+            }
             if (PlayerAccounts.get(st) == null) {
-                for (PlayerAccount pa2 : PlayerAccounts.values()) {
-                    if (pa2.getLastKnownOwnerName().equals(st)) {
-                        return pa2;
+                for (PlayerAccount pa : PlayerAccounts.values()) {
+                    if (pa.getLastKnownOwnerName().equals(st)) {
+                        if (plugin.Config.Debug > 0) {
+                            Console.sendDebug("getPlayerAccount", "Acount-Name: " + pa.getLastKnownOwnerName());
+                        }
+                        return pa;
                     }
                 }
+            } else {
+                if (plugin.Config.Debug > 0) {
+                    Console.sendDebug("getPlayerAccount", "Acount-Name: " + PlayerAccounts.get(st).getLastKnownOwnerName());
+                }
+                return PlayerAccounts.get(st);
             }
-            return  PlayerAccounts.get(st);
+            return null;
         }
 
     }
@@ -125,7 +140,7 @@ public class Banksystem {
                 int id = plugin.Databases.Factory.TabBank.add(factory);
                 AddFactoryAccount evt = new AddFactoryAccount(player, factory);
                 plugin.triggerEvent(evt);
-                FactoryAccount fa = new FactoryAccount(plugin, factory, id);
+                FactoryAccount fa = new FactoryAccount(plugin, Console, factory, id);
                 return FactoryAccounts.put(factory, fa);
             }
             return null;

@@ -4,24 +4,31 @@ import de.sbg.unity.iconomy.Events.Factory.AddFactoryBankMemberEvent;
 import de.sbg.unity.iconomy.Factory.Factory;
 import de.sbg.unity.iconomy.Utils.AccountTyp;
 import de.sbg.unity.iconomy.iConomy;
+import de.sbg.unity.iconomy.icConsole;
 import java.util.ArrayList;
 import java.util.List;
 import net.risingworld.api.objects.Player;
 
+/**
+ *
+ * @hidden  
+ */
 public class FactoryAccount extends BankAccount{
 
     private final Factory Factory;
     private final iConomy plugin;
+    private final icConsole Console;
     private final List<FactoryBankMember> Members;
     private final int AccountID;
 
-    public FactoryAccount(iConomy plugin, Factory f, int accountID) {
-        super(plugin,AccountTyp.FactoryAccount);
-        this.plugin = plugin;
+    public FactoryAccount(iConomy plugin, icConsole Console, Factory f, int accountID) {
+        super(plugin, Console,AccountTyp.FactoryAccount);
         this.Factory = f;
         this.AccountID = accountID;
         this.Members = new ArrayList<>();
         this.setMoney(plugin.Config.FactoryBankStartAmounth);
+        this.plugin = plugin;
+        this.Console = Console;
     }
 
     public int getAccountID() {

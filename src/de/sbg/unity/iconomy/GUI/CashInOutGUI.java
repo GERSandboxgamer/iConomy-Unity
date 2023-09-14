@@ -25,7 +25,8 @@ public class CashInOutGUI {
 
     private final UIElement panel;
 
-    private final UILabel butSend, butCancel, labAmounth, /*labCashPlayer, labBankPlayer,*/ labTitle;
+    private final UILabel butSend, butCancel, labCashPlayer, labBankPlayer, labAmounth;
+    private UILabel labTitel;
     private final UITextField txtCash;
     private final Modus modus;
     private String lang;
@@ -42,45 +43,84 @@ public class CashInOutGUI {
         panel.setPivot(Pivot.MiddleCenter);
         panel.setSize(500, 500, false);
         panel.setBackgroundColor(0, 0, 102, 1);
-        
-        UIElement titelBar = new UIElement();
-        titelBar.setPosition(50, 0, true);  
-        titelBar.setPivot(Pivot.UpperCenter);
-        titelBar.setSize(500, 50, false);
-        titelBar.setBackgroundColor(255, 153, 51, 1);
 
-        if (modus == Modus.In) {
-            this.labTitle = new UILabel(format.Bold(format.Underline("iConomy - Cash > Bank")));
+        TitelBar();
+
+        UILabel message;
+        if (this.modus == Modus.In) {
+            message = new UILabel(plugin.Language.getGui().getCashInOutGUI_In_Message(lang));
         } else {
-            this.labTitle = new UILabel(format.Bold(format.Underline("iConomy - Bank > Cash")));
+            message = new UILabel(plugin.Language.getGui().getCashInOutGUI_Out_Message(lang));
         }
-        labTitle.setPosition(50, 2, true);
-        labTitle.setPivot(Pivot.MiddleCenter);
-        titelBar.addChild(labTitle);
-        panel.addChild(titelBar);
-
-        this.labAmounth = new UILabel("Amounth:");
-        labAmounth.setPosition(5, 45, true);
+        message.setPosition(50, 15, true);
+        message.setPivot(Pivot.UpperCenter);
+        message.setSize(800, 50, false);
+        message.setFontSize(25);
+        panel.addChild(message);
+        
+        labCashPlayer = new UILabel(plugin.Language.getGui().getYourCash(lang) + " " + format.Bold(format.Color("yellow", plugin.CashSystem.getCashAsFormatedString(player))));
+        labCashPlayer.setFontSize(25);
+        labCashPlayer.setPosition(50, 35, true);
+        labCashPlayer.setPivot(Pivot.UpperCenter);
+        panel.addChild(labCashPlayer);
+        
+        labBankPlayer = new UILabel(plugin.Language.getGui().getYourBank(lang) + " " + format.Bold(format.Color("yellow", plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString())));
+        labBankPlayer.setFontSize(25);
+        labBankPlayer.setPosition(50, 45, true);
+        labBankPlayer.setPivot(Pivot.UpperCenter);
+        panel.addChild(labBankPlayer);
+        
+        
+        this.labAmounth = new UILabel(plugin.Language.getGui().getGUI_Amounth(lang));
+        labAmounth.setPosition(5, 57, true);
+        labAmounth.setPivot(Pivot.UpperLeft);
+        labAmounth.setFontSize(25);
         panel.addChild(labAmounth);
 
         this.txtCash = new UITextField();
-        txtCash.setPosition(50, 50, true);
-        txtCash.setSize(500, 50, false);
+        txtCash.setPosition(5, 65, true);
+        txtCash.setSize(450,50, false);
         txtCash.setFontSize(20);
         panel.addChild(txtCash);
 
-        this.butSend = new UILabel(format.Bold(format.Color("green", "[" + plugin.Language.getGui().getSend(lang) + "]"))); 
-        butSend.setPosition(95, 98, true);
+        this.butSend = new UILabel(format.Bold(format.Color("green", "[" + plugin.Language.getGui().getSend(lang) + "]")));
+        butSend.setPosition(95, 95, true);
+        butSend.setPivot(Pivot.LowerRight);
         butSend.setClickable(true);
+        butSend.setFontSize(25);
         panel.addChild(butSend);
 
         this.butCancel = new UILabel(format.Bold(format.Color("red", "[" + plugin.Language.getGui().getCancel(lang) + "]")));
-        butCancel.setPosition(5, 98, true);
+        butCancel.setPosition(5, 95, true);
+        butCancel.setPivot(Pivot.LowerLeft);
+        butCancel.setFontSize(25);
         butCancel.setClickable(true);
         panel.addChild(butCancel);
 
         plugin.registerEventListener(new CashInOutGuiListener());
         player.addUIElement(panel);
+    }
+
+    private void TitelBar() {
+
+        UIElement tielBar = new UIElement();
+        tielBar.setPosition(50, 0, true);
+        tielBar.setPivot(Pivot.UpperCenter);
+        tielBar.setSize(500, 50, false);
+        tielBar.setBackgroundColor(255, 153, 51, 1);
+
+        if (modus == Modus.In) {
+            this.labTitel = new UILabel(format.Bold(format.Underline("iConomy - Cash > Bank")));
+        } else {
+            this.labTitel = new UILabel(format.Bold(format.Underline("iConomy - Bank > Cash")));
+        }
+        labTitel.setPosition(50, 50, true);
+        labTitel.setPivot(Pivot.MiddleCenter);
+        labTitel.setFontSize(25);
+        labTitel.setFontColor(255, 255, 255, 1);
+        labTitel.setBackgroundColor(255, 153, 51, 1);
+        tielBar.addChild(labTitel);
+        panel.addChild(tielBar);
     }
 
     public UIElement getPanel() {
@@ -106,7 +146,7 @@ public class CashInOutGUI {
     public enum Modus {
         In,
         Out;
-    } 
+    }
 
     public class CashInOutGuiListener implements Listener {
 
@@ -127,7 +167,7 @@ public class CashInOutGUI {
                         try {
                             l = plugin.moneyFormat.getMoneyAsLong(s);
                             if (modus == Modus.In) {
-                                TransferResult tr = plugin.CashSystem.removeCash(player, l, RemoveCashEvent.Reason.CashToBank);
+                                TransferResult tr = plugin.Bankystem.PlayerSystem.getPlayerAccount(player).cashIn(player, l);
                                 switch (tr) {
                                     case EventCancel -> {
                                         player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getTransferCancel(lang));
@@ -136,7 +176,11 @@ public class CashInOutGUI {
                                         player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
                                     }
                                     case Successful -> {
-                                        plugin.Bankystem.PlayerSystem.getPlayerAccount(player).cashIn(player, l);
+                                        plugin.GUI.CashInOutGui.hideGUI(player);
+                                        String l1, l2;
+                                        l1 = "Cash: " + plugin.CashSystem.getCashAsFormatedString(player) + format.Color("red", " (-" + plugin.moneyFormat.getMoneyAsFormatedString(player, l) + ")");
+                                        l2 = "Bank: " + plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString() + format.Color("green", " (+" + plugin.moneyFormat.getMoneyAsFormatedString(player, l) + ")");
+                                        plugin.GUI.MoneyInfoGui.showGUI(player, l1, l2);
                                     }
                                 }
                             } else {
@@ -149,7 +193,11 @@ public class CashInOutGUI {
                                         player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
                                     }
                                     case Successful -> {
-                                        plugin.CashSystem.addCash(player, l, AddCashEvent.Reason.BankToCash);
+                                         plugin.GUI.CashInOutGui.hideGUI(player);
+                                        String l1, l2;
+                                        l1 = "Cash: " + plugin.CashSystem.getCashAsFormatedString(player) + format.Color("green", " (+" + plugin.moneyFormat.getMoneyAsFormatedString(player, l) + ")");
+                                        l2 = "Bank: " + plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMoneyAsFormatedString() + format.Color("red", " (-" + plugin.moneyFormat.getMoneyAsFormatedString(player, l) + ")");
+                                        plugin.GUI.MoneyInfoGui.showGUI(player, l1, l2);
                                     }
                                 }
                             }

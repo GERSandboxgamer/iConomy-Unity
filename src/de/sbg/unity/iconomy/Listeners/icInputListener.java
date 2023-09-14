@@ -1,6 +1,7 @@
 package de.sbg.unity.iconomy.Listeners;
 
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
+import de.sbg.unity.iconomy.Utils.TransferResult;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
@@ -97,15 +98,88 @@ public class icInputListener implements Listener {
                     }
                 }
                 if (cmd[1].toLowerCase().equals("bank")) {
-                    if (cmd[2].toLowerCase().equals("accounts")) {
-                        Console.sendInfo("Command", "=========== Bank-Accounts ===========");
-                        for (PlayerAccount pa : plugin.Bankystem.PlayerSystem.getPlayerAccounts().values()) {
-                            Console.sendInfo("Command", "- " + pa.getOwnerUID() + " (Last Name: " + pa.getLastKnownOwnerName() + ")");
+                    if (plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]) == null) {
+                        if (cmd[2].toLowerCase().equals("accounts")) {
+                            Console.sendInfo("Command", "=========== Bank-Accounts ===========");
+                            for (PlayerAccount pa : plugin.Bankystem.PlayerSystem.getPlayerAccounts().values()) {
+                                Console.sendInfo("Command", "- " + pa.getOwnerUID() + " (Last Name: " + pa.getLastKnownOwnerName() + ")");
+                            }
+                            Console.sendInfo("Command", "=====================================");
                         }
-                        Console.sendInfo("Command", "=====================================");
+                    } else {
+                        PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
+                        Console.sendInfo("Command", "============= Bank =============");
+                        Console.sendInfo("Command", "Player: " + pa.getLastKnownOwnerName());
+                        Console.sendInfo("Command", " Money: " + pa.getMoneyAsFormatedString());
+                        Console.sendInfo("Command", "============= Bank =============");
+                    }
+                }
+                if (cmd[1].toLowerCase().equals("cash")) {
+                    if (!plugin.CashSystem.getPlayerNames().contains(cmd[2])) {
+                        //TODO MSG
+                    } else {
+                        Console.sendInfo("Command", "============= Cash =============");
+                        Console.sendInfo("Command", "Player: " + cmd[2]);
+                        Console.sendInfo("Command", " Money: " + plugin.CashSystem.getCashAsFormatedString(cmd[2]));
+                        Console.sendInfo("Command", "============= Cash =============");
                     }
                 }
             }
+            if (cmd.length == 4) {
+                if (cmd[1].toLowerCase().equals("setbank") || cmd[1].toLowerCase().equals("sb")) {
+                    String oldMoney, newMoney;
+                    PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
+                    if (pa != null) {
+                        oldMoney = pa.getMoneyAsFormatedString();
+                        pa.setMoney(cmd[3]);
+                        newMoney = pa.getMoneyAsFormatedString();
+                        if (plugin.Config.Debug > 0) {
+                            Console.sendDebug("SetCash", "Account-Name: " + pa.getLastKnownOwnerName());
+                            Console.sendDebug("SetCash", "   Money old: " + oldMoney);
+                            Console.sendDebug("SetCash", "   Money now: " + newMoney);
+                        }
+                    } else {
+                        Console.sendErr("Command", "Account not found!");
+                    }
+                }
+                if (cmd[1].toLowerCase().equals("addbank") || cmd[1].toLowerCase().equals("ab")) {
+                    TransferResult tr;
+                    String oldMoney, newMoney;
+                    PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
+                    if (pa != null) {
+                        oldMoney = pa.getMoneyAsFormatedString();
+                        tr = pa.addMoney(plugin.moneyFormat.getMoneyAsLong(cmd[3]), "Server command");
+                        newMoney = pa.getMoneyAsFormatedString();
+                        if (plugin.Config.Debug > 0) {
+                            Console.sendDebug("SetCash", "  Account-Name: " + pa.getLastKnownOwnerName());
+                            Console.sendDebug("SetCash", "TransferResult: " + tr);
+                            Console.sendDebug("SetCash", "     Money old: " + oldMoney);
+                            Console.sendDebug("SetCash", "     Money now: " + newMoney);
+                        }
+                    } else {
+                        Console.sendErr("Command", "Account not found!");
+                    }
+                }
+                if (cmd[1].toLowerCase().equals("removebank") || cmd[1].toLowerCase().equals("rb")) {
+                    TransferResult tr;
+                    String oldMoney, newMoney;
+                    PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
+                    if (pa != null) {
+                        oldMoney = pa.getMoneyAsFormatedString();
+                        tr = pa.removeMoney(plugin.moneyFormat.getMoneyAsLong(cmd[3]), "Server command");
+                        newMoney = pa.getMoneyAsFormatedString();
+                        if (plugin.Config.Debug > 0) {
+                            Console.sendDebug("SetCash", "  Account-Name: " + pa.getLastKnownOwnerName());
+                            Console.sendDebug("SetCash", "TransferResult: " + tr);
+                            Console.sendDebug("SetCash", "     Money old: " + oldMoney);
+                            Console.sendDebug("SetCash", "     Money now: " + newMoney);
+                        }
+                    } else {
+                        Console.sendErr("Command", "Account not found!");
+                    }
+                }
+            }
+
         }
 
         //TODO Input

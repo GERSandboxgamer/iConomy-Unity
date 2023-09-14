@@ -71,9 +71,9 @@ public class icDatabases {
     public void saveAll() throws SQLException, IOException {
         Money.Cash.saveAllToDatabase(plugin.CashSystem.getCashList());
         Money.Bank.saveAllToDatabase(plugin.Bankystem.PlayerSystem.getPlayerAccounts());
-        Factory.TabBank.saveAllToDatabase(plugin.Bankystem.FactoryBankSystem.getFactoryAccounts());
-        Factory.TabFactory.saveAllToDatabase(plugin.Factory.getFactorys());
-    }
+        //Factory.TabBank.saveAllToDatabase(plugin.Bankystem.FactoryBankSystem.getFactoryAccounts()); //TODO Factory
+        //Factory.TabFactory.saveAllToDatabase(plugin.Factory.getFactorys()); //TODO Factory
+    } 
 
     public void stopSaveTimer() {
         if (isSaveTimerRunning()) {

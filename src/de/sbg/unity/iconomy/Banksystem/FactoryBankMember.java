@@ -2,7 +2,10 @@ package de.sbg.unity.iconomy.Banksystem;
 
 import net.risingworld.api.Server;
 
-
+/**
+ *
+ * @hidden  
+ */
 public class FactoryBankMember {
     
     private final String UID;

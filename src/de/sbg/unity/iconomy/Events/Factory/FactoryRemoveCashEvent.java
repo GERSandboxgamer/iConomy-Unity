@@ -6,6 +6,7 @@ import net.risingworld.api.objects.Player;
 
 /**
  * Called if the something remove cash from the factory
+ * @hidden 
  */
 public class FactoryRemoveCashEvent extends Event implements Cancellable{
     

@@ -33,16 +33,47 @@ public class GUIs {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs", "showGUI (Line 1)");
             }
-            MoneyInfoGUI gui = new MoneyInfoGUI(plugin, Console, player, Text);
-            player.setAttribute(GuiPlayerAtt, gui);
+            MoneyInfoGUI gui;
+            if (!player.hasAttribute(GuiPlayerAtt)) {
+                gui = new MoneyInfoGUI(plugin, Console, player, Text);
+                player.setAttribute(GuiPlayerAtt, gui);
+            } else {
+                gui = (MoneyInfoGUI) player.getAttribute(GuiPlayerAtt);
+                if (gui.getLineAmounth() == 1) {
+                    gui.stopCloseTimer();
+                    gui.getLine1().setText(Text);
+                    gui.startCloseTimer();
+                } else {
+                    gui.stopCloseTimer();
+                    hideGUI(player);
+                    MoneyInfoGUI gui2 = new MoneyInfoGUI(plugin, Console, player, Text);
+                    player.setAttribute(GuiPlayerAtt, gui2);
+                }
+            }
         }
 
         public void showGUI(Player player, String Line1, String Line2) {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs", "showGUI (Line 2)");
             }
-            MoneyInfoGUI gui = new MoneyInfoGUI(plugin, Console, player, Line1, Line2);
-            player.setAttribute(GuiPlayerAtt, gui);
+            MoneyInfoGUI gui;
+            if (!player.hasAttribute(GuiPlayerAtt)) {
+                gui = new MoneyInfoGUI(plugin, Console, player, Line1, Line2);
+                player.setAttribute(GuiPlayerAtt, gui);
+            } else {
+                gui = (MoneyInfoGUI) player.getAttribute(GuiPlayerAtt);
+                if (gui.getLineAmounth() == 2) {
+                    gui.stopCloseTimer();
+                    gui.getLine1().setText(Line1);
+                    gui.getLine2().setText(Line2);
+                    gui.startCloseTimer();
+                } else {
+                    gui.stopCloseTimer();
+                    hideGUI(player);
+                    MoneyInfoGUI gui2 = new MoneyInfoGUI(plugin, Console, player, Line1, Line2);
+                    player.setAttribute(GuiPlayerAtt, gui2);
+                }
+            }
         }
 
         public boolean hideGUI(Player player) {
@@ -54,45 +85,46 @@ public class GUIs {
             return false;
         }
     }
-    
+
     public class SendCash {
+
         private final String GuiPlayerAtt;
-        
+
         public SendCash() {
             GuiPlayerAtt = "iConomy-SendCashGUI";
         }
-        
-         public void showGUI(Player player) {
+
+        public void showGUI(Player player) {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs-SendCash", "showGUI");
             }
             SendCashGUI gui = new SendCashGUI(plugin, Console, player);
             player.setAttribute(GuiPlayerAtt, gui);
             player.setMouseCursorVisible(true);
-            
+
         }
-         
-         public boolean hideGUI(Player player) {
+
+        public boolean hideGUI(Player player) {
             if (player.hasAttribute(GuiPlayerAtt)) {
-                player.removeUIElement(((SendCashGUI)player.getAttribute(GuiPlayerAtt)).getPanel());
+                player.removeUIElement(((SendCashGUI) player.getAttribute(GuiPlayerAtt)).getPanel());
                 player.deleteAttribute(GuiPlayerAtt);
                 player.setMouseCursorVisible(false);
                 return true;
             }
             return false;
         }
-        
-        
+
     }
-    
+
     public class CashInOut {
+
         private final String GuiPlayerAtt;
-        
+
         public CashInOut() {
             GuiPlayerAtt = "iConomy-CashInOutGUI";
         }
-        
-         public void showGUI(Player player, Modus modus) {
+
+        public void showGUI(Player player, Modus modus) {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs-CashInOut", "showGUI");
             }
@@ -100,10 +132,10 @@ public class GUIs {
             player.setAttribute(GuiPlayerAtt, gui);
             player.setMouseCursorVisible(true);
         }
-         
-         public boolean hideGUI(Player player) {
+
+        public boolean hideGUI(Player player) {
             if (player.hasAttribute(GuiPlayerAtt)) {
-                player.removeUIElement(((CashInOutGUI)player.getAttribute(GuiPlayerAtt)).getPanel());
+                player.removeUIElement(((CashInOutGUI) player.getAttribute(GuiPlayerAtt)).getPanel());
                 player.deleteAttribute(GuiPlayerAtt);
                 player.setMouseCursorVisible(false);
                 return true;

@@ -2,6 +2,7 @@
 package de.sbg.unity.iconomy.Utils;
 
 import de.sbg.unity.iconomy.iConomy;
+import de.sbg.unity.iconomy.icConsole;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -12,9 +13,11 @@ import net.risingworld.api.objects.Player;
 public class MoneyFormate {
     
     private final iConomy plugin;
+    private final icConsole Console;
     
-    public MoneyFormate(iConomy plugin)  {
+    public MoneyFormate(iConomy plugin, icConsole Console)  {
         this.plugin = plugin;
+        this.Console = Console;
     }
     
     /**
@@ -66,11 +69,17 @@ public class MoneyFormate {
         } else {
             m2 = money;
         }
-        System.out.println("m2 = " + m2);
+        if (plugin.Config.Debug > 0) {
+            Console.sendDebug("getMoneyAsLong", "m2 = " + m2);
+        }
         BigDecimal bd = new BigDecimal(m2);
-        System.out.println("db = " + bd);
+        if (plugin.Config.Debug > 0) {
+            Console.sendDebug("getMoneyAsLong", "bd = " + bd);
+        }
         BigDecimal bd2 = bd.multiply(new BigDecimal(100));
-        System.out.println("db (neu) = " + bd2);
+        if (plugin.Config.Debug > 0) {
+            Console.sendDebug("getMoneyAsLong", "bd (neu) = " + bd2);
+        }
         
         return bd2.longValue();
         

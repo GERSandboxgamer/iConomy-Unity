@@ -5,11 +5,15 @@ import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
 import java.util.ArrayList;
 import java.util.List;
+import net.risingworld.api.World;
+import net.risingworld.api.definitions.Objects;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
 import net.risingworld.api.events.player.PlayerObjectInteractionEvent;
 import net.risingworld.api.events.player.PlayerSetSignTextEvent;
 import net.risingworld.api.objects.Player;
+import net.risingworld.api.objects.Sign;
+import net.risingworld.api.objects.world.ObjectElement;
 import net.risingworld.api.utils.Utils;
 
 public class icSign implements Listener {
@@ -69,18 +73,54 @@ public class icSign implements Listener {
         switch (r) {
             case Permission -> {
                 event.setCancelled(true);
-                player.sendTextMessage(format.Color("red", plugin.Language.getOther().getNoPermission(lang))); 
+                player.sendTextMessage(format.Color("red", plugin.Language.getOther().getNoPermission(lang)));
             }
             case OK ->
-                player.sendTextMessage(format.Color("green", plugin.Language.getStatus().getSign_OK(lang))); 
+                player.sendTextMessage(format.Color("green", plugin.Language.getStatus().getSign_OK(lang)));
             case Misspelled ->
-                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getSign_Misspelled(lang))); 
+                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getSign_Misspelled(lang)));
         }
     }
 
     @EventMethod
     public void onPlayerObjectInteraktionEvent(PlayerObjectInteractionEvent event) {
+        //TODO SignInteraktion
+        Objects.ObjectDefinition def = event.getObjectDefinition();
+        Player player = event.getPlayer();
+        String lang = player.getLanguage();
+        ObjectElement el = event.getObject();
+        String[] line = Utils.StringUtils.getLines(event.getText());
+        Result r = Result.Nothing;
+        
 
+        if (def.type == Objects.Type.Sign) {
+            Sign sign = World.getSign(event.getGlobalID());
+            if (!sign.getText().isBlank() && !sign.getText().isEmpty()) {
+                Signs signs = new Signs(plugin);
+                signs.setInteract(true);
+                signs.setPlayer(player);
+                if (line.length == 2) {
+                    signs.setLine2(line[1]);
+                } else {
+                    signs.setLine2("");
+                }
+                switch (line[0]) {
+                    case "[Balance]" ->
+                        r = signs.Balance();
+                    case "[Bank]" ->
+                        r = signs.Bank();
+                }
+
+            }
+            switch (r) {
+                case Permission -> {
+                    event.setCancelled(true);
+                    player.sendTextMessage(format.Color("red", plugin.Language.getOther().getNoPermission(lang)));
+                }
+                case Misspelled ->
+                    player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getSign_Misspelled(lang)));
+            }
+        }
     }
 
     private enum Result {

@@ -1,6 +1,9 @@
 package de.sbg.unity.iconomy.Factory;
 
-
+/**
+ * 
+ * @hidden
+ */
 public class FactoryWorker {
     
     private final String UID;

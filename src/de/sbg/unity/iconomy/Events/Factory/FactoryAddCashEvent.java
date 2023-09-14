@@ -1,11 +1,14 @@
 package de.sbg.unity.iconomy.Events.Factory;
 
-import de.sbg.unity.iconomy.Events.Money.*;
 import net.risingworld.api.events.Cancellable;
 import net.risingworld.api.events.Event;
 import net.risingworld.api.objects.Player;
 
 
+/**
+ *
+ * @hidden  
+ */
 public class FactoryAddCashEvent extends Event implements Cancellable{
     
     private long amounth;

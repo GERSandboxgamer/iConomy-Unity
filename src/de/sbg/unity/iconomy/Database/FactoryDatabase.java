@@ -21,6 +21,10 @@ import net.risingworld.api.objects.Area;
 import net.risingworld.api.utils.Quaternion;
 import net.risingworld.api.utils.Vector3f;
 
+/**
+ *
+ * @hidden  
+ */
 public class FactoryDatabase {
 
     private final iConomy plugin;
@@ -133,8 +137,8 @@ public class FactoryDatabase {
                     min = result.getLong("Min");
                     state = (List<String>) DatabaseFormat.toObject(result.getBytes("Statements"));
 
-                    Factory f = plugin.Factory.getFactoryByID(FactoryID);
-                    FactoryAccount a = new FactoryAccount(plugin, f, id);
+                    /*Factory f = plugin.Factory.getFactoryByID(FactoryID); //TODO Factory
+                    FactoryAccount a = new FactoryAccount(plugin, Console, f, id);
                     a.setMin(min);
                     a.setMoney(money);
                     for (FactoryBankMember m : Members) {
@@ -144,7 +148,7 @@ public class FactoryDatabase {
                         a.getStatements().add(s);
                     }
                     
-                    FactoryAccounts.put(f, a);
+                    FactoryAccounts.put(f, a);*/ //TODO Factory
                 }
             }
 

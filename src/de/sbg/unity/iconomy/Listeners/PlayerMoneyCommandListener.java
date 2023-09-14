@@ -81,7 +81,7 @@ public class PlayerMoneyCommandListener implements Listener {
                                     switch (plugin.CashSystem.removeCash(player, plugin.Config.PlayerBankAccountCost, RemoveCashEvent.Reason.Buy)) {
                                         case Successful -> {
                                             plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
-                                            //TODO Msg
+                                            player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getCreateBank(lang)));
                                         }
                                         case NotEnoughMoney -> {
                                             player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang)));
@@ -89,10 +89,10 @@ public class PlayerMoneyCommandListener implements Listener {
                                     }
                                 } else {
                                     plugin.Bankystem.PlayerSystem.addPlayerAccount(player, plugin.Config.PlayerBankStartAmounth);
-                                    //TODO Msg
+                                    player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getCreateBank(lang)));
                                 }
                             } else {
-                                //TODO Msg
+                                player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getCreateBank_HasAccount(lang)));
                             }
                         }
                     }
@@ -105,21 +105,16 @@ public class PlayerMoneyCommandListener implements Listener {
                 if (cmd.length == 3) {
                     if (cmd[1].toLowerCase().equals("bank")) {
                         if (!plugin.Config.Command_Bank_OnlyAdmin || player.isAdmin()) {
-                            if (cmd[2].toLowerCase().equals("in")) {
-                                plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
-                            }
-                            if (cmd[2].toLowerCase().equals("out")) {
-                                plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
+                            switch (cmd[2].toLowerCase()) {
+                                case "in" -> plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
+                                case "out" -> plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
                             }
                         } else {
                             player.sendTextMessage(format.Color("red", plugin.Language.getOther().getNoPermission(lang)));
                         }
                     }
                 }
-
             }
         }
-
     }
-
 }

@@ -74,7 +74,7 @@ public class SendCashGUI {
         Receiver.setFontSize(25);
         panel.addChild(Receiver);
         
-        UILabel labCash = new UILabel(plugin.Language.getGui().getSendCashGUI_Amounth(lang));
+        UILabel labCash = new UILabel(plugin.Language.getGui().getGUI_Amounth(lang));
         labCash.setPosition(50, 57, true);
         labCash.setPivot(Pivot.UpperCenter);
         labCash.setFontSize(25);

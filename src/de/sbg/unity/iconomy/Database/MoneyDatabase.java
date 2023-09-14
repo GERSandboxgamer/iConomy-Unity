@@ -179,7 +179,7 @@ public class MoneyDatabase {
                     money = result.getLong("Money");
                     Members = (List<BankMember>)format.toObject(result.getBytes("Members"));
                     Statements = (List<String>)format.toObject(result.getBytes("Statements"));
-                    PlayerAccount pa = new PlayerAccount(plugin, uid);
+                    PlayerAccount pa = new PlayerAccount(plugin, Console, uid);
                     pa.setMoney(money);
                     pa.setMin(min);
                     pa.addAllStatements(Statements);

@@ -1,5 +1,6 @@
 package de.sbg.unity.iconomy.Listeners;
 
+import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
 import de.sbg.unity.iconomy.Events.Money.AddBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveBankMoneyEvent;
@@ -16,6 +17,7 @@ import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
 import net.risingworld.api.Server;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
@@ -33,7 +35,7 @@ public class AdminMoneyCommandListener implements Listener {
     public AdminMoneyCommandListener(iConomy plugin, icConsole Console) {
         this.plugin = plugin;
         this.Console = Console;
-        this.mFormat = new MoneyFormate(plugin);
+        this.mFormat = new MoneyFormate(plugin, Console);
         this.format = new TextFormat();
     }
 
@@ -150,16 +152,16 @@ public class AdminMoneyCommandListener implements Listener {
                         } catch (NumberFormatException ex) {
                             player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
                         } catch (CashFormatExeption ex) {
-                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getAmounthBigger(lang))); 
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getAmounthBigger(lang)));
                         }
 
                     }
                     if (cmd[1].toLowerCase().equals("givebank") || cmd[1].toLowerCase().equals("gb")) {
-                        Player p2 = Server.getPlayerByName(cmd[2]);
+                        PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
                         try {
                             long l = mFormat.getMoneyAsLong(cmd[3]);
-                            if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
-                                switch (plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).addMoney(player, l, AddBankMoneyEvent.Reason.Command)) {
+                            if (pa != null) {
+                                switch (pa.addMoney(player, l, AddBankMoneyEvent.Reason.Command)) {
                                     case Successful ->
                                         player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminGivebank(lang)));
                                     case EventCancel ->
@@ -178,12 +180,11 @@ public class AdminMoneyCommandListener implements Listener {
 
                     }
                     if (cmd[1].toLowerCase().equals("takebank") || cmd[1].toLowerCase().equals("tb")) {
-                        Player p2 = Server.getPlayerByName(cmd[2]);
                         try {
                             long l = mFormat.getMoneyAsLong(cmd[3]);
-
-                            if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
-                                switch (plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).removeMoney(player, l, RemoveBankMoneyEvent.Reason.Command)) {
+                            PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
+                            if (pa != null) {
+                                switch (pa.removeMoney(player, l, RemoveBankMoneyEvent.Reason.Command)) {
                                     case Successful ->
                                         player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminTakebank(lang)));
                                     case EventCancel ->
@@ -203,18 +204,12 @@ public class AdminMoneyCommandListener implements Listener {
                         }
                     }
                     if (cmd[1].toLowerCase().equals("setbank") || cmd[1].toLowerCase().equals("sb")) {
-                        Player p2 = Server.getPlayerByName(cmd[2]);
-                        try {
-                            long l = mFormat.getMoneyAsLong(cmd[3]);
-                            if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(p2)) {
-                                plugin.Bankystem.PlayerSystem.getPlayerAccount(p2).setMoney(0);
-                                player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminSetbank(lang)));
-
-                            } else {
-                                player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getOtherPlayerHasNoAccount(lang)));
-                            }
-                        } catch (NumberFormatException ex) {
-                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
+                        PlayerAccount pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[2]);
+                        if (pa != null) {
+                            pa.setMoney(cmd[3]);
+                            player.sendTextMessage(format.Color("green", plugin.Language.getCommand().getAdminSetbank(lang)));
+                        } else {
+                            player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getPlayerHasNoAccount(lang)));
                         }
                     }
                 }

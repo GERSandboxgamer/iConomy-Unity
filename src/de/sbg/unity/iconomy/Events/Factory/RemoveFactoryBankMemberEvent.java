@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package de.sbg.unity.iconomy.Events.Factory;
 
 import de.sbg.unity.iconomy.Banksystem.FactoryBankMember;
@@ -9,7 +5,10 @@ import net.risingworld.api.events.Cancellable;
 import net.risingworld.api.events.Event;
 import net.risingworld.api.objects.Player;
 
-
+/**
+ *
+ * @hidden  
+ */
 public class RemoveFactoryBankMemberEvent extends Event implements Cancellable{
     
     private final Player player;

@@ -4,12 +4,25 @@
  */
 package de.sbg.unity.iconomy.Listeners;
 
+import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
+import net.risingworld.api.events.player.PlayerCommandEvent;
+import net.risingworld.api.objects.Player;
 
 /**
  *
  * @author pbronke
  */
 public class PlayerFactoryCommandsListener implements Listener{
+    
+    
+    @EventMethod
+    public void onPlayerCommandEvent(PlayerCommandEvent event) {
+        Player player = event.getPlayer();
+        String lang = player.getLanguage();
+        String[] cmd = event.getCommand().split(" ");
+        
+        
+    }
     
 }

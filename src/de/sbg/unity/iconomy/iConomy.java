@@ -8,12 +8,12 @@ import de.sbg.unity.iconomy.Banksystem.Banksystem;
 import de.sbg.unity.iconomy.CashSystem.CashSystem;
 import de.sbg.unity.iconomy.Database.icDatabases;
 import de.sbg.unity.iconomy.Listeners.icPlayerListener;
-import de.sbg.unity.iconomy.Factory.FactorySystem;
 import de.sbg.unity.iconomy.GUI.GUIs;
 import de.sbg.unity.iconomy.Listeners.AdminMoneyCommandListener;
 import de.sbg.unity.iconomy.Listeners.PlayerMoneyCommandListener;
 import de.sbg.unity.iconomy.Listeners.icInputListener;
 import de.sbg.unity.iconomy.Objects.icGameObject;
+import de.sbg.unity.iconomy.Objects.icSign;
 import de.sbg.unity.iconomy.Utils.Attribute;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import java.io.File;
@@ -32,11 +32,15 @@ import net.risingworld.api.objects.Player;
 
 public class iConomy extends Plugin {
 
-    //public icSign Sign;
+    public icSign Sign;
     public icDatabases Databases;
     public Banksystem Bankystem;
     public CashSystem CashSystem;
-    public FactorySystem Factory;
+
+    /**
+     *@hidden
+     */
+    //public FactorySystem Factory; //TODO Factory
     public icGameObject GameObject;
     public GUIs GUI;
     public icLanguage Language;
@@ -67,7 +71,7 @@ public class iConomy extends Plugin {
             Console.sendInfo("ini", "Load Config...Done!");
             Console.sendInfo("Debug", "Debug = " + Config.Debug);
             Console.sendInfo("ini", "Load Class...");
-            this.moneyFormat = new MoneyFormate(this);
+            this.moneyFormat = new MoneyFormate(this, Console);
             Console.sendInfo("ini", "Load Class...Attribute");
             this.att = new Attribute(this);
             Console.sendInfo("ini", "Load Class...CashSystem");
@@ -75,7 +79,7 @@ public class iConomy extends Plugin {
             Console.sendInfo("ini", "Load Class...Bankystem");
             Bankystem = new Banksystem(this, Console);
             Console.sendInfo("ini", "Load Class...Factory");
-            Factory = new FactorySystem(this, att);
+            //Factory = new FactorySystem(this, att); //TODO Factory
             Console.sendInfo("ini", "Load Class...Suitcase");
             this.GameObject = new icGameObject(this, Console);
             
@@ -109,8 +113,8 @@ public class iConomy extends Plugin {
             try {
                 Databases.Money.Cash.loadAllFromDatabase(CashSystem.getCashList());
                 Databases.Money.Bank.loadAllFromDatabase(Bankystem.PlayerSystem.getPlayerAccounts());
-                Databases.Factory.TabFactory.loadAllFromDatabase(Factory.getHashFactories());
-                Databases.Factory.TabBank.loadAllFromDatabase(Bankystem.FactoryBankSystem.getHashFactoryAccounts());
+                //Databases.Factory.TabFactory.loadAllFromDatabase(Factory.getHashFactories()); //TODO Factory
+                //Databases.Factory.TabBank.loadAllFromDatabase(Bankystem.FactoryBankSystem.getHashFactoryAccounts()); //TODO Factory
                 Databases.startSaveTimer();
             } catch (SQLException ex) {
                 Console.sendErr("DB", "Cant load all from Database!");
@@ -136,7 +140,7 @@ public class iConomy extends Plugin {
             }
             Console.sendInfo("ini-DB", "Load all from Database...Done!");
 
-            //Sign = new icSign(this);
+            Sign = new icSign(this);
             GUI = new GUIs(this, Console);
             
             Console.sendInfo("ini", "Load Languages...");
@@ -157,6 +161,7 @@ public class iConomy extends Plugin {
             registerEventListener(new icPlayerListener(this, Console));
             registerEventListener(new AdminMoneyCommandListener(this, Console));
             registerEventListener(new icInputListener(this, Console));
+            registerEventListener(Sign);
             
             Console.sendInfo("Check for Updates...");
         try {
@@ -226,7 +231,7 @@ public class iConomy extends Plugin {
             this.plugin = plugin;
             this.Console = Console;
             this.Manager = (ConfigManager) plugin.getPluginByName("ConfigManager");
-            this.mf = new MoneyFormate(plugin);
+            this.mf = new MoneyFormate(plugin, Console);
         }
         
         public void iniConfig() throws IOException {

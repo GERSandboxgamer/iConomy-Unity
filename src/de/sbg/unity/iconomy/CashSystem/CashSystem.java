@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import net.risingworld.api.Server;
 import net.risingworld.api.objects.Player;
 
 public class CashSystem {
@@ -27,8 +28,16 @@ public class CashSystem {
         this.plugin = plugin;
         this.Console = Console;
         this.CashList = new HashMap<>();
-        this.MoneyFormate = new MoneyFormate(plugin);
+        this.MoneyFormate = new MoneyFormate(plugin, Console);
         this.TextFormat = new TextFormat();
+    }
+    
+    public List<String> getPlayerNames() {
+        List<String> l = new ArrayList<>();
+        for (String s : getUIDs()) {
+            l.add(Server.getLastKnownPlayerName(s));
+        }
+        return l;
     }
 
     public HashMap<String, Long> getCashList() {
@@ -68,8 +77,17 @@ public class CashSystem {
         return getCash(player.getUID());
     }
 
-    public Long getCash(String uid) {
-        return CashList.get(uid);
+    public Long getCash(String st) {
+        if (getPlayerNames().contains(st)) {
+            for (String s : plugin.CashSystem.getUIDs()) {
+                if (Server.getLastKnownPlayerName(s).equals(st)) {
+                    return CashList.get(s);
+                }
+            }
+        } else {
+            return CashList.get(st);
+        }
+        return null;
     }
 
     public String getCashAsFormatedString(Player player) {
@@ -78,7 +96,7 @@ public class CashSystem {
             Console.sendDebug("getCashAsFormatedString", "MoneyFormat: " + MoneyFormate);
             Console.sendDebug("getCashAsFormatedString", "Currency: " + MoneyFormate.getCurrency());
         }
-        return MoneyFormate.getMoneyAsDefaultFormatedString(getCash(player));
+        return MoneyFormate.getMoneyAsFormatedString(player, getCash(player));
     }
 
     public String getCashAsFormatedString(String uid) {

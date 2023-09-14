@@ -14,6 +14,8 @@ public final class MoneyInfoGUI {
     private final icConsole Console;
     private final Player player;
     private final iConomy plugin;
+    private final UILabel Line1, Line2;
+    private final int lineAmounth;
     private Timer CloseTimer;
 
     public MoneyInfoGUI(iConomy plugin, icConsole Console, Player player, String line1Text) {
@@ -28,14 +30,19 @@ public final class MoneyInfoGUI {
         panel.setPosition(50, 0, true);  // <- true indicates we're using relative coordinates (0-100%)
         panel.setPivot(Pivot.UpperCenter);
         panel.setSize(500, 50, false);
-        panel.setBackgroundColor(0, 0, 0, 1);  // black background
+        panel.setBackgroundColor(0, 0, 100, 1);  // black background
 
-        UILabel label = new UILabel(line1Text);
-        label.setPosition(50, 50, true);
-        label.setPivot(Pivot.MiddleCenter);
-        label.setFontSize(25);
-        panel.addChild(label);  // <- label becomes a child of panel
+        Line1 = new UILabel(line1Text);
+        Line1.setPosition(50, 50, true);
+        Line1.setPivot(Pivot.MiddleCenter);
+        Line1.setFontSize(25);
+        panel.addChild(Line1);  // <- label becomes a child of panel
         player.addUIElement(panel);
+        
+        Line2 = null;
+        
+        lineAmounth = 1;
+        
         startCloseTimer();
     }
 
@@ -52,23 +59,25 @@ public final class MoneyInfoGUI {
         panel.setPosition(50, 0, true);  // <- true indicates we're using relative coordinates (0-100%)
         panel.setPivot(Pivot.UpperCenter);
         panel.setSize(500, 100, false);
-        panel.setBackgroundColor(0, 0, 0, 1);  // black background
+        panel.setBackgroundColor(0, 0, 0, 50);  // black background
 
-        UILabel l1 = new UILabel(line1text);
-        l1.setPosition(50, 0, true);
-        l1.setPivot(Pivot.UpperCenter);
-        l1.setFontSize(25);
-        panel.addChild(l1);  // <- label becomes a child of panel
+        Line1 = new UILabel(line1text);
+        Line1.setPosition(50, 0, true);
+        Line1.setPivot(Pivot.UpperCenter);
+        Line1.setFontSize(25);
+        panel.addChild(Line1);  // <- label becomes a child of panel
         
-        UILabel l2 = new UILabel(line2text);
-        l2.setPosition(50, 100, true);
-        l2.setPivot(Pivot.LowerCenter);
-        l2.setFontSize(25);
-        panel.addChild(l2);  // <- label becomes a child of panel
+        Line2 = new UILabel(line2text);
+        Line2.setPosition(50, 100, true);
+        Line2.setPivot(Pivot.LowerCenter);
+        Line2.setFontSize(25);
+        panel.addChild(Line2);  // <- label becomes a child of panel
+        
+        lineAmounth = 2;
         
         if (plugin.Config.Debug > 0) {
-            Console.sendDebug("MoneyInfoGUI", "Line 1 (l1): " + l1);
-            Console.sendDebug("MoneyInfoGUI", "Line 1 (l2):" + l2);
+            Console.sendDebug("MoneyInfoGUI", "Line 1 (l1): " + Line1);
+            Console.sendDebug("MoneyInfoGUI", "Line 1 (l2):" + Line2);
         }
         
         player.addUIElement(panel);
@@ -77,6 +86,18 @@ public final class MoneyInfoGUI {
 
     public UIElement getPanel() {
         return panel;
+    }
+
+    public UILabel getLine1() {
+        return Line1;
+    }
+
+    public UILabel getLine2() {
+        return Line2;
+    }
+
+    public int getLineAmounth() {
+        return lineAmounth;
     }
 
     public void startCloseTimer() {
@@ -101,5 +122,11 @@ public final class MoneyInfoGUI {
             CloseTimer.kill();
         }
     }
+
+    public Timer getCloseTimer() {
+        return CloseTimer;
+    }
+    
+    
 
 }

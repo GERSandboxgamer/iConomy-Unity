@@ -4,6 +4,7 @@ import de.sbg.unity.iconomy.Events.Money.AddMemberEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveMemberEvent;
 import de.sbg.unity.iconomy.Utils.AccountTyp;
 import de.sbg.unity.iconomy.iConomy;
+import de.sbg.unity.iconomy.icConsole;
 import java.util.ArrayList;
 import java.util.List;
 import net.risingworld.api.Server;
@@ -14,11 +15,13 @@ public class PlayerAccount  extends BankAccount{
     private final List<BankMember> Members;
     private final iConomy plugin;
     private final String OwnerUID;
+    private final icConsole Console;
 
-    public PlayerAccount(iConomy plugin, String OwnerUID) {
-        super(plugin, AccountTyp.PlayerAccount);
+    public PlayerAccount(iConomy plugin, icConsole Console, String OwnerUID) {
+        super(plugin, Console, AccountTyp.PlayerAccount);
         this.Members = new ArrayList<>();
         this.plugin = plugin;
+        this.Console = Console;
         this.OwnerUID = OwnerUID;
         this.setMoney(plugin.Config.PlayerBankStartAmounth);
     }

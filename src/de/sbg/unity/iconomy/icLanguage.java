@@ -26,6 +26,22 @@ public class icLanguage {
         getOther().setNoPermission(NoPermission);
 
         //Command
+        
+        HashMap<String, String> Use = new HashMap<>();
+        Use.put("de", "Benutze:");
+        Use.put("en", "Use:");
+        getCommand().setUse(Use);
+        
+        HashMap<String, String> CreateBank = new HashMap<>();
+        CreateBank.put("de", "Bank-Account erfolgreich erstellt!");
+        CreateBank.put("en", "Create bank account successfully!");
+        getCommand().setCreateBank(CreateBank);
+        
+        HashMap<String, String> CreateBank_HasAccount = new HashMap<>();
+        CreateBank_HasAccount.put("de", "Du hast bereits ein Account!");
+        CreateBank_HasAccount.put("en", "You already have an account!");
+        getCommand().setCreateBank_HasAccount(CreateBank_HasAccount);
+        
         HashMap<String, String> AdminGivecash = new HashMap<>();
         AdminGivecash.put("de", "Bargeld dem Spieler erfolgreich hinzugefügt.");
         AdminGivecash.put("en", "Successfully added cash to the player.");
@@ -142,7 +158,10 @@ public class icLanguage {
         PlayerDeath_MoneyEmpty.put("en", "The player had no money!");
         getStatus().setPlayerDeath_MoneyEmpty(PlayerDeath_MoneyEmpty);
         
-        //TODO PlayerDeath_MoneyEmpty_Player
+        HashMap<String, String> PlayerDeath_MoneyEmpty_Player = new HashMap<>();
+        PlayerDeath_MoneyEmpty_Player.put("de", "Der Spieler hatte kein Geld!");
+        PlayerDeath_MoneyEmpty_Player.put("en", "The player had no money!");
+        getStatus().setPlayerDeath_MoneyEmpty_Player(PlayerDeath_MoneyEmpty_Player);
 
         //GUI
         HashMap<String, String> Send = new HashMap<>();
@@ -170,10 +189,10 @@ public class icLanguage {
         SendCashGUI_BodyText.put("en", "Send cash to a player!");
         getGui().setSendCashGUI_BodyText(SendCashGUI_BodyText);
 
-        HashMap<String, String> SendCashGUI_Amounth = new HashMap<>();
-        SendCashGUI_Amounth.put("de", "Betrag:");
-        SendCashGUI_Amounth.put("en", "Amounth:");
-        getGui().setSendCashGUI_Amounth(SendCashGUI_Amounth);
+        HashMap<String, String> GUI_Amounth = new HashMap<>();
+        GUI_Amounth.put("de", "Betrag:");
+        GUI_Amounth.put("en", "Amounth:");
+        getGui().setGUI_Amounth(GUI_Amounth);
 
         HashMap<String, String> SendCashGUI_YourCash = new HashMap<>();
         SendCashGUI_YourCash.put("de", "Dein Cash:");
@@ -184,6 +203,26 @@ public class icLanguage {
         NoAccount.put("de", "(Kein Account)");
         NoAccount.put("en", "(No Account)");
         getGui().setNoAccount(NoAccount);
+        
+        HashMap<String, String> CashInOutGUI_In_Message = new HashMap<>();
+        CashInOutGUI_In_Message.put("de", "Zahle Cash in die Bank ein!");
+        CashInOutGUI_In_Message.put("en", "Put cash into the bank!");
+        getGui().setCashInOutGUI_In_Message(CashInOutGUI_In_Message);
+        
+        HashMap<String, String> CashInOutGUI_Out_Message = new HashMap<>();
+        CashInOutGUI_Out_Message.put("de", "Bekomme Cash von der Bank!");
+        CashInOutGUI_Out_Message.put("en", "Get cash from the bank!");
+        getGui().setCashInOutGUI_Out_Message(CashInOutGUI_Out_Message);
+        
+        HashMap<String, String> YourCash = new HashMap<>();
+        YourCash.put("de", "Dein Cash:");
+        YourCash.put("en", "Your Cash:");
+        getGui().setYourCash(YourCash);
+        
+        HashMap<String, String> YourBank = new HashMap<>();
+        YourBank.put("de", "Deine Bank:");
+        YourBank.put("en", " Your Bank:");
+        getGui().setYourBank(YourBank);
         
 
     }
@@ -214,7 +253,8 @@ public class icLanguage {
 
     public class Command {
 
-        private HashMap<String, String> AdminGivecash, AdminTakecash, AdminSetcash, AdminTakebank, AdminGivebank, AdminSetbank;
+        private HashMap<String, String> AdminGivecash, AdminTakecash, AdminSetcash, AdminTakebank, AdminGivebank, AdminSetbank,
+                CreateBank, Use, CreateBank_HasAccount;
 
         public Command() {
             this.AdminGivecash = new HashMap<>();
@@ -223,6 +263,45 @@ public class icLanguage {
             this.AdminTakebank = new HashMap<>();
             this.AdminGivebank = new HashMap<>();
             this.AdminSetbank = new HashMap<>();
+            this.CreateBank = new HashMap<>();
+            this.Use = new HashMap<>();
+            this.CreateBank_HasAccount = new HashMap<>();
+        }
+        
+        public String getCreateBank(String lang) {
+            return CreateBank.get(lang) != null ? CreateBank.get(lang) : CreateBank.get(defaultLanguage);
+        }
+        
+        public String getUse(String lang) {
+            return Use.get(lang) != null ? Use.get(lang) : Use.get(defaultLanguage);
+        }
+        
+        public String getCreateBank_HasAccount(String lang) {
+            return CreateBank_HasAccount.get(lang) != null ? CreateBank_HasAccount.get(lang) : CreateBank_HasAccount.get(defaultLanguage);
+        }
+
+        public HashMap<String, String> getUse() {
+            return Use;
+        }
+
+        public HashMap<String, String> getCreateBank() {
+            return CreateBank;
+        }
+
+        public HashMap<String, String> getCreateBank_HasAccount() {
+            return CreateBank_HasAccount;
+        }
+
+        public void setUse(HashMap<String, String> Use) {
+            this.Use = Use;
+        }
+
+        public void setCreateBank(HashMap<String, String> CreateBank) {
+            this.CreateBank = CreateBank;
+        }
+
+        public void setCreateBank_HasAccount(HashMap<String, String> CreateBank_HasAccount) {
+            this.CreateBank_HasAccount = CreateBank_HasAccount;
         }
 
         public String getAdminGivecash(String lang) {
@@ -303,7 +382,8 @@ public class icLanguage {
         private HashMap<String, String> PlayerNotConnected, PlayerNotExist, LostMoney, MoneyMustBeNumber,
                 AdminGiveMoney, TransferCancel, PlayerNotAnounthMoney, EmptyAmounth, SendCashToSelf,
                 OtherPlayerNotAnounthMoney, PlayerHasNoAccount, OtherPlayerHasNoAccount, AmounthBigger,
-                PlayerDeath_KillerAdd, PlayerDeath_MoneyEmpty, Sign_Misspelled, Sign_OK, Sign_Distroy_Fail;
+                PlayerDeath_KillerAdd, PlayerDeath_MoneyEmpty, Sign_Misspelled, Sign_OK, Sign_Distroy_Fail,
+                PlayerDeath_MoneyEmpty_Player;
 
         public Status() {
             this.AdminGiveMoney = new HashMap<>();
@@ -321,6 +401,20 @@ public class icLanguage {
             this.Sign_Misspelled = new HashMap<>();
             this.Sign_OK = new HashMap<>();
             this.Sign_Distroy_Fail = new HashMap<>();
+            this.PlayerDeath_MoneyEmpty_Player = new HashMap<>();
+        }
+
+        public HashMap<String, String> getPlayerDeath_MoneyEmpty_Player() {
+            return PlayerDeath_MoneyEmpty_Player;
+        }
+
+        public void setPlayerDeath_MoneyEmpty_Player(HashMap<String, String> PlayerDeath_MoneyEmpty_Player) {
+            this.PlayerDeath_MoneyEmpty_Player = PlayerDeath_MoneyEmpty_Player;
+        }
+        
+        
+        public String getPlayerDeath_MoneyEmpty_Player(String lang) {
+            return PlayerDeath_MoneyEmpty_Player.get(lang) != null ? PlayerDeath_MoneyEmpty_Player.get(lang) : PlayerDeath_MoneyEmpty_Player.get(defaultLanguage);
         }
         
         public String getPlayerDeath_KillerAdd(String lang) {
@@ -565,19 +659,73 @@ public class icLanguage {
 
     public class GUI {
 
-        private HashMap<String, String> Send, Cancel, SendCashGUI_Title, SendCashGUI_BodyText, SendCashGUI_Amounth, SendCashGUI_Player,
-                SendCashGUI_YourCash, NoAccount;
+        private HashMap<String, String> Send, Cancel, SendCashGUI_Title, SendCashGUI_BodyText, GUI_Amounth, SendCashGUI_Player,
+                SendCashGUI_YourCash, NoAccount, CashInOutGUI_In_Message, CashInOutGUI_Out_Message, YourCash, YourBank;
 
         public GUI() {
             this.Cancel = new HashMap<>();
             this.Send = new HashMap<>();
             this.SendCashGUI_Title = new HashMap<>();
-            this.SendCashGUI_Amounth = new HashMap<>();
+            this.GUI_Amounth = new HashMap<>();
             this.SendCashGUI_BodyText = new HashMap<>();
             this.SendCashGUI_Player = new HashMap<>();
             this.SendCashGUI_YourCash = new HashMap<>();
             this.NoAccount = new HashMap<>();
+            this.CashInOutGUI_In_Message = new HashMap<>();
+            this.CashInOutGUI_Out_Message = new HashMap<>();
+            this.YourCash = new HashMap<>();
+            this.YourBank = new HashMap<>();
         }
+
+        public HashMap<String, String> getCashInOutGUI_In_Message() {
+            return CashInOutGUI_In_Message;
+        }
+
+        public HashMap<String, String> getCashInOutGUI_Out_Message() {
+            return CashInOutGUI_Out_Message;
+        }
+
+        public void setCashInOutGUI_In_Message(HashMap<String, String> CashInOutGUI_In_Message) {
+            this.CashInOutGUI_In_Message = CashInOutGUI_In_Message;
+        }
+
+        public void setCashInOutGUI_Out_Message(HashMap<String, String> CashInOutGUI_Out_Message) {
+            this.CashInOutGUI_Out_Message = CashInOutGUI_Out_Message;
+        }
+
+        public void setYourBank(HashMap<String, String> YourBank) {
+            this.YourBank = YourBank;
+        }
+
+        public void setYourCash(HashMap<String, String> YourCash) {
+            this.YourCash = YourCash;
+        }
+
+        public HashMap<String, String> getYourBank() {
+            return YourBank;
+        }
+
+        public HashMap<String, String> getYourCash() {
+            return YourCash;
+        }
+        
+        public String getCashInOutGUI_In_Message(String lang) {
+            return CashInOutGUI_In_Message.get(lang) != null ? CashInOutGUI_In_Message.get(lang) : CashInOutGUI_In_Message.get(defaultLanguage);
+        }
+        
+        public String getCashInOutGUI_Out_Message(String lang) {
+            return CashInOutGUI_Out_Message.get(lang) != null ? CashInOutGUI_Out_Message.get(lang) : CashInOutGUI_Out_Message.get(defaultLanguage);
+        }
+        
+        public String getYourCash(String lang) {
+            return YourCash.get(lang) != null ? YourCash.get(lang) : YourCash.get(defaultLanguage);
+        }
+        
+        public String getYourBank(String lang) {
+            return YourBank.get(lang) != null ? YourBank.get(lang) : YourBank.get(defaultLanguage);
+        }
+        
+        
         
         public String getNoAccount(String lang) {
             return NoAccount.get(lang) != null ? NoAccount.get(lang) : NoAccount.get(defaultLanguage);
@@ -599,8 +747,8 @@ public class icLanguage {
             return SendCashGUI_BodyText.get(lang) != null ? SendCashGUI_BodyText.get(lang) : SendCashGUI_BodyText.get(defaultLanguage);
         }
 
-        public String getSendCashGUI_Amounth(String lang) {
-            return SendCashGUI_Amounth.get(lang) != null ? SendCashGUI_Amounth.get(lang) : SendCashGUI_Amounth.get(defaultLanguage);
+        public String getGUI_Amounth(String lang) {
+            return GUI_Amounth.get(lang) != null ? GUI_Amounth.get(lang) : GUI_Amounth.get(defaultLanguage);
         }
 
         public String getSendCashGUI_Player(String lang) {
@@ -615,8 +763,8 @@ public class icLanguage {
             return Cancel.get(lang) != null ? Cancel.get(lang) : Cancel.get(defaultLanguage);
         }
 
-        public HashMap<String, String> getSendCashGUI_Amounth() {
-            return SendCashGUI_Amounth;
+        public HashMap<String, String> getGUI_Amounth() {
+            return GUI_Amounth;
         }
 
         public HashMap<String, String> getSendCashGUI_BodyText() {
@@ -647,8 +795,8 @@ public class icLanguage {
             return SendCashGUI_YourCash;
         }
 
-        public void setSendCashGUI_Amounth(HashMap<String, String> SendCashGUI_Amounth) {
-            this.SendCashGUI_Amounth = SendCashGUI_Amounth;
+        public void setGUI_Amounth(HashMap<String, String> GUI_Amounth) {
+            this.GUI_Amounth = GUI_Amounth;
         }
 
         public void setSendCashGUI_BodyText(HashMap<String, String> SendCashGUI_BodyText) {

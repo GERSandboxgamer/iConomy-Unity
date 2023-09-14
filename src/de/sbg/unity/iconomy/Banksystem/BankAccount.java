@@ -9,6 +9,7 @@ import de.sbg.unity.iconomy.Utils.AccountTyp;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import de.sbg.unity.iconomy.iConomy;
+import de.sbg.unity.iconomy.icConsole;
 import java.util.ArrayList;
 import java.util.List;
 import net.risingworld.api.objects.Player;
@@ -20,12 +21,14 @@ public class BankAccount {
     private final AccountTyp typ;
     private final MoneyFormate MoneyFormat;
     private final iConomy plugin;
+    private final icConsole Console;
 
-    public BankAccount(iConomy plugin, AccountTyp typ) {
+    public BankAccount(iConomy plugin, icConsole Console, AccountTyp typ) {
         this.Statements = new ArrayList<>();
         this.typ = typ;
-        this.MoneyFormat = new MoneyFormate(plugin);
+        this.MoneyFormat = new MoneyFormate(plugin, Console);
         this.plugin = plugin;
+        this.Console = Console;
     }
 
     public AccountTyp getTyp() {
@@ -51,7 +54,7 @@ public class BankAccount {
     public void addStatement(String s) {
         Statements.add(0, s);
     }
-    
+
     public void addAllStatements(List<String> st) {
         st.forEach(s -> {
             addStatement(s);
@@ -65,8 +68,18 @@ public class BankAccount {
     public long getMoney() {
         return Money;
     }
+    
+    public void setMoney(String Money) {
+        if (plugin.Config.Debug > 0) {
+            Console.sendInfo("setMoney", "Set money to: " + Money);
+        }
+        setMoney(MoneyFormat.getMoneyAsLong(Money));
+    }
 
     public void setMoney(long Money) {
+        if (plugin.Config.Debug > 0) {
+            Console.sendInfo("setMoney", "Set money to: " + Money);
+        }
         this.Money = Money;
     }
 
@@ -79,6 +92,9 @@ public class BankAccount {
     }
 
     public TransferResult addMoney(Player sender, long amounth, AddBankMoneyEvent.Reason r) {
+        if (plugin.Config.Debug > 0) {
+            Console.sendInfo("addMoney", "Add money Player!");
+        }
         if (sender != null) {
             if (sender.isConnected()) {
                 AddBankMoneyEvent event = new AddBankMoneyEvent(sender, this, amounth, r);
@@ -96,6 +112,9 @@ public class BankAccount {
     }
 
     public TransferResult addMoney(BankAccount sender, long amounth) {
+        if (plugin.Config.Debug > 0) {
+            Console.sendInfo("addMoney", "Add money BankAccount!");
+        }
         AddBankMoneyEvent event = new AddBankMoneyEvent(sender, this, amounth);
         plugin.triggerEvent(event);
         if (!event.isCancelled()) {
@@ -107,6 +126,9 @@ public class BankAccount {
     }
 
     public TransferResult addMoney(long amounth, String statement) {
+        if (plugin.Config.Debug > 0) {
+            Console.sendInfo("addMoney", "Add money Other!");
+        }
         AddBankMoneyEvent event = new AddBankMoneyEvent(this, amounth);
         plugin.triggerEvent(event);
         if (!event.isCancelled()) {

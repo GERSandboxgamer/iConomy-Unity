@@ -1,7 +1,9 @@
 package de.sbg.unity.iconomy.Factory;
 
-import java.util.HashSet;
-
+/**
+ * 
+ * @hidden
+ */
 public class FactoryMember {
 
     private final String UID;
