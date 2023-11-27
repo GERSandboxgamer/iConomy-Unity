@@ -8,20 +8,20 @@ import net.risingworld.api.objects.Player;
 public class PlayerSendCashToPlayerEvent extends Event implements Cancellable{
     
     private final Player player, targetPlayer;
-    private long amounth;
+    private long amount;
     
-    public PlayerSendCashToPlayerEvent(Player from, Player to, long amounth) {
+    public PlayerSendCashToPlayerEvent(Player from, Player to, long amount) {
         this.player = from;
         this.targetPlayer = to;
-        this.amounth = amounth;
+        this.amount = amount;
     }
 
-    public long getAmounth() {
-        return amounth;
+    public long getAmount() {
+        return amount;
     }
 
-    public void setAmounth(long amounth) {
-        this.amounth = amounth;
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 
     public Player getPlayer() {

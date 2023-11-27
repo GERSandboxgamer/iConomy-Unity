@@ -37,11 +37,11 @@ public class FactoryRemoveCashEvent extends Event implements Cancellable{
         return reason;
     }
 
-    public long getAmounth() {
+    public long getAmount() {
         return amounth;
     }
 
-    public void setAmounth(long amounth) {
+    public void setAmount(long amounth) {
         this.amounth = amounth;
     }
 

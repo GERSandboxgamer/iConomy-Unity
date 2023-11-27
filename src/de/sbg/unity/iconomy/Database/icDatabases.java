@@ -14,12 +14,18 @@ public class icDatabases {
     private Timer saveTimer;
     private final iConomy plugin;
     private final icConsole Console;
+    private boolean saveAtm;
 
     public icDatabases(iConomy plugin, icConsole Console) {
         this.plugin = plugin;
         this.Console = Console;
         Money = new MoneyDatabase(plugin, Console);
         Factory = new FactoryDatabase(plugin, Console);
+        saveAtm = false;
+    }
+    
+    public void saveAtm(){
+        saveAtm = true;
     }
 
     public void startSaveTimer() {
@@ -71,6 +77,13 @@ public class icDatabases {
     public void saveAll() throws SQLException, IOException {
         Money.Cash.saveAllToDatabase(plugin.CashSystem.getCashList());
         Money.Bank.saveAllToDatabase(plugin.Bankystem.PlayerSystem.getPlayerAccounts());
+        
+        if (saveAtm) {
+            Console.sendInfo("SaveAtm", "Save now all ATMs...");
+            Money.ATM.saveAllToDatabase(plugin.GameObject.atm.getAtmList());
+            saveAtm = false;
+        }
+        
         //Factory.TabBank.saveAllToDatabase(plugin.Bankystem.FactoryBankSystem.getFactoryAccounts()); //TODO Factory
         //Factory.TabFactory.saveAllToDatabase(plugin.Factory.getFactorys()); //TODO Factory
     } 

@@ -1,6 +1,6 @@
 package de.sbg.unity.iconomy.GUI;
 
-import de.sbg.unity.iconomy.GUI.CashInOutGUI.Modus;
+import de.sbg.unity.iconomy.GUI.Banksystem.BankGuiSystem;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import net.risingworld.api.objects.Player;
@@ -11,14 +11,16 @@ public class GUIs {
     private final iConomy plugin;
     public final MoneyInfo MoneyInfoGui;
     public final SendCash SendCashGui;
-    public final CashInOut CashInOutGui;
+    public final BankGuiSystem Bankystem;
+    public final PlaceAtm PlaceAtmGui;
 
     public GUIs(iConomy plugin, icConsole Console) {
         this.plugin = plugin;
         this.Console = Console;
         this.MoneyInfoGui = new MoneyInfo();
         this.SendCashGui = new SendCash();
-        this.CashInOutGui = new CashInOut();
+        this.Bankystem = new BankGuiSystem(plugin, Console);
+        this.PlaceAtmGui = new PlaceAtm();
     }
 
     public class MoneyInfo {
@@ -39,7 +41,7 @@ public class GUIs {
                 player.setAttribute(GuiPlayerAtt, gui);
             } else {
                 gui = (MoneyInfoGUI) player.getAttribute(GuiPlayerAtt);
-                if (gui.getLineAmounth() == 1) {
+                if (gui.getLineAmount() == 1) {
                     gui.stopCloseTimer();
                     gui.getLine1().setText(Text);
                     gui.startCloseTimer();
@@ -62,7 +64,7 @@ public class GUIs {
                 player.setAttribute(GuiPlayerAtt, gui);
             } else {
                 gui = (MoneyInfoGUI) player.getAttribute(GuiPlayerAtt);
-                if (gui.getLineAmounth() == 2) {
+                if (gui.getLineAmount() == 2) {
                     gui.stopCloseTimer();
                     gui.getLine1().setText(Line1);
                     gui.getLine2().setText(Line2);
@@ -94,14 +96,14 @@ public class GUIs {
             GuiPlayerAtt = "iConomy-SendCashGUI";
         }
 
-        public void showGUI(Player player) {
+        public SendCashGUI showGUI(Player player) {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs-SendCash", "showGUI");
             }
             SendCashGUI gui = new SendCashGUI(plugin, Console, player);
             player.setAttribute(GuiPlayerAtt, gui);
             player.setMouseCursorVisible(true);
-
+            return gui;
         }
 
         public boolean hideGUI(Player player) {
@@ -113,35 +115,48 @@ public class GUIs {
             }
             return false;
         }
+        
+        public SendCashGUI getGui(Player player) {
+            if (player.hasAttribute(GuiPlayerAtt)) {
+                SendCashGUI gui = (SendCashGUI) player.getAttribute(GuiPlayerAtt);
+                return gui;
+            }
+            return null;
+        }
 
     }
-
-    public class CashInOut {
-
+    public class PlaceAtm {
+        
         private final String GuiPlayerAtt;
 
-        public CashInOut() {
-            GuiPlayerAtt = "iConomy-CashInOutGUI";
+        public PlaceAtm() {
+            this.GuiPlayerAtt = "iConomy-PlaceAtmGUI";
         }
-
-        public void showGUI(Player player, Modus modus) {
+        
+        public PlaceAtmGUI showGUI(Player player) {
             if (plugin.Config.Debug > 0) {
-                Console.sendDebug("GUIs-CashInOut", "showGUI");
+                Console.sendDebug("GUIs-PlaceAtm", "showGUI");
             }
-            CashInOutGUI gui = new CashInOutGUI(plugin, Console, player, modus);
+            PlaceAtmGUI gui = new PlaceAtmGUI(player, plugin, Console);
             player.setAttribute(GuiPlayerAtt, gui);
-            player.setMouseCursorVisible(true);
+            return gui;
         }
-
+        
         public boolean hideGUI(Player player) {
             if (player.hasAttribute(GuiPlayerAtt)) {
-                player.removeUIElement(((CashInOutGUI) player.getAttribute(GuiPlayerAtt)).getPanel());
+                player.removeUIElement(((PlaceAtmGUI) player.getAttribute(GuiPlayerAtt)).getPanel());
                 player.deleteAttribute(GuiPlayerAtt);
-                player.setMouseCursorVisible(false);
                 return true;
             }
             return false;
         }
+        
+        public PlaceAtmGUI getGui(Player player) {
+            if (player.hasAttribute(GuiPlayerAtt)) {
+                PlaceAtmGUI gui = (PlaceAtmGUI) player.getAttribute(GuiPlayerAtt);
+                return gui;
+            }
+            return null;
+        }
     }
-
 }

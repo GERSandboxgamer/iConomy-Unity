@@ -7,13 +7,13 @@ import net.risingworld.api.objects.Player;
 
 public class AddCashEvent extends Event implements Cancellable{
     
-    private long amounth;
+    private long amount;
     private final Player Player;
     private final Reason reason;
     
-    public AddCashEvent(Player player, long amounth, Reason r) {
+    public AddCashEvent(Player player, long amount, Reason r) {
         this.reason = r;
-        this.amounth = amounth;
+        this.amount = amount;
         this.Player = player;
     }
 
@@ -25,12 +25,12 @@ public class AddCashEvent extends Event implements Cancellable{
         return reason;
     }
 
-    public long getAmounth() {
-        return amounth;
+    public long getAmount() {
+        return amount;
     }
 
-    public void setAmounth(long amounth) {
-        this.amounth = amounth;
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
     
     @Override

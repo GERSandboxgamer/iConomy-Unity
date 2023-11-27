@@ -41,7 +41,7 @@ public class Banksystem {
             this.PlayerAccounts = new HashMap<>();
         }
 
-        public PlayerAccount addPlayerAccount(Player player, long startamouth) {
+        public PlayerAccount addPlayerAccount(Player player) {
             return addPlayerAccount(player.getUID());
         }
 

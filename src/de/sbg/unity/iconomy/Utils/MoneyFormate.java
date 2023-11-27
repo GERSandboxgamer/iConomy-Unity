@@ -41,10 +41,25 @@ public class MoneyFormate {
         return st;
     }
     
+    /**
+     * Change money <b>long</b> to money <b>String</b>
+     * @param money
+     * @param player
+     * @return
+     */
+    public String getMoneyAsString(long money, Player player) {
+        DecimalFormat df = new DecimalFormat(plugin.Config.MoneyFormat, DecimalFormatSymbols.getInstance(Locale.of(player.getLanguage())));
+        double d = money;
+        double d2 = d / 100;
+        String st = df.format(d2);
+        return st;
+    }
+    
     public String getMoneyAsFormatedString(Player player, long money) {
         DecimalFormat df = new DecimalFormat(plugin.Config.MoneyFormat, DecimalFormatSymbols.getInstance(Locale.of(player.getLanguage())));
-        double d = money / 100;
-        String st = df.format(d) + " " + getCurrency();
+        double d = money;
+        double d2 = d / 100;
+        String st = df.format(d2) + " " + getCurrency();
         return st;
     }
     

@@ -15,7 +15,7 @@ public final class MoneyInfoGUI {
     private final Player player;
     private final iConomy plugin;
     private final UILabel Line1, Line2;
-    private final int lineAmounth;
+    private final int lineAmount;
     private Timer CloseTimer;
 
     public MoneyInfoGUI(iConomy plugin, icConsole Console, Player player, String line1Text) {
@@ -41,7 +41,7 @@ public final class MoneyInfoGUI {
         
         Line2 = null;
         
-        lineAmounth = 1;
+        lineAmount = 1;
         
         startCloseTimer();
     }
@@ -73,7 +73,7 @@ public final class MoneyInfoGUI {
         Line2.setFontSize(25);
         panel.addChild(Line2);  // <- label becomes a child of panel
         
-        lineAmounth = 2;
+        lineAmount = 2;
         
         if (plugin.Config.Debug > 0) {
             Console.sendDebug("MoneyInfoGUI", "Line 1 (l1): " + Line1);
@@ -96,8 +96,8 @@ public final class MoneyInfoGUI {
         return Line2;
     }
 
-    public int getLineAmounth() {
-        return lineAmounth;
+    public int getLineAmount() {
+        return lineAmount;
     }
 
     public void startCloseTimer() {

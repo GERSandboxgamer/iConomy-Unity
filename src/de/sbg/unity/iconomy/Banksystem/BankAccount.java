@@ -5,7 +5,7 @@ import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
 import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
-import de.sbg.unity.iconomy.Utils.AccountTyp;
+import de.sbg.unity.iconomy.Utils.AccountType;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import de.sbg.unity.iconomy.iConomy;
@@ -18,12 +18,12 @@ public class BankAccount {
 
     private final List<String> Statements;
     private long Money, Min;
-    private final AccountTyp typ;
+    private final AccountType typ;
     private final MoneyFormate MoneyFormat;
     private final iConomy plugin;
     private final icConsole Console;
 
-    public BankAccount(iConomy plugin, icConsole Console, AccountTyp typ) {
+    public BankAccount(iConomy plugin, icConsole Console, AccountType typ) {
         this.Statements = new ArrayList<>();
         this.typ = typ;
         this.MoneyFormat = new MoneyFormate(plugin, Console);
@@ -31,7 +31,7 @@ public class BankAccount {
         this.Console = Console;
     }
 
-    public AccountTyp getTyp() {
+    public AccountType getTyp() {
         return typ;
     }
 

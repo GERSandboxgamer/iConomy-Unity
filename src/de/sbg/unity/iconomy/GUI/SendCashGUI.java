@@ -16,7 +16,6 @@ import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import net.risingworld.api.Server;
 
-
 public class SendCashGUI {
     
     private final UIElement panel;
@@ -35,11 +34,11 @@ public class SendCashGUI {
         this.plugin = plugin;
         this.format = new TextFormat();
         this.lang = player.getLanguage();
-
+        
         panel.setPosition(50, 50, true);
         panel.setPivot(Pivot.MiddleCenter);
         panel.setSize(500, 500, false);
-        panel.setBackgroundColor(0, 0, 102, 1); 
+        panel.setBackgroundColor(0, 0, 102, 1);
         
         TitelBar();
         Body();
@@ -47,7 +46,7 @@ public class SendCashGUI {
         plugin.registerEventListener(new SendCashGuiListener());
     }
     
-    private void Body(){
+    private void Body() {
         UILabel message = new UILabel(plugin.Language.getGui().getSendCashGUI_BodyText(lang));
         message.setPosition(50, 15, true);
         message.setPivot(Pivot.UpperCenter);
@@ -55,7 +54,7 @@ public class SendCashGUI {
         message.setFontSize(25);
         panel.addChild(message);
         
-        UILabel PlayerCash = new UILabel(plugin.Language.getGui().getSendCashGUI_YourCash(lang) + " " + format.Bold(format.Color("yellow", plugin.CashSystem.getCashAsFormatedString(player))));
+        UILabel PlayerCash = new UILabel(plugin.Language.getGui().getYourCash(lang) + " " + format.Bold(format.Color("yellow", plugin.CashSystem.getCashAsFormatedString(player))));
         PlayerCash.setPosition(50, 25, true);
         PlayerCash.setPivot(Pivot.UpperCenter);
         PlayerCash.setFontSize(25);
@@ -74,7 +73,7 @@ public class SendCashGUI {
         Receiver.setFontSize(25);
         panel.addChild(Receiver);
         
-        UILabel labCash = new UILabel(plugin.Language.getGui().getGUI_Amounth(lang));
+        UILabel labCash = new UILabel(plugin.Language.getGui().getGUI_Amount(lang));
         labCash.setPosition(50, 57, true);
         labCash.setPivot(Pivot.UpperCenter);
         labCash.setFontSize(25);
@@ -105,7 +104,7 @@ public class SendCashGUI {
     private void TitelBar() {
         
         UIElement tielBar = new UIElement();
-        tielBar.setPosition(50, 0, true);  
+        tielBar.setPosition(50, 0, true);
         tielBar.setPivot(Pivot.UpperCenter);
         tielBar.setSize(500, 50, false);
         tielBar.setBackgroundColor(255, 153, 51, 1);
@@ -116,16 +115,16 @@ public class SendCashGUI {
         titel.setFontSize(25);
         titel.setFontColor(255, 255, 255, 1);
         titel.setBackgroundColor(255, 153, 51, 1);
-        tielBar.addChild(titel); 
+        tielBar.addChild(titel);
         panel.addChild(tielBar);
-    } 
+    }
     
     public UIElement getPanel() {
         return panel;
     }
     
     public class SendCashGuiListener implements Listener {
-                
+        
         @EventMethod
         public void onGuiKlickEvent(PlayerUIElementClickEvent event) {
             UIElement el = event.getUIElement();
@@ -149,25 +148,29 @@ public class SendCashGUI {
                                 long l;
                                 try {
                                     l = plugin.moneyFormat.getMoneyAsLong(c);
-                                    TransferResult tr = plugin.CashSystem.removeCash(player, l, RemoveCashEvent.Reason.Player);
-                                    switch (tr) {
-                                        case Successful -> {
-                                            plugin.CashSystem.addCash(p2, l, AddCashEvent.Reason.Player);
-                                            plugin.GUI.SendCashGui.hideGUI(player);
-                                        }
-                                        case NotEnoughMoney -> {
-                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
-                                        }
-                                        case PlayerNotExist -> {
-                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotExist(lang));
-                                        }
-                                        case PlayerNotConnected -> {
-                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotConnected(lang));
-                                        }
-                                        case EventCancel -> {
-                                            player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getTransferCancel(lang));
-                                        }
+                                    if (l > 0) {
+                                        TransferResult tr = plugin.CashSystem.removeCash(player, l, RemoveCashEvent.Reason.Player);
+                                        switch (tr) {
+                                            case Successful -> {
+                                                plugin.CashSystem.addCash(p2, l, AddCashEvent.Reason.Player);
+                                                plugin.GUI.SendCashGui.hideGUI(player);
+                                            }
+                                            case NotEnoughMoney -> {
+                                                player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotAnounthMoney(lang));
+                                            }
+                                            case PlayerNotExist -> {
+                                                player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotExist(lang));
+                                            }
+                                            case PlayerNotConnected -> {
+                                                player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getPlayerNotConnected(lang));
+                                            }
+                                            case EventCancel -> {
+                                                player.showErrorMessageBox("iConomy - Bank", plugin.Language.getStatus().getTransferCancel(lang));
+                                            }
                                             
+                                        }
+                                    } else {
+                                        player.showErrorMessageBox("Error", plugin.Language.getStatus().getAmountBigger(lang));
                                     }
                                 } catch (NumberFormatException ex) {
                                     
@@ -177,7 +180,7 @@ public class SendCashGUI {
                             player.showErrorMessageBox("iConomy - Send Money", plugin.Language.getStatus().getSendCashToSelf(lang));
                         }
                     } else {
-                        player.showErrorMessageBox("iConomy - Send Money", plugin.Language.getStatus().getPlayerNotConnected(lang)); 
+                        player.showErrorMessageBox("iConomy - Send Money", plugin.Language.getStatus().getPlayerNotConnected(lang));
                     }
                 });
             }

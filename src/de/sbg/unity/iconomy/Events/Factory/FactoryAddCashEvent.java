@@ -11,18 +11,18 @@ import net.risingworld.api.objects.Player;
  */
 public class FactoryAddCashEvent extends Event implements Cancellable{
     
-    private long amounth;
+    private long amount;
     private Player player;
     private final Reason reason;
     
-    public FactoryAddCashEvent(long amounth, Reason r) {
+    public FactoryAddCashEvent(long amount, Reason r) {
         this.reason = r;
-        this.amounth = amounth;
+        this.amount = amount;
     }
     
-    public FactoryAddCashEvent(Player player, long amounth, Reason r) {
+    public FactoryAddCashEvent(Player player, long amount, Reason r) {
         this.reason = r;
-        this.amounth = amounth;
+        this.amount = amount;
         this.player = player;
     }
 
@@ -38,12 +38,12 @@ public class FactoryAddCashEvent extends Event implements Cancellable{
         return reason;
     }
 
-    public long getAmounth() {
-        return amounth;
+    public long getAmount() {
+        return amount;
     }
 
-    public void setAmounth(long amounth) {
-        this.amounth = amounth;
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 
     @Override

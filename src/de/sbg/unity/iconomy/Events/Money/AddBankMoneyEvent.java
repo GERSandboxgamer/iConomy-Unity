@@ -7,36 +7,36 @@ import net.risingworld.api.objects.Player;
 
 public class AddBankMoneyEvent extends Event implements Cancellable {
 
-    private long amounth;
+    private long amount;
     private final Reason reason;
     private final Object sender;
     private final BankAccount bankAccount;
 
-    public AddBankMoneyEvent(Player sender, BankAccount account, long amounth, Reason r) {
-        this.amounth = amounth;
+    public AddBankMoneyEvent(Player sender, BankAccount account, long amount, Reason r) {
+        this.amount = amount;
         this.bankAccount = account;
         this.sender = sender;
         this.reason = r;
     }
 
-    public AddBankMoneyEvent(BankAccount sender, BankAccount account, long amounth) {
+    public AddBankMoneyEvent(BankAccount sender, BankAccount account, long amount) {
         this.reason = Reason.BankAccount;
-        this.amounth = amounth;
+        this.amount = amount;
         this.sender = sender;
         this.bankAccount = account;
 
     }
 
-    public AddBankMoneyEvent(BankAccount account, long amounth) {
+    public AddBankMoneyEvent(BankAccount account, long amount) {
         this.reason = Reason.API;
-        this.amounth = amounth;
+        this.amount = amount;
         this.bankAccount = account;
         this.sender = null;
     }
     
-    public AddBankMoneyEvent(BankAccount account, long amounth, Reason r) {
+    public AddBankMoneyEvent(BankAccount account, long amount, Reason r) {
         this.reason = r;
-        this.amounth = amounth;
+        this.amount = amount;
         this.bankAccount = account;
         this.sender = null;
     }
@@ -49,12 +49,12 @@ public class AddBankMoneyEvent extends Event implements Cancellable {
         return bankAccount;
     }
 
-    public long getAmounth() {
-        return amounth;
+    public long getAmount() {
+        return amount;
     }
 
-    public void setAmounth(long amounth) {
-        this.amounth = amounth;
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 
     public Reason getReason() {

@@ -111,7 +111,7 @@ public class Factory {
         FactoryAddCashEvent evt = new FactoryAddCashEvent(cash, reason);
         plugin.triggerEvent(evt);
         if (!evt.isCancelled()) {
-            this.Cash += evt.getAmounth();
+            this.Cash += evt.getAmount();
             return TransferResult.Successful;
         }
         return TransferResult.EventCancel;
@@ -128,7 +128,7 @@ public class Factory {
         FactoryAddCashEvent evt = new FactoryAddCashEvent(player, cash, reason);
         plugin.triggerEvent(evt);
         if (!evt.isCancelled()) {
-            this.Cash += evt.getAmounth();
+            this.Cash += evt.getAmount();
             return TransferResult.Successful;
         }
         return TransferResult.EventCancel;
@@ -145,7 +145,7 @@ public class Factory {
             FactoryRemoveCashEvent evt = new FactoryRemoveCashEvent(cash, reason);
             plugin.triggerEvent(evt);
             if (!evt.isCancelled()) {
-                this.Cash -= evt.getAmounth();
+                this.Cash -= evt.getAmount();
                 return TransferResult.Successful;
             }
         } else {
@@ -166,7 +166,7 @@ public class Factory {
             FactoryRemoveCashEvent evt = new FactoryRemoveCashEvent(player, cash, reason);
             plugin.triggerEvent(evt);
             if (!evt.isCancelled()) {
-                this.Cash -= evt.getAmounth();
+                this.Cash -= evt.getAmount();
                 return TransferResult.Successful;
             }
 

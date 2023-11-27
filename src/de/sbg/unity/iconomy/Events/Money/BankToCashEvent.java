@@ -1,6 +1,6 @@
 package de.sbg.unity.iconomy.Events.Money;
 
-import de.sbg.unity.iconomy.Utils.AccountTyp;
+import de.sbg.unity.iconomy.Utils.AccountType;
 import net.risingworld.api.events.Cancellable;
 import net.risingworld.api.events.Event;
 import net.risingworld.api.objects.Player;
@@ -9,11 +9,11 @@ import net.risingworld.api.objects.Player;
 public class BankToCashEvent extends Event implements Cancellable{
     
     private final Player player;
-    private long amounth;
-    private final AccountTyp accountTyp;
+    private long amount;
+    private final AccountType accountTyp;
     
-    public BankToCashEvent(Player p, long a, AccountTyp at){
-        this.amounth = a;
+    public BankToCashEvent(Player p, long a, AccountType at){
+        this.amount = a;
         this.player = p;
         this.accountTyp = at;
     }
@@ -22,15 +22,15 @@ public class BankToCashEvent extends Event implements Cancellable{
         return player;
     }
 
-    public long getAmounth() {
-        return amounth;
+    public long getAmount() {
+        return amount;
     }
 
-    public void setAmounth(long amounth) {
-        this.amounth = amounth;
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 
-    public AccountTyp getAccountTyp() {
+    public AccountType getAccountTyp() {
         return accountTyp;
     }
 

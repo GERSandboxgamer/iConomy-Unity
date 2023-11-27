@@ -1,8 +1,9 @@
 package de.sbg.unity.iconomy.Objects;
 
-import de.sbg.unity.iconomy.GUI.CashInOutGUI;
+import de.sbg.unity.iconomy.GUI.Banksystem.CashInOutGUI;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
+import de.sbg.unity.iconomy.icConsole;
 import java.util.ArrayList;
 import java.util.List;
 import net.risingworld.api.World;
@@ -21,12 +22,15 @@ public class icSign implements Listener {
     private final List<String> SignList;
     private final iConomy plugin;
     private final TextFormat format;
+    private final icConsole Console;
 
-    public icSign(iConomy plugin) {
+    public icSign(iConomy plugin, icConsole Console) {
         this.SignList = new ArrayList<>();
         this.plugin = plugin;
+        this.Console = Console;
         this.format = new TextFormat();
         iniSign();
+        plugin.registerEventListener(this);
     }
 
     public List<String> getSignList() {
@@ -34,8 +38,10 @@ public class icSign implements Listener {
     }
 
     private void iniSign() {
+        Console.sendInfo("Sign", "Load signs");
         SignList.add("[Bank]");
         SignList.add("[Balance]");
+        Console.sendInfo("Sign", "Done!");
     }
 
     public boolean isIcSign(String SignText) {
@@ -84,18 +90,17 @@ public class icSign implements Listener {
 
     @EventMethod
     public void onPlayerObjectInteraktionEvent(PlayerObjectInteractionEvent event) {
-        //TODO SignInteraktion
         Objects.ObjectDefinition def = event.getObjectDefinition();
         Player player = event.getPlayer();
         String lang = player.getLanguage();
         ObjectElement el = event.getObject();
-        String[] line = Utils.StringUtils.getLines(event.getText());
+        //String[] line = Utils.StringUtils.getLines(event);
         Result r = Result.Nothing;
-        
 
         if (def.type == Objects.Type.Sign) {
             Sign sign = World.getSign(event.getGlobalID());
             if (!sign.getText().isBlank() && !sign.getText().isEmpty()) {
+                String[] line = Utils.StringUtils.getLines(sign.getText());
                 Signs signs = new Signs(plugin);
                 signs.setInteract(true);
                 signs.setPlayer(player);
@@ -119,6 +124,8 @@ public class icSign implements Listener {
                 }
                 case Misspelled ->
                     player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getSign_Misspelled(lang)));
+                case NoAccount ->
+                    player.showErrorMessageBox("iConomy", plugin.Language.getStatus().getPlayerHasNoAccount(lang));
             }
         }
     }
@@ -135,7 +142,8 @@ public class icSign implements Listener {
         Nothing("No result found!"),
         Statement("Statement does not match"),
         GameObject("Game Object not found!"),
-        Waiting("Waiting for something");
+        Waiting("Waiting for something"),
+        NoAccount("Player as not account");
 
         private final String msg;
 
@@ -221,13 +229,31 @@ public class icSign implements Listener {
             switch (Line2.toLowerCase()) {
                 case "out" -> {
                     if (Interact) {
-                        plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
+                        if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
+                            plugin.GUI.Bankystem.CashInOutGui.showGUI(player, CashInOutGUI.Modus.Out);
+                        } else {
+                            return Result.NoAccount;
+                        }
                     }
                     return Result.OK;
                 }
                 case "in" -> {
                     if (Interact) {
-                        plugin.GUI.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
+                        if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
+                            plugin.GUI.Bankystem.CashInOutGui.showGUI(player, CashInOutGUI.Modus.In);
+                        } else {
+                            return Result.NoAccount;
+                        }
+                    }
+                    return Result.OK;
+                }
+                case "select" -> {
+                    if (Interact) {
+                        if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
+                            plugin.GUI.Bankystem.SelectCashInOutGui.showGUI(player);
+                        } else {
+                            return Result.NoAccount;
+                        }
                     }
                     return Result.OK;
                 }

@@ -2,7 +2,7 @@ package de.sbg.unity.iconomy.Banksystem;
 
 import de.sbg.unity.iconomy.Events.Factory.AddFactoryBankMemberEvent;
 import de.sbg.unity.iconomy.Factory.Factory;
-import de.sbg.unity.iconomy.Utils.AccountTyp;
+import de.sbg.unity.iconomy.Utils.AccountType;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ public class FactoryAccount extends BankAccount{
     private final int AccountID;
 
     public FactoryAccount(iConomy plugin, icConsole Console, Factory f, int accountID) {
-        super(plugin, Console,AccountTyp.FactoryAccount);
+        super(plugin, Console,AccountType.FactoryAccount);
         this.Factory = f;
         this.AccountID = accountID;
         this.Members = new ArrayList<>();
-        this.setMoney(plugin.Config.FactoryBankStartAmounth);
+        this.setMoney(plugin.Config.FactoryBankStartAmount);
         this.plugin = plugin;
         this.Console = Console;
     }

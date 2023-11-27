@@ -39,18 +39,18 @@ public class icInputListener implements Listener {
                     Console.sendInfo("Command", "              MoneyFormat=" + plugin.Config.MoneyFormat);
                     Console.sendInfo("Command", "   Command_Bank_OnlyAdmin=" + plugin.Config.Command_Bank_OnlyAdmin);
                     Console.sendInfo("Command", "  CreateAccountViaCommand=" + plugin.Config.CreateAccountViaCommand);
-                    Console.sendInfo("Command", "  FactoryBankStartAmounth=" + plugin.Config.FactoryBankStartAmounth);
-                    Console.sendInfo("Command", "  FactoryCashStartAmounth=" + plugin.Config.FactoryCashStartAmounth);
+                    Console.sendInfo("Command", "  FactoryBankStartAmount=" + plugin.Config.FactoryBankStartAmount);
+                    Console.sendInfo("Command", "  FactoryCashStartAmount=" + plugin.Config.FactoryCashStartAmount);
                     Console.sendInfo("Command", "           KillerGetMoney=" + plugin.Config.KillerGetMoney);
                     Console.sendInfo("Command", "         LostMoneyByDeath=" + plugin.Config.LostMoneyByDeath);
                     Console.sendInfo("Command", "            MoneyInfoTime=" + plugin.Config.MoneyInfoTime);
                     Console.sendInfo("Command", "    PlayerBankAccountCost=" + plugin.Config.PlayerBankAccountCost);
-                    Console.sendInfo("Command", "   PlayerBankStartAmounth=" + plugin.Config.PlayerBankStartAmounth);
-                    Console.sendInfo("Command", "   PlayerCashStartAmounth=" + plugin.Config.PlayerCashStartAmounth);
+                    Console.sendInfo("Command", "   PlayerBankStartAmount=" + plugin.Config.PlayerBankStartAmount);
+                    Console.sendInfo("Command", "   PlayerCashStartAmount=" + plugin.Config.PlayerCashStartAmount);
                     Console.sendInfo("Command", "SaveAllByPlayerDisconnect=" + plugin.Config.SaveAllByPlayerDisconnect);
                     Console.sendInfo("Command", "                SaveTimer=" + plugin.Config.SaveTimer);
                     Console.sendInfo("Command", "             SuitcaseTime=" + plugin.Config.SuitcaseTime);
-                    Console.sendInfo("Command", "        ShowBalaceAtStart=" + plugin.Config.ShowBalaceAtStart);
+                    Console.sendInfo("Command", "        ShowBalaceAtStart=" + plugin.Config.ShowBalanceAtStart);
                     Console.sendInfo("Command", "======================================");
                 }
                 if (cmd[1].toLowerCase().equals("save")) {
@@ -81,6 +81,16 @@ public class icInputListener implements Listener {
                         plugin.StopPluginByDB = true;
                         Console.sendErr("SERVER", "STOP SERVER!");
                         Server.shutdown();
+                    }
+                }
+                if (cmd[1].toLowerCase().equals("bundle")) {
+                    Console.sendInfo("Command", "=========== Bundles ===========");
+                    if (!plugin.GameObject.getListBundle().isEmpty()) {
+                        for (String s : plugin.GameObject.getListBundle().keySet()) {
+                            Console.sendInfo("Command", "- " + s + "(Path: " + plugin.GameObject.getListBundle().get(s).getBundlePath() + "/" + s + "/" + plugin.GameObject.getListBundle().get(s).getPrefabAsset().getPath() + ")");
+                        }
+                    } else {
+                        Console.sendInfo("Command", "List is empty!");
                     }
                 }
             }
@@ -116,7 +126,7 @@ public class icInputListener implements Listener {
                 }
                 if (cmd[1].toLowerCase().equals("cash")) {
                     if (!plugin.CashSystem.getPlayerNames().contains(cmd[2])) {
-                        //TODO MSG
+                        Console.sendErr("Command", "Player not found!");
                     } else {
                         Console.sendInfo("Command", "============= Cash =============");
                         Console.sendInfo("Command", "Player: " + cmd[2]);
@@ -182,7 +192,6 @@ public class icInputListener implements Listener {
 
         }
 
-        //TODO Input
     }
 
 }

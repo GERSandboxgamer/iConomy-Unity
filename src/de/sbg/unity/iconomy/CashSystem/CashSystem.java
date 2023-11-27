@@ -61,10 +61,10 @@ public class CashSystem {
 
         if (b) {
             if (plugin.Config.Debug > 0) {
-                Console.sendDebug("Cash-addPlayer", "PlayerCashStartAmounth: " + plugin.Config.PlayerCashStartAmounth);
+                Console.sendDebug("Cash-addPlayer", "PlayerCashStartAmount: " + plugin.Config.PlayerCashStartAmount);
             }
-            CashList.put(uid, plugin.Config.PlayerCashStartAmounth);
-            plugin.Databases.Money.Cash.add(uid, plugin.Config.PlayerCashStartAmounth);
+            CashList.put(uid, plugin.Config.PlayerCashStartAmount);
+            plugin.Databases.Money.Cash.add(uid, plugin.Config.PlayerCashStartAmount);
         }
 
         if (plugin.Config.Debug > 0) {
@@ -96,7 +96,7 @@ public class CashSystem {
             Console.sendDebug("getCashAsFormatedString", "MoneyFormat: " + MoneyFormate);
             Console.sendDebug("getCashAsFormatedString", "Currency: " + MoneyFormate.getCurrency());
         }
-        return MoneyFormate.getMoneyAsFormatedString(player, getCash(player));
+        return plugin.moneyFormat.getMoneyAsString(getCash(player), player) + " " + plugin.Config.Currency;
     }
 
     public String getCashAsFormatedString(String uid) {
@@ -109,9 +109,9 @@ public class CashSystem {
             AddCashEvent evt = new AddCashEvent(player, amounth, reason);
             plugin.triggerEvent(evt);
             if (!evt.isCancelled()) {
-                long newCash = getCash(player) + evt.getAmounth();
+                long newCash = getCash(player) + evt.getAmount();
                 CashList.put(player.getUID(), newCash);
-                plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + MoneyFormate.getMoneyAsFormatedString(player, newCash), TextFormat.Color("green", "+ " + MoneyFormate.getMoneyAsFormatedString(player, evt.getAmounth())));
+                plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + MoneyFormate.getMoneyAsFormatedString(player, newCash), TextFormat.Color("green", "+ " + MoneyFormate.getMoneyAsFormatedString(player, evt.getAmount())));
                 return TransferResult.Successful;
             } else {
                 return TransferResult.EventCancel;
@@ -127,10 +127,10 @@ public class CashSystem {
                 RemoveCashEvent evt = new RemoveCashEvent(player, amounth, reason);
                 plugin.triggerEvent(evt);
                 if (!evt.isCancelled()) {
-                    long newCash = getCash(player) - evt.getAmounth();
+                    long newCash = getCash(player) - evt.getAmount();
                     if (newCash >= 0) {
                         CashList.put(player.getUID(), newCash);
-                        plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + MoneyFormate.getMoneyAsFormatedString(player, newCash), TextFormat.Color("red", "- " + MoneyFormate.getMoneyAsFormatedString(player, evt.getAmounth())));
+                        plugin.GUI.MoneyInfoGui.showGUI(player, "Cash: " + MoneyFormate.getMoneyAsFormatedString(player, newCash), TextFormat.Color("red", "- " + MoneyFormate.getMoneyAsFormatedString(player, evt.getAmount())));
                         return TransferResult.Successful;
                     } else {
                         return TransferResult.NotEnoughMoney;
@@ -172,13 +172,13 @@ public class CashSystem {
                 PlayerSendCashToPlayerEvent evt = new PlayerSendCashToPlayerEvent(from, to, amounth);
                 plugin.triggerEvent(evt);
                 if (!evt.isCancelled()) {
-                    long newCash1 = getCash(from) - evt.getAmounth();
+                    long newCash1 = getCash(from) - evt.getAmount();
                     if (newCash1 >= 0) {
-                        long newCash2 = getCash(to) + evt.getAmounth();
+                        long newCash2 = getCash(to) + evt.getAmount();
                         CashList.put(from.getUID(), newCash1);
                         CashList.put(to.getUID(), newCash2);
-                        plugin.GUI.MoneyInfoGui.showGUI(from, "Cash: " + MoneyFormate.getMoneyAsFormatedString(from, newCash1), TextFormat.Color("red", "- " + MoneyFormate.getMoneyAsFormatedString(from, evt.getAmounth())));
-                        plugin.GUI.MoneyInfoGui.showGUI(to, "Cash: " + MoneyFormate.getMoneyAsFormatedString(to, newCash2), TextFormat.Color("green", "+ " + MoneyFormate.getMoneyAsFormatedString(to, evt.getAmounth())));
+                        plugin.GUI.MoneyInfoGui.showGUI(from, "Cash: " + MoneyFormate.getMoneyAsFormatedString(from, newCash1), TextFormat.Color("red", "- " + MoneyFormate.getMoneyAsFormatedString(from, evt.getAmount())));
+                        plugin.GUI.MoneyInfoGui.showGUI(to, "Cash: " + MoneyFormate.getMoneyAsFormatedString(to, newCash2), TextFormat.Color("green", "+ " + MoneyFormate.getMoneyAsFormatedString(to, evt.getAmount())));
                         return TransferResult.Successful;
                     } else {
                         return TransferResult.NotEnoughMoney;

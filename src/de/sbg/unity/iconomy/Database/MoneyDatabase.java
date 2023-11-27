@@ -1,7 +1,11 @@
 package de.sbg.unity.iconomy.Database;
 
+import de.chaoswg.events.call.ModelAuswahl;
 import de.sbg.unity.iconomy.Banksystem.BankMember;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
+import de.sbg.unity.iconomy.Objects.AtmObject;
+import de.sbg.unity.iconomy.Utils.AtmUtils;
+import de.sbg.unity.iconomy.Utils.AtmUtils.AtmType;
 import de.sbg.unity.iconomy.Utils.DatabaseFormat;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
@@ -13,6 +17,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import net.risingworld.api.utils.Quaternion;
+import net.risingworld.api.utils.Vector3f;
 
 /**
  * The database of the money
@@ -36,6 +42,11 @@ public class MoneyDatabase {
      */
     public TableCash Cash;
 
+    /**
+     * Access to the 'ATM' table
+     */
+    public TableAtm ATM;
+
     public MoneyDatabase(iConomy plugin, icConsole Console) {
         this.Console = Console;
         this.plugin = plugin;
@@ -43,7 +54,7 @@ public class MoneyDatabase {
         this.Cash = new TableCash(plugin, Console, Database);
         this.Bank = new TableBank(plugin, Console, Database);
         this.format = new DatabaseFormat();
-
+        this.ATM = new TableAtm(plugin, Console, Database);
     }
 
     public Database getDatabase() {
@@ -81,7 +92,21 @@ public class MoneyDatabase {
                 + "Min BIGINT, "
                 + "More TXT "
                 + "); ");
-        
+        Database.execute("CREATE TABLE IF NOT EXISTS Atm ("
+                + "ID INTEGER PRIMARY KEY NOT NULL, " //AUTOINCREMENT
+                + "AtmID INTEGER, "
+                + "Type INTEGER, "
+                + "PosX FLOAT, "
+                + "PosY FLOAT, "
+                + "PosZ FLOAT, "
+                + "RotW FLOAT, "
+                + "RotX FLOAT, "
+                + "RotY FLOAT, "
+                + "RotZ FLOAT, "
+                + "LivePoints INTEGER, "
+                + "More TXT "
+                + "); ");
+
     }
 
     public class TableCash {
@@ -130,7 +155,7 @@ public class MoneyDatabase {
                 zähler += 1;
                 long money = CashList.get(s);
                 if (plugin.Config.Debug > 0) {
-                    Console.sendDebug("DB-saveAllToDatabase","money = " + s);
+                    Console.sendDebug("DB-saveAllToDatabase", "money = " + s);
                 }
                 pstmt = conn.prepareStatement("UPDATE Cash SET Money=? WHERE UID='" + s + "'");
                 pstmt.setLong(1, money);
@@ -177,8 +202,8 @@ public class MoneyDatabase {
                     uid = result.getString("UID");
                     min = result.getLong("Min");
                     money = result.getLong("Money");
-                    Members = (List<BankMember>)format.toObject(result.getBytes("Members"));
-                    Statements = (List<String>)format.toObject(result.getBytes("Statements"));
+                    Members = (List<BankMember>) format.toObject(result.getBytes("Members"));
+                    Statements = (List<String>) format.toObject(result.getBytes("Statements"));
                     PlayerAccount pa = new PlayerAccount(plugin, Console, uid);
                     pa.setMoney(money);
                     pa.setMin(min);
@@ -190,14 +215,12 @@ public class MoneyDatabase {
             Console.sendInfo("DB-Bank", "Load " + zähler + " accounts from database!");
 
         }
-        
+
         public void saveAllToDatabase(HashMap<String, PlayerAccount> PlayerAccounts) throws SQLException, IOException {
-            PlayerAccount pa;
             int zähler = 0;
-            for (String uid : PlayerAccounts.keySet()) {
+            for (PlayerAccount pa : PlayerAccounts.values()) {
                 zähler += 1;
-                pa = plugin.Bankystem.PlayerSystem.getPlayerAccount(uid);
-                pstmt = conn.prepareStatement("UPDATE Bank SET Money=?, Members=?, Statements=?, Min=? WHERE UID='" + uid + "'");
+                pstmt = conn.prepareStatement("UPDATE Bank SET Money=?, Members=?, Statements=?, Min=? WHERE UID='" + pa.getOwnerUID() + "'");
                 pstmt.setLong(1, pa.getMoney());
                 pstmt.setBytes(2, format.toBlob(pa.getMembers()));
                 pstmt.setBytes(3, format.toBlob(pa.getStatements()));
@@ -210,6 +233,84 @@ public class MoneyDatabase {
             }
         }
 
+    }
+
+    public class TableAtm {
+
+        private final Database Database;
+        private final Connection conn;
+        private PreparedStatement pstmt;
+
+        public TableAtm(iConomy plugin, icConsole Console, Database db) {
+            this.Database = db;
+            conn = db.getConnection();
+        }
+
+        public void add(AtmObject atm) throws SQLException {
+            pstmt = conn.prepareStatement("INSERT INTO Atm (AtmID, Type, PosX, PosY, PosZ, RotW, RotX, RotY, RotZ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            pstmt.setInt(1, atm.getID());
+            pstmt.setInt(2, atm.getType().getId());
+            pstmt.setFloat(3, atm.getLocalPosition().x);
+            pstmt.setFloat(4, atm.getLocalPosition().y);
+            pstmt.setFloat(5, atm.getLocalPosition().z);
+            pstmt.setFloat(6, atm.getLocalRotation().w);
+            pstmt.setFloat(7, atm.getLocalRotation().x);
+            pstmt.setFloat(8, atm.getLocalRotation().y);
+            pstmt.setFloat(9, atm.getLocalRotation().z);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+
+        public void remove(AtmObject atm) throws SQLException {
+            pstmt = conn.prepareStatement("DELETE FROM Atm WHERE AtmID=" + atm.getID());
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+
+        public void loadAllFromDatabase(List<AtmObject> atms) throws SQLException, IOException, ClassNotFoundException {
+            Vector3f pos;
+            Quaternion rot;
+            int ID;
+            AtmUtils aU = new AtmUtils();
+            AtmType type;
+            int zähler = 0;
+            
+            
+            try (ResultSet result = Database.executeQuery("SELECT * FROM 'Atm'")) {
+                while (result.next()) {
+                    zähler += 1;
+                    ID = result.getInt("AtmID");
+                    pos = new Vector3f(result.getFloat("PosX"), result.getFloat("PosY"), result.getFloat("PosZ"));
+                    rot = new Quaternion(result.getFloat("RotX"), result.getFloat("RotY"), result.getFloat("RotZ"), result.getFloat("RotW"));
+                    type = aU.getAtmType(result.getInt("Type"));
+
+                    AtmObject atm = new AtmObject(plugin.GameObject.getListBundle().get("ATM"), type, pos, rot, plugin, Console);
+                    atms.add(atm);
+                }
+            }
+            Console.sendInfo("DB-Bank", "Load " + zähler + " ATMs from the database");
+        }
+
+        public void saveAllToDatabase(List<AtmObject> atms) throws SQLException, IOException {
+            int zähler = 0;
+            for (AtmObject atm : atms) {
+                zähler += 1;
+                pstmt = conn.prepareStatement("UPDATE Atm SET Type=?, PosX=?, PosY=?, PosZ=?, RotW=?, RotX=?, RotY=?, RotZ=? WHERE AtmID='" + atm.getID() + "'");
+                pstmt.setInt(1, atm.getType().getId());
+                pstmt.setFloat(2, atm.getLocalPosition().x);
+                pstmt.setFloat(3, atm.getLocalPosition().y);
+                pstmt.setFloat(4, atm.getLocalPosition().z);
+                pstmt.setFloat(5, atm.getLocalRotation().w);
+                pstmt.setFloat(6, atm.getLocalRotation().x);
+                pstmt.setFloat(7, atm.getLocalRotation().y);
+                pstmt.setFloat(8, atm.getLocalRotation().z);
+                pstmt.executeUpdate();
+                pstmt.close();
+            }
+            if (plugin.Config.Debug > 0) {
+                Console.sendDebug("DB-Bank", "Save " + zähler + " ATMs to the database");
+            }
+        }
     }
 
 }
