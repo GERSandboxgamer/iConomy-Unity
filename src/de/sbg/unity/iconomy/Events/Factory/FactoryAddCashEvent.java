@@ -5,10 +5,6 @@ import net.risingworld.api.events.Event;
 import net.risingworld.api.objects.Player;
 
 
-/**
- *
- * @hidden  
- */
 public class FactoryAddCashEvent extends Event implements Cancellable{
     
     private long amount;

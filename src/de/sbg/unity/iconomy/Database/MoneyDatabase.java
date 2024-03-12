@@ -1,12 +1,12 @@
 package de.sbg.unity.iconomy.Database;
 
-import de.chaoswg.events.call.ModelAuswahl;
 import de.sbg.unity.iconomy.Banksystem.BankMember;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
 import de.sbg.unity.iconomy.Objects.AtmObject;
 import de.sbg.unity.iconomy.Utils.AtmUtils;
 import de.sbg.unity.iconomy.Utils.AtmUtils.AtmType;
 import de.sbg.unity.iconomy.Utils.DatabaseFormat;
+import de.sbg.unity.iconomy.Utils.PrefabVorlage;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import net.risingworld.api.utils.Quaternion;
 import net.risingworld.api.utils.Vector3f;
@@ -94,7 +95,6 @@ public class MoneyDatabase {
                 + "); ");
         Database.execute("CREATE TABLE IF NOT EXISTS Atm ("
                 + "ID INTEGER PRIMARY KEY NOT NULL, " //AUTOINCREMENT
-                + "AtmID INTEGER, "
                 + "Type INTEGER, "
                 + "PosX FLOAT, "
                 + "PosY FLOAT, "
@@ -246,23 +246,51 @@ public class MoneyDatabase {
             conn = db.getConnection();
         }
 
-        public void add(AtmObject atm) throws SQLException {
-            pstmt = conn.prepareStatement("INSERT INTO Atm (AtmID, Type, PosX, PosY, PosZ, RotW, RotX, RotY, RotZ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            pstmt.setInt(1, atm.getID());
-            pstmt.setInt(2, atm.getType().getId());
-            pstmt.setFloat(3, atm.getLocalPosition().x);
-            pstmt.setFloat(4, atm.getLocalPosition().y);
-            pstmt.setFloat(5, atm.getLocalPosition().z);
-            pstmt.setFloat(6, atm.getLocalRotation().w);
-            pstmt.setFloat(7, atm.getLocalRotation().x);
-            pstmt.setFloat(8, atm.getLocalRotation().y);
-            pstmt.setFloat(9, atm.getLocalRotation().z);
-            pstmt.executeUpdate();
+        public AtmObject add(PrefabVorlage auswahl, AtmType type, Vector3f pos, Quaternion rot) throws SQLException {
+            pstmt = conn.prepareStatement("INSERT INTO Atm (Type, PosX, PosY, PosZ, RotW, RotX, RotY, RotZ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            pstmt.setInt(1, type.getId());
+            pstmt.setFloat(2, pos.x);
+            pstmt.setFloat(3, pos.y);
+            pstmt.setFloat(4, pos.z);
+            pstmt.setFloat(5, rot.w);
+            pstmt.setFloat(6, rot.x);
+            pstmt.setFloat(7, rot.y);
+            pstmt.setFloat(8, rot.z);
+            pstmt.addBatch();
+            
+            conn.setAutoCommit(false);
+            pstmt.executeBatch();
+            conn.setAutoCommit(true);
+            //pstmt.executeUpdate();
+            int id;
+            try (ResultSet result = pstmt.getGeneratedKeys()) {
+                result.next();
+                id = result.getInt(1);
+            }
+            if (plugin.Config.Debug > 0) {
+                Console.sendDebug("DB-ATM-add", "Add ID: " + id);
+            }
             pstmt.close();
+            
+            AtmObject atm = new AtmObject(id, auswahl , type, pos, rot, plugin, Console);
+            if (plugin.Config.Debug > 0) {
+                Console.sendDebug("DB-ATM-add", "ATM = " + atm);
+            }
+            return atm;      
+        }
+        
+        public List<Integer> getAllAtmIDs() throws SQLException {
+            List<Integer> list = new ArrayList<>();
+            try (ResultSet result = Database.executeQuery("SELECT * FROM 'Atm'")) {
+                while (result.next()) {
+                    list.add(result.getInt("ID"));
+                }
+            }
+            return list;
         }
 
         public void remove(AtmObject atm) throws SQLException {
-            pstmt = conn.prepareStatement("DELETE FROM Atm WHERE AtmID=" + atm.getID());
+            pstmt = conn.prepareStatement("DELETE FROM Atm WHERE ID=" + atm.getDbID());
             pstmt.executeUpdate();
             pstmt.close();
         }
@@ -279,12 +307,12 @@ public class MoneyDatabase {
             try (ResultSet result = Database.executeQuery("SELECT * FROM 'Atm'")) {
                 while (result.next()) {
                     zähler += 1;
-                    ID = result.getInt("AtmID");
+                    ID = result.getInt("ID");
                     pos = new Vector3f(result.getFloat("PosX"), result.getFloat("PosY"), result.getFloat("PosZ"));
                     rot = new Quaternion(result.getFloat("RotX"), result.getFloat("RotY"), result.getFloat("RotZ"), result.getFloat("RotW"));
                     type = aU.getAtmType(result.getInt("Type"));
 
-                    AtmObject atm = new AtmObject(plugin.GameObject.getListBundle().get("ATM"), type, pos, rot, plugin, Console);
+                    AtmObject atm = new AtmObject(ID, plugin.GameObject.getListBundle().get("ATM"), type, pos, rot, plugin, Console);
                     atms.add(atm);
                 }
             }
@@ -295,7 +323,7 @@ public class MoneyDatabase {
             int zähler = 0;
             for (AtmObject atm : atms) {
                 zähler += 1;
-                pstmt = conn.prepareStatement("UPDATE Atm SET Type=?, PosX=?, PosY=?, PosZ=?, RotW=?, RotX=?, RotY=?, RotZ=? WHERE AtmID='" + atm.getID() + "'");
+                pstmt = conn.prepareStatement("UPDATE Atm SET Type=?, PosX=?, PosY=?, PosZ=?, RotW=?, RotX=?, RotY=?, RotZ=? WHERE AtmID='" + atm.getDbID() + "'");
                 pstmt.setInt(1, atm.getType().getId());
                 pstmt.setFloat(2, atm.getLocalPosition().x);
                 pstmt.setFloat(3, atm.getLocalPosition().y);

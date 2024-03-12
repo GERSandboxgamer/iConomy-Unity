@@ -6,10 +6,6 @@ import net.risingworld.api.events.Cancellable;
 import net.risingworld.api.events.Event;
 import net.risingworld.api.objects.Player;
 
-/**
- *
- * @hidden  
- */
 public class RemoveOwnerEvent extends Event implements Cancellable{
     
     private final Player player;

@@ -4,10 +4,6 @@ import de.sbg.unity.iconomy.Factory.Factory;
 import net.risingworld.api.events.Event;
 import net.risingworld.api.objects.Player;
 
-/**
- *
- * @hidden  
- */
 public class AddFactoryAccount extends Event{
     
     private final Player player;

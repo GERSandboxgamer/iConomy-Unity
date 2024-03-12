@@ -5,13 +5,10 @@ import de.chaoswg.model3d.Model3DObject;
 import de.sbg.unity.iconomy.Events.Objects.ATM.PlayerAtmDestroyEvent;
 import de.sbg.unity.iconomy.Objects.AtmObject;
 import de.sbg.unity.iconomy.Utils.ModelPlaceSave;
+import de.sbg.unity.iconomy.Utils.icMath;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.risingworld.api.Server;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
 import net.risingworld.api.events.player.PlayerGameObjectHitEvent;
@@ -44,13 +41,20 @@ public class PlayerAtmListener implements Listener {
                 Console.sendDebug("onPlayerAtmHitEvent", "GameObject = Model3DObject");
             }
             if (player.isAdmin()) {
-                int lp = atm.removeLivePoints(25); //TODO Zufall (V. 2.1)
+                icMath m = new icMath();
+                int lp = atm.removeLivePoints(m.randomInRange(5, 25)); //TODO Nur mit Brecheisen
                 if (lp <= 0) {
                     PlayerAtmDestroyEvent evt = new PlayerAtmDestroyEvent(player, atm);
                     plugin.triggerEvent(evt);
                     if (!evt.isCancelled()) {
                         try {
+                            if (plugin.Config.Debug > 0) {
+                                Console.sendDebug("onPlayerAtmHitEvent", "Try Removed AMT-ID: " + atm.getID());
+                            }
                             plugin.GameObject.atm.removeAtm(atm);
+                            if (plugin.Config.Debug > 0) {
+                                Console.sendDebug("onPlayerAtmHitEvent", "Done!");
+                            }
                             player.sendTextMessage(plugin.Language.getGameObject().getRemoveAtm(lang));
                         } catch (SQLException ex) {
                             player.sendTextMessage(plugin.Language.getGameObject().getSaveAtm_Fail(lang));
@@ -70,22 +74,34 @@ public class PlayerAtmListener implements Listener {
         }
     }
 
+    // if (placer!=null && placer.equals(event.getPlacer())){
     @EventMethod
     public void onPlayerPlaceAtmEvent(UIModel3DPlaceEvent event) {
+        if (plugin.Config.Debug > 0) {
+            Console.sendDebug("onPlayerPlaceAtmEvent", "Run Event!");
+        }
         ModelPlaceSave mps = plugin.GameObject.atm.getModelSaveList().get(event.getModelAuswahl().getID());
         Player player = event.getPlayer();
-
-        if (mps.getPlace().equals(event.getPlugin())) {
-            AtmObject atm = new AtmObject(plugin.GameObject.getListBundle().get("ATM"), mps.getAtmType(), event.getModelAuswahl().getLocalPosition(), event.getModelAuswahl().getLocalRotation(), plugin, Console);
-            try {
-                plugin.GameObject.atm.saveAtm(atm);
-            } catch (SQLException ex) {
-
+        if (plugin.Config.Debug > 0) {
+            Console.sendDebug("onPlayerPlaceAtmEvent", "Load ModelSaveList with ID " + event.getModelAuswahl().getID());
+        }
+        try {
+            if (mps.getPlace().equals(event.getPlacer())) {
+                
+                //(AtmDbObject atmDB = new AtmDbObject(plugin.GameObject.getListBundle().get("ATM"), mps.getAtmType(), event.getModelAuswahl().getLocalPosition(), event.getModelAuswahl().getLocalRotation(), plugin, Console);
+                    
+                try {
+                    plugin.GameObject.atm.saveAtm(mps.getAtmType(), event.getModelAuswahl().getLocalPosition(), event.getModelAuswahl().getLocalRotation());
+                } catch (SQLException ex) {
+                    Console.sendErr("onPlayerPlaceAtmEvent-SQL", "SQL-Exception!! ATM Can not save to database!");
+                    Console.sendErr("onPlayerPlaceAtmEvent-SQL", ex.getMessage());
+                }
+                event.getModelAuswahl().removeFromAllPlayer();
+            } else {
+                Console.sendInfo("onPlayerPlaceAtmEvent", "MPS-Placer not Event-Placer!");
             }
-            event.getModelAuswahl().removeFromAllPlayer();
-            Arrays.asList(Server.getAllPlayers()).forEach((p2) -> {
-                p2.addGameObject(atm);
-            });
+        } catch (NullPointerException npe) {
+            Console.sendInfo("onPlayerPlaceAtmEvent", "mps is null!");
         }
     }
 }

@@ -1,13 +1,26 @@
 package de.sbg.unity.iconomy.Factory;
 
+import de.sbg.unity.iconomy.Events.Factory.AddFactoryEvent;
+import de.sbg.unity.iconomy.Events.Factory.RemoveFactoryEvent;
+import de.sbg.unity.iconomy.Exeptions.FactoryAlreadyExistsExeption;
+import de.sbg.unity.iconomy.Utils.Attribute;
+import de.sbg.unity.iconomy.iConomy;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import net.risingworld.api.objects.Area;
+import net.risingworld.api.objects.Player;
 
-/*public class FactorySystem { //TODO Factory
+
+public class FactorySystem {
 
     private final HashMap<Integer, Factory> Factories;
     private final Attribute att;
     private final iConomy plugin;
 
-    private FactorySystem(iConomy plugin, Attribute att) {
+    public FactorySystem(iConomy plugin, Attribute att) {
         this.plugin = plugin;
         this.Factories = new HashMap<>();
         this.att = att;
@@ -36,7 +49,8 @@ package de.sbg.unity.iconomy.Factory;
             plugin.triggerEvent(evt);
             if (!evt.isCancelled()) {
                 int id = plugin.Databases.Factory.TabFactory.add(FactoryName);
-                //Factory f = new Factory(plugin, FactoryName, id); //TODO Factory
+                Factory f = new Factory(plugin, FactoryName, id);
+                Factories.put(id, f);
             }
 
         } else {
@@ -114,4 +128,4 @@ package de.sbg.unity.iconomy.Factory;
         return l;
     }
 
-}*/ 
+}

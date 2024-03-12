@@ -9,6 +9,7 @@ import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
 import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
+import de.sbg.unity.iconomy.Objects.AtmObject;
 import de.sbg.unity.iconomy.Utils.AtmUtils;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import de.sbg.unity.iconomy.Utils.TextFormat;
@@ -130,7 +131,8 @@ public class AdminMoneyCommandListener implements Listener {
                             Model3DObject gameObject = new Model3DObject(player.getUID(), -1, modelAuswahl);
                             player.setListenForMouseInput(true);
                             plugin.registerEventListener(place);
-                            place.place(gameObject, false);
+
+                            place.place(gameObject, false, false);
                         }
 
                     }
@@ -307,6 +309,18 @@ public class AdminMoneyCommandListener implements Listener {
                                             plugin.GameObject.atm.createAtm(player, AtmUtils.AtmType.Standart);
                                         }
                                     }
+                                }
+                            }
+                            if (cmd.length == 3) {
+                                if (cmd[2].toLowerCase().equals("atmlist")) {
+                                    player.sendTextMessage("==== ATM-List ====");
+                                    for(AtmObject atm : plugin.GameObject.atm.getAtmList()) {
+                                        player.sendTextMessage("- ID: " + atm.getID());
+                                    }
+                                    player.sendTextMessage("==================");
+                                }
+                                if (cmd[2].toLowerCase().equals("atmdb")) {
+                                    
                                 }
                             }
                         }

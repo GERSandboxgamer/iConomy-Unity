@@ -100,10 +100,18 @@ public class GUIs {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs-SendCash", "showGUI");
             }
-            SendCashGUI gui = new SendCashGUI(plugin, Console, player);
-            player.setAttribute(GuiPlayerAtt, gui);
-            player.setMouseCursorVisible(true);
-            return gui;
+            if (!player.hasAttribute(GuiPlayerAtt)) {
+                SendCashGUI gui = new SendCashGUI(plugin, Console, player);
+                player.setAttribute(GuiPlayerAtt, gui);
+                player.setMouseCursorVisible(true);
+                return gui;
+            } else {
+                player.showErrorMessageBox("iConomy - Error", "GUI bereits geöffnet!"); //TODO Translate
+                if (plugin.Config.Debug > 0) {
+                    Console.sendWarning("ShopMain-showGUI", "GUI is already open!");
+                }
+            }
+            return getGui(player);
         }
 
         public boolean hideGUI(Player player) {
@@ -115,7 +123,7 @@ public class GUIs {
             }
             return false;
         }
-        
+
         public SendCashGUI getGui(Player player) {
             if (player.hasAttribute(GuiPlayerAtt)) {
                 SendCashGUI gui = (SendCashGUI) player.getAttribute(GuiPlayerAtt);
@@ -125,14 +133,15 @@ public class GUIs {
         }
 
     }
+
     public class PlaceAtm {
-        
+
         private final String GuiPlayerAtt;
 
         public PlaceAtm() {
             this.GuiPlayerAtt = "iConomy-PlaceAtmGUI";
         }
-        
+
         public PlaceAtmGUI showGUI(Player player) {
             if (plugin.Config.Debug > 0) {
                 Console.sendDebug("GUIs-PlaceAtm", "showGUI");
@@ -141,7 +150,7 @@ public class GUIs {
             player.setAttribute(GuiPlayerAtt, gui);
             return gui;
         }
-        
+
         public boolean hideGUI(Player player) {
             if (player.hasAttribute(GuiPlayerAtt)) {
                 player.removeUIElement(((PlaceAtmGUI) player.getAttribute(GuiPlayerAtt)).getPanel());
@@ -150,7 +159,7 @@ public class GUIs {
             }
             return false;
         }
-        
+
         public PlaceAtmGUI getGui(Player player) {
             if (player.hasAttribute(GuiPlayerAtt)) {
                 PlaceAtmGUI gui = (PlaceAtmGUI) player.getAttribute(GuiPlayerAtt);

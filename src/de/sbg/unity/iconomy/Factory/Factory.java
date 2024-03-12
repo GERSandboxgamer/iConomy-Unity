@@ -20,7 +20,6 @@ import net.risingworld.api.utils.Vector3f;
 
 /**
  * The Factory Object
- * @hidden 
  */
 public class Factory {
 
@@ -38,7 +37,7 @@ public class Factory {
     private final HashMap<Integer, Long> PriceList;
 
     
-    private Factory(iConomy plugin, String Name, int ID) {
+    public Factory(iConomy plugin, String Name, int ID) {
         this.plugin = plugin;
         this.Plots = new ArrayList<>();
         this.Owners = new ArrayList<>();
@@ -53,6 +52,7 @@ public class Factory {
 
     /**
      * Create new Factory with a price list
+     * <b>Only for intern!</b>
      *
      * @param plugin
      * @param Name

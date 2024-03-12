@@ -7,6 +7,7 @@ import de.sbg.unity.configmanager.ConfigManager;
 import de.sbg.unity.iconomy.Banksystem.Banksystem;
 import de.sbg.unity.iconomy.CashSystem.CashSystem;
 import de.sbg.unity.iconomy.Database.icDatabases;
+import de.sbg.unity.iconomy.Factory.FactorySystem;
 import de.sbg.unity.iconomy.Listeners.Player.icPlayerListener;
 import de.sbg.unity.iconomy.GUI.GUIs;
 import de.sbg.unity.iconomy.Listeners.Commands.AdminMoneyCommandListener;
@@ -39,10 +40,7 @@ public class iConomy extends Plugin {
     public Banksystem Bankystem;
     public CashSystem CashSystem;
 
-    /**
-     * @hidden
-     */
-    //public FactorySystem Factory; //TODO Factory
+    public FactorySystem Factory;
     public icGameObject GameObject;
     public GUIs GUI;
 
@@ -50,6 +48,7 @@ public class iConomy extends Plugin {
      * @hidden
      */
     public icLanguage Language;
+    public icAttribute Attribute;
 
     private icConsole Console;
     private Attribute att;
@@ -85,7 +84,7 @@ public class iConomy extends Plugin {
             } catch (IOException ex) {
                 Console.sendErr("Config", "Can not load Config");
             }
-
+            
             Console.sendInfo("ini", "Load Config...Done!");
             Console.sendInfo("Debug", "Debug = " + Config.Debug);
             Console.sendInfo("ini", "Load Class...");
@@ -97,10 +96,11 @@ public class iConomy extends Plugin {
             Console.sendInfo("ini", "Load Class...Bankystem");
             Bankystem = new Banksystem(this, Console);
             Console.sendInfo("ini", "Load Class...Factory");
-            //Factory = new FactorySystem(this, att); //TODO Factory
+            Factory = new FactorySystem(this, att);
             Console.sendInfo("ini", "Load Class...GameObject");
             this.GameObject = new icGameObject(this, Console);
-
+            
+            Attribute = new icAttribute();
             
             List<String> BundleNameList = new ArrayList<>();
             BundleNameList.add("ATM");
@@ -135,8 +135,8 @@ public class iConomy extends Plugin {
                 Databases.Money.Cash.loadAllFromDatabase(CashSystem.getCashList());
                 Databases.Money.Bank.loadAllFromDatabase(Bankystem.PlayerSystem.getPlayerAccounts());
                 Databases.Money.ATM.loadAllFromDatabase(GameObject.atm.getAtmList());
-                //Databases.Factory.TabFactory.loadAllFromDatabase(Factory.getHashFactories()); //TODO Factory
-                //Databases.Factory.TabBank.loadAllFromDatabase(Bankystem.FactoryBankSystem.getHashFactoryAccounts()); //TODO Factory
+                Databases.Factory.TabFactory.loadAllFromDatabase(Factory.getHashFactories());
+                Databases.Factory.TabBank.loadAllFromDatabase(Bankystem.FactoryBankSystem.getHashFactoryAccounts()); 
                 Databases.startSaveTimer();
             } catch (SQLException ex) {
                 Console.sendErr("DB", "Cant load all from Database!");

@@ -84,8 +84,8 @@ public class icDatabases {
             saveAtm = false;
         }
         
-        //Factory.TabBank.saveAllToDatabase(plugin.Bankystem.FactoryBankSystem.getFactoryAccounts()); //TODO Factory
-        //Factory.TabFactory.saveAllToDatabase(plugin.Factory.getFactorys()); //TODO Factory
+        Factory.TabBank.saveAllToDatabase(plugin.Bankystem.FactoryBankSystem.getFactoryAccounts());
+        Factory.TabFactory.saveAllToDatabase(plugin.Factory.getFactorys()); 
     } 
 
     public void stopSaveTimer() {

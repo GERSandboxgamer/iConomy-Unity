@@ -137,7 +137,7 @@ public class FactoryDatabase {
                     min = result.getLong("Min");
                     state = (List<String>) DatabaseFormat.toObject(result.getBytes("Statements"));
 
-                    /*Factory f = plugin.Factory.getFactoryByID(FactoryID); //TODO Factory
+                    Factory f = plugin.Factory.getFactoryByID(FactoryID);
                     FactoryAccount a = new FactoryAccount(plugin, Console, f, id);
                     a.setMin(min);
                     a.setMoney(money);
@@ -148,7 +148,7 @@ public class FactoryDatabase {
                         a.getStatements().add(s);
                     }
                     
-                    FactoryAccounts.put(f, a);*/ //TODO Factory
+                    FactoryAccounts.put(f, a);
                 }
             }
 

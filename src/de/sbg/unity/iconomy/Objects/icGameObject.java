@@ -20,6 +20,7 @@ import java.util.List;
 import net.risingworld.api.Server;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.utils.Layer;
+import net.risingworld.api.utils.Quaternion;
 import net.risingworld.api.utils.Vector3f;
 import net.risingworld.api.worldelements.GameObject;
 
@@ -162,24 +163,30 @@ public class icGameObject {
             return AtmList;
         }
 
-        public void saveAtm(AtmObject atm) throws SQLException {
-            plugin.Databases.Money.ATM.add(atm);
+        public void saveAtm(AtmType type, Vector3f pos, Quaternion rot) throws SQLException {
+            AtmObject atm = plugin.Databases.Money.ATM.add(plugin.GameObject.getListBundle().get("ATM"), type, pos, rot);
             AtmList.add(atm);
+            Arrays.asList(Server.getAllPlayers()).forEach((p2) -> {
+                p2.addGameObject(atm);
+            });
         }
 
         public void createAtm(Player player, AtmType type) {
 
             Model3DPlace place = Model3DPlace.create(plugin, player, plugin.Language.getRadialPlace());
+            //plugin.Attribute.player.setPlacer(player, place);
             ModelAuswahl modelAuswahl = new ModelAuswahl();
             modelAuswahl.setBundle(true);
             modelAuswahl.setBundle(plugin.GameObject.getListBundle().get("ATM").getBundlePath() + "/" + "ATM" + "/" + plugin.GameObject.getListBundle().get("ATM").getPrefabAsset().getPath());
             Model3DObject gameObject = new Model3DObject(player.getUID(), -1, modelAuswahl);
 //            player.setListenForMouseInput(true);
 //            plugin.registerEventListener(place);
-            place.place(gameObject, false);
+            place.place(gameObject, false, false);
             ModelPlaceSave mps = new ModelPlaceSave(place, gameObject, gameObject.getID(), type);
             ModelSaveList.put(gameObject.getID(), mps);
-
+            if (plugin.Config.Debug > 0) {
+                player.sendTextMessage("Add ModelSaveList with ID " + gameObject.getID());
+            }
         }
 
         public void removeAtm(AtmObject atm) throws SQLException {

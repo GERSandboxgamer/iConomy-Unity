@@ -16,16 +16,13 @@ public class Banksystem {
 
     public final PlayerSystem PlayerSystem;
 
-    /**
-     * @hidden 
-     */
-    //public final FactoryBankSystem FactoryBankSystem; //TODO Factory
+    public final FactoryBankSystem FactoryBankSystem;
     private final icConsole Console;
 
     public Banksystem(iConomy plugin, icConsole Console) {
         this.Console = Console;
         this.PlayerSystem = new PlayerSystem(plugin, Console);
-        //this.FactoryBankSystem = new FactoryBankSystem(plugin, Console); //TODO Factory
+        this.FactoryBankSystem = new FactoryBankSystem(plugin, Console);
     }
 
     public class PlayerSystem {

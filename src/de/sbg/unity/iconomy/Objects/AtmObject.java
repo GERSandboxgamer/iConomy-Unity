@@ -1,12 +1,9 @@
 package de.sbg.unity.iconomy.Objects;
 
-import de.chaoswg.events.call.ModelAuswahl;
 import de.sbg.unity.iconomy.Utils.AtmUtils.AtmType;
 import de.sbg.unity.iconomy.Utils.PrefabVorlage;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
-import net.risingworld.api.assets.PrefabAsset;
-import net.risingworld.api.objects.Player;
 import net.risingworld.api.utils.Quaternion;
 import net.risingworld.api.utils.Vector3f;
 import net.risingworld.api.worldelements.Prefab;
@@ -18,11 +15,13 @@ public class AtmObject extends Prefab {
     private final iConomy plugin;
     private AtmType Type;
     private int livePoints;
+    private final int dbID;
     
-    public AtmObject(PrefabVorlage auswahl, AtmType Type, Vector3f pos, Quaternion rot, iConomy plugin, icConsole Console) {
+    public AtmObject(int dbID, PrefabVorlage auswahl, AtmType Type, Vector3f pos, Quaternion rot, iConomy plugin, icConsole Console) {
         super(auswahl.getPrefabAsset());
         this.plugin = plugin;
         this.Console = Console;
+        this.dbID = dbID;
         this.Type = Type;
         this.setLocalPosition(pos);
         this.setLocalRotation(rot);
@@ -66,7 +65,9 @@ public class AtmObject extends Prefab {
         this.Type = Type;
         plugin.Databases.saveAtm();
     }
-    
-    
+
+    public int getDbID() {
+        return dbID;
+    }
     
 }
