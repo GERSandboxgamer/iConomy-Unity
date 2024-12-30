@@ -1,0 +1,31 @@
+package de.sbg.unity.iconomy.Events.Objects.Suitcase;
+
+import de.sbg.unity.iconomy.Objects.SuitcaseObject;
+import net.risingworld.api.events.Cancellable;
+import net.risingworld.api.events.Event;
+import net.risingworld.api.objects.Player;
+
+
+public class SuitcaseSpawnEvent extends Event implements Cancellable {
+    
+    private final SuitcaseObject suitcase;
+    
+    public SuitcaseSpawnEvent(Player player, SuitcaseObject suitcase) {
+        this.suitcase = suitcase;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean bln) {
+        cancelled = bln;
+    }
+
+    public SuitcaseObject getSuitcase() {
+        return suitcase;
+    }
+
+}
