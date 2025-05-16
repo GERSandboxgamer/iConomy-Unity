@@ -15,6 +15,7 @@ public class GUIs {
     private final icConsole Console;
     private final iConomy plugin;
     public final MoneyInfo MoneyInfoGui;
+    public final MoneyInfoMini MoneyInfoMiniGui;
     public final SendCash SendCashGui;
     public final BankGuiSystem Bankystem;
     public final PlaceAtm PlaceAtmGui;
@@ -32,19 +33,20 @@ public class GUIs {
         this.PlaceAtmGui = new PlaceAtm();
         this.SelectOnlinePlayerGui = new SelectOnlinePlayer();
         this.SelectAccountGui = new SelectAccount();
-        this.speakGuiSystem  = new SpeakGuiSystem(plugin);
+        this.speakGuiSystem = new SpeakGuiSystem(plugin);
         this.smallCash = new SmallCash();
+        this.MoneyInfoMiniGui = new MoneyInfoMini();
     }
-    
+
     public class SmallCash {
-        
+
         private final String guiCashAtt;
 
         public SmallCash() {
             this.guiCashAtt = "sbg-iConomy-SpeakCashGuiAtt";
         }
-        
-        public SmallCashGUI show(Player player){
+
+        public SmallCashGUI show(Player player) {
             if (!player.hasAttribute(guiCashAtt)) {
                 SmallCashGUI gui = new SmallCashGUI(plugin, player);
                 player.setAttribute(guiCashAtt, gui);
@@ -52,25 +54,23 @@ public class GUIs {
             }
             return get(player);
         }
-        
+
         public void hide(Player player) {
             if (player.hasAttribute(guiCashAtt)) {
-                SmallCashGUI gui = (SmallCashGUI)player.getAttribute(guiCashAtt);
+                SmallCashGUI gui = (SmallCashGUI) player.getAttribute(guiCashAtt);
                 player.removeUIElement(gui);
                 player.deleteAttribute(guiCashAtt);
             }
         }
-        
-        public SmallCashGUI get(Player player){
+
+        public SmallCashGUI get(Player player) {
             if (player.hasAttribute(guiCashAtt)) {
-               return (SmallCashGUI)player.getAttribute(guiCashAtt);
+                return (SmallCashGUI) player.getAttribute(guiCashAtt);
             }
             return null;
         }
-        
+
     }
-    
-    
 
     public class MoneyInfo {
 
@@ -134,6 +134,49 @@ public class GUIs {
                 return true;
             }
             return false;
+        }
+    }
+
+    public class MoneyInfoMini {
+        
+        private final String GuiPlayerAtt;
+
+        public MoneyInfoMini() {
+            GuiPlayerAtt = "iConomy-MoneyInfoMiniGUI";
+        }
+
+        public MoneyInfoMiniGUI showGUI(Player player) {
+            if (plugin.Config.Debug > 0) {
+                Console.sendDebug("GUIs-MoneyInfoMiniGUI", "showGUI");
+            }
+            if (!player.hasAttribute(GuiPlayerAtt)) {
+                MoneyInfoMiniGUI gui = new MoneyInfoMiniGUI(plugin, player);
+                player.setAttribute(GuiPlayerAtt, gui);
+                return gui;
+            } else {
+                player.showErrorMessageBox("iConomy - Error", "GUI bereits geöffnet!"); //TODO Translate
+                if (plugin.Config.Debug > 0) {
+                    Console.sendWarning("ShopMain-showGUI", "GUI is already open!");
+                }
+            }
+            return getGui(player);
+        }
+        
+        public boolean hideGui(Player player) {
+            if (player.hasAttribute(GuiPlayerAtt)) {
+                player.removeUIElement((MoneyInfoMiniGUI) player.getAttribute(GuiPlayerAtt));
+                player.deleteAttribute(GuiPlayerAtt);
+                return true;
+            }
+            return false;
+        }
+        
+        public MoneyInfoMiniGUI getGui(Player player) {
+            if (player.hasAttribute(GuiPlayerAtt)) {
+                MoneyInfoMiniGUI gui = (MoneyInfoMiniGUI) player.getAttribute(GuiPlayerAtt);
+                return gui;
+            }
+            return null;
         }
     }
 
@@ -215,7 +258,7 @@ public class GUIs {
                 plugin.unregisterEventListener(gui);
                 player.removeUIElement(gui.getPanel());
                 player.deleteAttribute(GuiPlayerAtt);
-                
+
                 return true;
             }
             return false;
@@ -229,15 +272,15 @@ public class GUIs {
             return null;
         }
     }
-    
+
     public class SelectAccount {
-        
+
         private final String GuiSelectAccount;
-        
+
         public SelectAccount() {
             this.GuiSelectAccount = "iConomy-GuiSelectAccount";
         }
-        
+
         public SelectAccountGUI showGUI(Player player, AccountList.SelectCallback cb) {
             if (!player.hasAttribute(GuiSelectAccount)) {
                 SelectAccountGUI gui = new SelectAccountGUI(player, "Select Account", plugin, cb); //TODO Lang
@@ -250,7 +293,7 @@ public class GUIs {
                 return gui;
             }
         }
-        
+
         public boolean hideGUI(Player player) {
             if (player.hasAttribute(GuiSelectAccount)) {
                 SelectAccountGUI gui = (SelectAccountGUI) player.getAttribute(GuiSelectAccount);
@@ -259,7 +302,7 @@ public class GUIs {
             }
             return false;
         }
-        
+
         public SelectAccountGUI getGui(Player player) {
             if (player.hasAttribute(GuiSelectAccount)) {
                 SelectAccountGUI gui = (SelectAccountGUI) player.getAttribute(GuiSelectAccount);
@@ -267,7 +310,7 @@ public class GUIs {
             }
             return null;
         }
-        
+
     }
 
     public class PlaceAtm {

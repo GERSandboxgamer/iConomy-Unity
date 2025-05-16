@@ -84,6 +84,10 @@ public class PlayerAccount extends BankAccount {
         });
         return result;
     }
+    
+    public boolean addMember(BankMember m) {
+        return Members.add(m);
+    }
 
     /**
      * Adds a new member to the player account.
@@ -121,6 +125,7 @@ public class PlayerAccount extends BankAccount {
      */
     public BankMember addMember(Player sender, String uid) {
         BankMember m = new BankMember(uid);
+        m.setDefaultPermission();
         AddMemberEvent evt = new AddMemberEvent(sender, m);
         plugin.triggerEvent(evt);
         if (!evt.isCancelled()) {

@@ -29,11 +29,13 @@ public class AccountInfo extends MenuElement{
     private final icConsole Console;
     private final UILabel labBalanceValue, labMinBalanceValue, labOwnerNameValue, labOwnerUidValue;
     private final Player player;
+    private final String lang;
     
     public AccountInfo(Player player, iConomy plugin) {
         this.plugin = plugin;
         this.Console = new icConsole(plugin);
         this.player = player;
+        this.lang = player.getLanguage();
         
         this.style.flexDirection.set(FlexDirection.Column);
         this.setSize(100, 100, true);
@@ -48,7 +50,7 @@ public class AccountInfo extends MenuElement{
         labTitel.setTextAlign(TextAnchor.MiddleCenter);
         this.addChild(labTitel);
         
-        UILabel labText = new UILabel("Hier stehen alle Informationen über dieses Account."); //TODO Beschreibung
+        UILabel labText = new UILabel(plugin.Language.getGui().getAccountInfoText(lang));
         labText.setFontSize(20);
         labText.style.width.set(100, Unit.Percent);
         labText.setTextAlign(TextAnchor.MiddleCenter);
@@ -67,25 +69,25 @@ public class AccountInfo extends MenuElement{
         panelLift.style.paddingRight.set(5, Unit.Pixel);
         panelTop.addChild(panelLift);
         
-        UILabel labBalance = new UILabel("Balance:"); //TODO Lang
+        UILabel labBalance = new UILabel(plugin.Language.getGui().getBalance(lang) + ":");
         labBalance.setFontSize(24);
         labBalance.style.width.set(100, Unit.Percent);
         labBalance.setTextAlign(TextAnchor.MiddleRight);
         panelLift.addChild(labBalance);
         
-        UILabel labMinBalance = new UILabel("Min. Balance: "); //TODO Lang
+        UILabel labMinBalance = new UILabel(plugin.Language.getGui().getMinBalance(lang) + ":");
         labMinBalance.setFontSize(24);
         labMinBalance.style.width.set(100, Unit.Percent);
         labMinBalance.setTextAlign(TextAnchor.MiddleRight);
         panelLift.addChild(labMinBalance);
         
-        UILabel labOwnerName = new UILabel("Owner: "); //TODO Lang
+        UILabel labOwnerName = new UILabel(plugin.Language.getGui().getOwner(lang) + ":");
         labOwnerName.setFontSize(24);
         labOwnerName.style.width.set(100, Unit.Percent);
         labOwnerName.setTextAlign(TextAnchor.MiddleRight);
         panelLift.addChild(labOwnerName);
         
-        UILabel labOwnerUid = new UILabel("Owner UID: "); //TODO Lang
+        UILabel labOwnerUid = new UILabel(plugin.Language.getGui().getOwner(lang) + " UID: ");
         labOwnerUid.setFontSize(24);
         labOwnerUid.style.width.set(100, Unit.Percent);
         labOwnerUid.setTextAlign(TextAnchor.MiddleRight);

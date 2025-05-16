@@ -13,7 +13,6 @@ import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
 import java.sql.SQLException;
 import net.risingworld.api.Server;
-import net.risingworld.api.collider.BoxCollider;
 import net.risingworld.api.definitions.Npcs;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
@@ -23,7 +22,6 @@ import net.risingworld.api.events.player.PlayerDisconnectEvent;
 import net.risingworld.api.events.player.PlayerGameObjectInteractionEvent;
 import net.risingworld.api.events.player.PlayerNpcInteractionEvent;
 import net.risingworld.api.events.player.PlayerSpawnEvent;
-import net.risingworld.api.objects.Item;
 import net.risingworld.api.objects.Npc;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.worldelements.GameObject;
@@ -47,7 +45,7 @@ public class icPlayerListener implements Listener {
         plugin.Attribute.player.setDummyMode(player, false);
         plugin.Attribute.player.setNpcSelectMode(player, false);
         plugin.Bankystem.npcSystem.addPlayer(player);
-        plugin.Attribute.player.setFactoryPlotSelection(player, false);
+        plugin.Attribute.player.setBusinessPlotSelection(player, false);
 
         try {
             if (plugin.CashSystem.addPlayer(player)) {
@@ -89,35 +87,38 @@ public class icPlayerListener implements Listener {
                 if (cmd[1].toLowerCase().equals("help")) {
                     player.sendTextMessage(format.Color("orange", "======== Help ========"));
                     player.sendTextMessage(format.Color("orange", "Info: | = Or; <> = must; () = Optional"));
-                    player.sendTextMessage(format.Color("orange", "/balance"));
-                    player.sendTextMessage(format.Color("orange", cmd[0]));
-                    player.sendTextMessage(format.Color("orange", cmd[0] + " [createbank|cb]"));
-                    player.sendTextMessage(format.Color("orange", cmd[0] + " help"));
-                    player.sendTextMessage(format.Color("orange", cmd[0] + " send"));
-                    player.sendTextMessage(format.Color("orange", cmd[0] + " factroy help"));
+                    player.sendTextMessage(format.Color("orange", "/balance - Show the balance"));
+                    player.sendTextMessage(format.Color("orange", cmd[0]) + "Show the balance");
+                    if (plugin.Config.CreateAccountViaCommand) {
+                        player.sendTextMessage(format.Color("orange", cmd[0] + " [createbank|cb] - Create a bank account"));
+                    }
+                    player.sendTextMessage(format.Color("orange", cmd[0] + " help - Show the help"));
+                    player.sendTextMessage(format.Color("orange", cmd[0] + " send - Send Money to other player"));
+                    //player.sendTextMessage(format.Color("orange", cmd[0] + " factroy help")); //TODO Business
                     if (player.isAdmin()) {
                         player.sendTextMessage(format.Color("red", "===== Only Admin ====="));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " info"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <givecash|gc> <Player> <Amount>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <takecash|tc> <Player> <Amount>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <setcash|sc> <Player> <Amount>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <givebank|gb> <Player> <Amount>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <takebank|tb> <Player> <Amount>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <setbank|sb> <Player> <Amount>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " <createbank|cb> <Player>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " bs (true|false)"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " bs addatm"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " npc create <name>"));
-                        player.sendTextMessage(format.Color("red", cmd[0] + " npc select"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " info - Show info about the plugin"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <givecash|gc> <Player> <Amount> - Give a player cash"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <takecash|tc> <Player> <Amount> - Take cash from player"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <setcash|sc> <Player> <Amount> - Set the cash of a player"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <givebank|gb> <Player> <Amount> - Give a player money to his bank account"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <takebank|tb> <Player> <Amount> - Remove money from players bank account"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <setbank|sb> <Player> <Amount> - Set the money of the player bank account"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " <createbank|cb> <Player> - Create a bank account for a player"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " bs (true|false) - Show the banksystem (true = Admin-Mode)"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " bank addatm - Add a new ATM to the world"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " npc create <name> - Create a 'bank npc'"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " npc select - Select a 'bank npc'"));
                     }
                     player.sendTextMessage(format.Color("orange", "======================"));
                 }
             }
             if (cmd[1].toLowerCase().equals("getid")) {
                 player.sendTextMessage("[iConomy] " + player.getEquippedItem().getDefinition().id);
-                
+
             }
         }
+        /*
         if (cmd.length == 3) {
             if (cmd[1].toLowerCase().equals("factory") || cmd[1].toLowerCase().equals("fa")) {
                 if (cmd[2].toLowerCase().equals("help")) {
@@ -142,7 +143,7 @@ public class icPlayerListener implements Listener {
                 }
             }
         }
-
+        
         if (cmd.length == 4) {
             if (cmd[0].toLowerCase().equals("/sc")) {
                 float x, y, z;
@@ -157,7 +158,7 @@ public class icPlayerListener implements Listener {
                     player.sendTextMessage(ex.getMessage());
                 }
             }
-        }
+        }*/
     }
 
     @EventMethod
@@ -246,6 +247,8 @@ public class icPlayerListener implements Listener {
 
     @EventMethod
     public void onPlayerDisconnectEvent(PlayerDisconnectEvent event) {
+        Player player = event.getPlayer();
+        plugin.Bankystem.npcSystem.removePlayer(player);
         if (plugin.Config.SaveAllByPlayerDisconnect) {
             try {
                 plugin.Databases.saveAll();

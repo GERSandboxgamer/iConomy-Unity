@@ -130,7 +130,7 @@ public class icSign implements Listener {
         }
     }
 
-    private enum Result {
+    public enum Result {
 
         OK("Everything OK!"),
         Permission("Player does not have enough permission!"),

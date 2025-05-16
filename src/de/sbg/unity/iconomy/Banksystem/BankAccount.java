@@ -37,7 +37,7 @@ public class BankAccount {
      *
      * @param plugin The iConomy plugin instance.
      * @param Console The console used for logging and output.
-     * @param typ The type of the account (e.g., Player or Factory account).
+     * @param typ The type of the account (e.g., Player or Business account).
      */
     public BankAccount(iConomy plugin, icConsole Console, AccountType typ) {
         this.Statements = new ArrayList<>();
@@ -89,7 +89,7 @@ public class BankAccount {
      * Adds a new statement to the bank account.
      *
      * @param s The statement to add.
-     * @param sender The sender who sent the money (e.g. Player, BankAccount, FactoryAccount, etc.)
+     * @param sender The sender who sent the money (e.g. Player, BankAccount, BusinessAccount, etc.)
      */
     public void addStatement(String s, String sender) {       
         Statements.add(new BankStatement(LocalDateTime.now(), sender, s));
@@ -184,7 +184,7 @@ public class BankAccount {
                 plugin.triggerEvent(event);
                 if (!event.isCancelled()) {
                     Money += amount;
-                    addStatement(sender.getName() + " +" + plugin.moneyFormat.getMoneyAsFormatedString(sender, Money), sender.getName());
+                    addStatement(sender.getName() + " +" + plugin.moneyFormat.getMoneyAsFormatedString(sender, amount), sender.getName());
                     return TransferResult.Successful;
                 }
                 return TransferResult.EventCancel;
@@ -204,7 +204,7 @@ public class BankAccount {
                 plugin.triggerEvent(event);
                 if (!event.isCancelled()) {
                     Money += amount;
-                    addStatement(statement + " +" + plugin.moneyFormat.getMoneyAsFormatedString(sender, Money), sender.getName());
+                    addStatement(statement + " +" + plugin.moneyFormat.getMoneyAsFormatedString(sender, amount), sender.getName());
                     return TransferResult.Successful;
                 }
                 return TransferResult.EventCancel;
@@ -229,18 +229,19 @@ public class BankAccount {
         plugin.triggerEvent(event);
         if (!event.isCancelled()) {
             Money += amount;
-            addStatement("Send to Bank: +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), sender.getAccountName());
+            addStatement("Send from " + sender.getAccountName() + "'s bank: +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), sender.getAccountName());
             return TransferResult.Successful;
         }
         return TransferResult.EventCancel;
     }
+    
 
     /**
      * Adds money to the bank account with a custom statement.
      *
      * @param amount The amount of money to add.
      * @param statement The custom statement for the transaction.
-     * @param sender The sender who sent the money (e.g. Player, BankAccount, FactoryAccount, etc.)
+     * @param sender The sender who sent the money (e.g. Player, BankAccount, BusinessAccount, etc.)
      * @return TransferResult indicating the result of the transfer.
      */
     public TransferResult addMoney(long amount, String statement, String sender) {
@@ -251,7 +252,7 @@ public class BankAccount {
         plugin.triggerEvent(event);
         if (!event.isCancelled()) {
             Money += amount;
-            addStatement(statement + " +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), sender);
+            addStatement(statement + " +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), sender);
             return TransferResult.Successful;
         }
         return TransferResult.EventCancel;
@@ -274,7 +275,7 @@ public class BankAccount {
                     long newMoney = Money - amount;
                     if (newMoney >= getMin()) {
                         Money -= amount;
-                        addStatement(sender.getName() + " -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), sender.getName());
+                        addStatement(sender.getName() + " -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), sender.getName());
                         return TransferResult.Successful;
                     } else {
                         return TransferResult.NotEnoughMoney;
@@ -290,18 +291,18 @@ public class BankAccount {
     /**
      * Removes money from the bank account for another bank account.
      *
-     * @param sender The bank account requesting the withdrawal.
-     * @param amount The amount of money to remove.
+     * @param receiver The bank account requesting the withdrawal.
+     * @param amounth The amount of money to remove.
      * @return TransferResult indicating the result of the transfer.
      */
-    public TransferResult removeMoney(BankAccount sender, long amount) {
-        RemoveBankMoneyEvent event = new RemoveBankMoneyEvent(sender, amount);
+    public TransferResult removeMoney(BankAccount receiver, long amounth) {
+        RemoveBankMoneyEvent event = new RemoveBankMoneyEvent(receiver, amounth);
         plugin.triggerEvent(event);
         if (!event.isCancelled()) {
-            long newMoney = Money - amount;
+            long newMoney = Money - amounth;
             if (newMoney >= getMin()) {
-                Money -= amount;
-                addStatement("Send money -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), sender.getAccountName());
+                Money -= amounth;
+                addStatement("Send money to " + receiver.getAccountName() + ": -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amounth), receiver.getAccountName());
                 return TransferResult.Successful;
             }
             return TransferResult.NotEnoughMoney;
@@ -314,7 +315,7 @@ public class BankAccount {
      *
      * @param amount The amount of money to remove.
      * @param statement The custom statement for the transaction.
-     * @param sender The sender who sent the money (e.g. Player, BankAccount, FactoryAccount, etc.)
+     * @param sender The sender who sent the money (e.g. Player, BankAccount, BusinessAccount, etc.)
      * @return TransferResult indicating the result of the transfer.
      */
     public TransferResult removeMoney(long amount, String statement, String sender) {
@@ -324,7 +325,7 @@ public class BankAccount {
             long newMoney = Money - amount;
             if (newMoney >= getMin()) {
                 Money -= amount;
-                addStatement(statement + " -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), sender);
+                addStatement(statement + " -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), sender);
                 return TransferResult.Successful;
             }
             return TransferResult.NotEnoughMoney;
@@ -367,7 +368,7 @@ public class BankAccount {
                         } catch (CashFormatExeption ex) {
                             return TransferResult.MoneyFormat;
                         }
-                        addStatement("Cash out -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), player.getName());
+                        addStatement("Cash out -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), player.getName());
                         return TransferResult.Successful;
                     }
                     return TransferResult.NotEnoughMoney;
@@ -399,7 +400,7 @@ public class BankAccount {
                 try {
                     plugin.CashSystem.setCash(player, newC);
                     Money += amount;
-                    addStatement("Cash in +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(Money), player.getName());
+                    addStatement("Cash in +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), player.getName());
                     return TransferResult.Successful;
                 } catch (CashFormatExeption ex) {
                     return TransferResult.MoneyFormat;
@@ -412,17 +413,17 @@ public class BankAccount {
 
     /**
      * Retrieves the account name based on the type of account (PlayerAccount or
-     * FactoryAccount).
+     * BusinessAccount).
      *
      * @param sender The bank account.
-     * @return The name of the account owner (player or factory).
+     * @return The name of the account owner (player or business).
      */
     private String getAccountName() {
         if (this instanceof PlayerAccount pa) {
             return pa.getLastKnownOwnerName();
         }
-        if (this instanceof FactoryAccount fa) {
-            return fa.getFactory().getName();
+        if (this instanceof BusinessAccount ba) {
+            return ba.getBusiness().getName();
         }
         return null;
     }

@@ -1,6 +1,6 @@
 package de.sbg.unity.iconomy.Utils;
 
-import de.sbg.unity.iconomy.Factory.Factory;
+import de.sbg.unity.iconomy.Business.Business;
 import de.sbg.unity.iconomy.iConomy;
 import net.risingworld.api.objects.Area;
 
@@ -16,22 +16,22 @@ public class Attribute {
     
     public class AreaAttribute {
         
-        private final String AreaFactory;
+        private final String AreaBusiness;
         
         public AreaAttribute(iConomy plugin) {
-            this.AreaFactory = plugin.getDescription("name") + "-AreaAttribute-AreaFactory";
+            this.AreaBusiness = plugin.getDescription("name") + "-AreaAttribute-AreaBusiness";
         }
         
-        public Factory getFactory(Area area) {
-            return (Factory)area.getAttribute(AreaFactory);
+        public Business getBusiness(Area area) {
+            return (Business)area.getAttribute(AreaBusiness);
         }
         
-        public void setFactory(Area area, Factory factory) {
-            area.setAttribute(AreaFactory, factory);
+        public void setBusiness(Area area, Business factory) {
+            area.setAttribute(AreaBusiness, factory);
         }
         
-        public boolean hasFactoryAttribute(Area area) {
-            return area.hasAttribute(AreaFactory);
+        public boolean hasBusinessAttribute(Area area) {
+            return area.hasAttribute(AreaBusiness);
         }
         
     }

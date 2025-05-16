@@ -4,15 +4,17 @@ import net.risingworld.api.Internals;
 
 /**
  * Send text to the Console
+ *
  * @hidden Only for dev
  * @author pbronke
  */
 public class icConsole {
-    
+
     private final iConomy plugin;
 
     /**
      * Create new asConsole-Object
+     *
      * @param plugin
      */
     public icConsole(iConomy plugin) {
@@ -21,6 +23,7 @@ public class icConsole {
 
     /**
      * Send Info to Console
+     *
      * @param msg
      */
     public void sendInfo(Object msg) {
@@ -29,15 +32,17 @@ public class icConsole {
 
     /**
      * Send Info to Console
+     *
      * @param ClassName
      * @param msg
      */
     public void sendInfo(String ClassName, Object msg) {
         Internals.println("[" + plugin.getDescription("name") + "-Info] [" + ClassName + "] " + msg, 10);
     }
-        
+
     /**
      * Send Error to Console
+     *
      * @param msg
      */
     public void sendErr(Object msg) {
@@ -46,15 +51,17 @@ public class icConsole {
 
     /**
      * Send Error to Console
+     *
      * @param ClassName
      * @param msg
      */
     public void sendErr(String ClassName, Object msg) {
         System.err.println("[" + plugin.getDescription("name") + "-ERROR] [" + ClassName + "] " + msg);
     }
-    
+
     /**
      * Send Warning to Console
+     *
      * @param msg
      */
     public void sendWarning(Object msg) {
@@ -63,28 +70,36 @@ public class icConsole {
 
     /**
      * Send Warning to Console
+     *
      * @param ClassName
      * @param msg
      */
     public void sendWarning(String ClassName, Object msg) {
         Internals.println("[" + plugin.getDescription("name") + "-Warning] [" + ClassName + "] " + msg, 14);
     }
-    
+
     /**
      * Send Debug to Console
+     *
      * @param msg
      */
     public void sendDebug(Object msg) {
-        Internals.println("[" + plugin.getDescription("name") + "-Debug] " + msg, 7);
+        if (plugin.Config.Debug > 0) {
+            Internals.println("[" + plugin.getDescription("name") + "-Debug] " + msg, 7);
+        }
     }
 
     /**
      * Send Debug to Console
+     *
      * @param ClassName
      * @param msg
      */
     public void sendDebug(String ClassName, Object msg) {
-        Internals.println("[" + plugin.getDescription("name") + "-Debug] [" + ClassName + "] " + msg, 7);
+        if (plugin.Config.Debug > 0) {
+            Internals.println("[" + plugin.getDescription("name") + "-Debug] [" + ClassName + "] " + msg, 7);
+        }
+
     }
-    
+
 }

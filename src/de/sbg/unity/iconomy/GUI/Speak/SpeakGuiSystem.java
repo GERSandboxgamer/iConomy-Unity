@@ -17,16 +17,16 @@ public class SpeakGuiSystem {
     }
 
     public void show(Player player, Npc npc) {
-        show(player, npc, 0);
+        show(player, npc, plugin.Bankystem.npcSystem.getSpeakSystem(player).id_00());
     }
 
-    public SpeakMainGui show(Player player, Npc npc, int textID) {
+    public SpeakMainGui show(Player player, Npc npc, SpeakObject so) {
         if (!player.hasAttribute(guiAtt)) {
             SpeakMainGui gui = new SpeakMainGui(player, plugin);
             player.setAttribute(guiAtt, gui);
             SpeakSystem ss = plugin.Bankystem.npcSystem.getSpeakSystem(player);
-            ss.init(npc);
-            setNewText(player, textID);
+            ss.setNpc(npc);
+            setNewText(player, so);
             
             player.setMouseCursorVisible(true);
             player.addUIElement(gui.getPanel());
@@ -56,16 +56,22 @@ public class SpeakGuiSystem {
             if (hidemouse) {
                 player.setMouseCursorVisible(false);
             }
+            plugin.GUI.MoneyInfoMiniGui.hideGui(player);
         }
     }
 
-    public void setNewText(Player player, int id) {
+    public void setNewText(Player player, SpeakObject so) {
         if (player.hasAttribute(guiAtt)) {
             SpeakMainGui gui = (SpeakMainGui) player.getAttribute(guiAtt);
             gui.clearAll();
-            SpeakObject so = plugin.Bankystem.npcSystem.getSpeakSystem(player).getSpeak(id);
+            System.out.println("next = " + so);
             gui.answers.setNewText(so.getAnswers());
             gui.speakText.setNewText(so.getSpeakText());
+            if (so.isShowMoneyGui()) {
+                plugin.GUI.MoneyInfoMiniGui.showGUI(player);
+            } else {
+                plugin.GUI.MoneyInfoMiniGui.hideGui(player);
+            }
         }
     }
 }

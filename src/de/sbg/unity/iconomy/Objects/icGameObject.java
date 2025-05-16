@@ -101,10 +101,9 @@ public class icGameObject {
             SuitcaseRemoveEvent evt = new SuitcaseRemoveEvent(sc, cause);
             plugin.triggerEvent(evt);
             if (!evt.isCancelled()) {
+                sc.getTimer().removeTimer();
+                sc.removeSuitcaseGameObject();
                 SuitcaseList.remove(sc.getPlayer().getUID());
-                Arrays.asList(Server.getAllPlayers()).forEach((p2) -> {
-                    p2.removeGameObject(sc);
-                });
                 return true;
             }
             return false;
@@ -118,11 +117,10 @@ public class icGameObject {
                     TransferResult tr = plugin.CashSystem.addCash(player, sc.getAmount(), AddCashEvent.Reason.Player);
                     switch (tr) {
                         case Successful -> {
-                            sc.stopTimer();
+                            //sc.stopTimer();
+                            sc.getTimer().removeTimer();
+                            sc.removeSuitcaseGameObject();
                             SuitcaseList.remove(sc.getPlayer().getUID());
-                            Arrays.asList(Server.getAllPlayers()).forEach((p2) -> {
-                                p2.removeGameObject(sc);
-                            });
                             player.sendTextMessage(plugin.Language.getGameObject().getFindMoney(player.getLanguage()));
                             return true;
                         }
@@ -131,11 +129,10 @@ public class icGameObject {
                         }
                     }
                 } else {
-                    sc.stopTimer();
+                    //sc.stopTimer();
+                    sc.getTimer().removeTimer();
+                    sc.removeSuitcaseGameObject();
                     SuitcaseList.remove(sc.getPlayer().getUID());
-                    Arrays.asList(Server.getAllPlayers()).forEach((p2) -> {
-                        p2.removeGameObject(sc);
-                    });
                     return true;
                 }
             }

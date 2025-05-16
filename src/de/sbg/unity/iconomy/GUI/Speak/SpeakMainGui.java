@@ -67,6 +67,16 @@ public class SpeakMainGui implements Listener {
         speakText.removeAllChilds();
     }
 
+    public UISpeakText getSpeakText() {
+        return speakText;
+    }
+
+    public UIAnswerList getAnswers() {
+        return answers;
+    }
+    
+    
+
     @EventMethod
     public void onPlayerClickAnswerEvent(PlayerUIElementClickEvent event) {
         UIElement el = event.getUIElement();
@@ -78,9 +88,14 @@ public class SpeakMainGui implements Listener {
                     case Code -> ao.getAnswer().getCode().onRunCode();
                     case GoTo -> {
                         clearAll();
-                        SpeakObject so = plugin.Bankystem.npcSystem.getSpeakSystem(player).getSpeak(ao.getAnswer().getNextID());
+                        SpeakObject so = ao.getAnswer().getNextSpeak();
                         speakText.setNewText(so.getSpeakText());
                         answers.setNewText(so.getAnswers());
+                        if (so.isShowMoneyGui()) {
+                            plugin.GUI.MoneyInfoMiniGui.showGUI(player);
+                        } else {
+                            plugin.GUI.MoneyInfoMiniGui.hideGui(player);
+                        }
                     }
                     case Stop -> {
                         plugin.GUI.speakGuiSystem.hide(player);

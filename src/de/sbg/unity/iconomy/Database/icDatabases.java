@@ -4,12 +4,13 @@ import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
 import java.sql.SQLException;
+import net.risingworld.api.Server;
 import net.risingworld.api.Timer;
 
 public class icDatabases {
 
     public final MoneyDatabase Money;
-    public final FactoryDatabase Factory;
+    public final BusinessDatabase Business;
     private Timer saveTimer;
     private final iConomy plugin;
     private final icConsole Console;
@@ -19,11 +20,13 @@ public class icDatabases {
         this.plugin = plugin;
         this.Console = Console;
         Money = new MoneyDatabase(plugin, Console);
-        Factory = new FactoryDatabase(plugin, Console);
+        Business = new BusinessDatabase(plugin, Console);
         saveAtm = false;
+        Business.createDatabse();
+        Money.createDatabse();
     }
-    
-    public void saveAtm(){
+
+    public void saveAtm() {
         saveAtm = true;
     }
 
@@ -40,7 +43,7 @@ public class icDatabases {
                 if (plugin.Config.Debug > 0) {
                     Console.sendDebug("icDatabases", "SaveTimer: SaveAll...Done!");
                 }
-                
+
             } catch (SQLException ex) {
                 Console.sendErr("DB-SQL", "========= iConomy-Exception =========");
                 Console.sendErr("DB-SQL", "Can not save all to Database!");
@@ -76,18 +79,28 @@ public class icDatabases {
     }
 
     public void saveAll() throws SQLException, IOException {
+        saveAll(false);
+    }
+
+    public void saveAll(boolean close) throws SQLException, IOException {
         Money.Cash.saveAllToDatabase(plugin.CashSystem.getCashList());
         Money.Bank.saveAllToDatabase(plugin.Bankystem.PlayerSystem.getPlayerAccounts());
-        
+
         if (saveAtm) {
             Console.sendInfo("SaveAtm", "Save now all ATMs...");
             Money.ATM.saveAllToDatabase(plugin.GameObject.atm.getAtmList());
             saveAtm = false;
         }
-        
-        Factory.TabBank.saveAllToDatabase(plugin.Bankystem.FactoryBankSystem.getFactoryAccounts());
-        Factory.TabFactory.saveAllToDatabase(plugin.Factory.getFactorys()); 
-    } 
+
+        Business.TabBank.saveAllToDatabase(plugin.Bankystem.BusinessBankSystem.getBusinessAccounts());
+        Business.TabBusiness.saveAllToDatabase(plugin.Business.getBusinesss());
+
+        if (close) {
+            Business.getDatabase().close();
+            Money.getDatabase().close();
+        }
+
+    }
 
     public void stopSaveTimer() {
         if (isSaveTimerRunning()) {
@@ -97,6 +110,45 @@ public class icDatabases {
 
     public boolean isSaveTimerRunning() {
         return saveTimer != null || saveTimer.isActive();
+    }
+
+    public void loadAll() {
+        try {
+            Money.Cash.loadAllFromDatabase(plugin.CashSystem.getCashList());
+            Money.Bank.loadAllFromDatabase(plugin.Bankystem.PlayerSystem.getPlayerAccounts());
+            Money.ATM.loadAllFromDatabase(plugin.GameObject.atm.getAtmList());
+            Business.TabBusiness.loadAllFromDatabase(plugin.Business.getHashBusinessList());
+            Business.TabBank.loadAllFromDatabase(plugin.Bankystem.BusinessBankSystem.getHashBusinessAccounts());
+            Money.NPC.loadAll(plugin.Bankystem.npcSystem.getNpcList());
+            startSaveTimer();
+        } catch (SQLException ex) {
+            Console.sendErr("DB-SQL", "Cant load all from Database!");
+            Console.sendErr("DB-SQL", "Ex-Msg: " + ex.getMessage());
+            Console.sendErr("DB-SQL", "Ex-SQLState: " + ex.getSQLState());
+            for (StackTraceElement st : ex.getStackTrace()) {
+                Console.sendErr("DB-SQL", st.toString());
+            }
+            Console.sendErr("SERVER", "STOP SERVER!");
+            Server.shutdown();
+        } catch (IOException ex) {
+            Console.sendErr("DB-IO", "Cant load all from Database!");
+            Console.sendErr("DB-IO", "IOException (Blob > Object)");
+            Console.sendErr("DB-IO", "Ex-Msg: " + ex.getMessage());
+            for (StackTraceElement st : ex.getStackTrace()) {
+                Console.sendErr("DB-IO", st.toString());
+            }
+            Console.sendErr("SERVER", "STOP SERVER!");
+            Server.shutdown();
+        } catch (ClassNotFoundException ex) {
+            Console.sendErr("DB", "Cant load all from Database!");
+            Console.sendErr("DB", "ClassNotFoundException: Class can not found (Blob > Object)");
+            Console.sendErr("DB", "Ex-Msg: " + ex.getMessage());
+            for (StackTraceElement st : ex.getStackTrace()) {
+                Console.sendErr("DB", st.toString());
+            }
+            Console.sendErr("SERVER", "STOP SERVER!");
+            Server.shutdown();
+        }
     }
 
 }

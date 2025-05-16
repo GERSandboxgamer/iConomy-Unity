@@ -1,5 +1,6 @@
 package de.sbg.unity.iconomy;
 
+import com.sun.java.accessibility.util.Translator;
 import de.chaoswg.ClassPluginJSONManager;
 import de.chaoswg.ToolsAPI;
 import de.sbg.unity.configmanager.ConfigData;
@@ -7,14 +8,14 @@ import de.sbg.unity.configmanager.ConfigManager;
 import de.sbg.unity.iconomy.Banksystem.Banksystem;
 import de.sbg.unity.iconomy.CashSystem.CashSystem;
 import de.sbg.unity.iconomy.Database.icDatabases;
-import de.sbg.unity.iconomy.Factory.FactorySystem;
+import de.sbg.unity.iconomy.Business.BusinessSystem;
 import de.sbg.unity.iconomy.Listeners.Player.icPlayerListener;
 import de.sbg.unity.iconomy.GUI.GUIs;
-import de.sbg.unity.iconomy.Listeners.Commands.AdminFactoryCommandListener;
+import de.sbg.unity.iconomy.Listeners.Commands.AdminBusinessCommandListener;
 import de.sbg.unity.iconomy.Listeners.Commands.AdminMoneyCommandListener;
-import de.sbg.unity.iconomy.Listeners.Commands.PlayerFactoryCommandsListener;
+import de.sbg.unity.iconomy.Listeners.Commands.PlayerBusinessCommandsListener;
 import de.sbg.unity.iconomy.Listeners.Commands.PlayerMoneyCommandListener;
-import de.sbg.unity.iconomy.Listeners.Factory.FactoryListener;
+import de.sbg.unity.iconomy.Listeners.Business.BusinessListener;
 import de.sbg.unity.iconomy.Listeners.Player.PlayerAtmListener;
 import de.sbg.unity.iconomy.Listeners.icInputListener;
 import de.sbg.unity.iconomy.Objects.icGameObject;
@@ -51,7 +52,7 @@ public class iConomy extends Plugin {
     public icDatabases Databases;
 
     /**
-     * The banking system responsible for handling player and factory bank
+     * The banking system responsible for handling player and business bank
      * accounts.
      */
     public Banksystem Bankystem;
@@ -63,10 +64,10 @@ public class iConomy extends Plugin {
     public CashSystem CashSystem;
 
     /**
-     * The factory system responsible for managing factories, their members, and
+     * The business system responsible for managing factories, their members, and
      * their financials.
      */
-    public FactorySystem Factory;
+    public BusinessSystem Business;
 
     /**
      * The game object system responsible for managing custom game objects such
@@ -81,20 +82,14 @@ public class iConomy extends Plugin {
     public GUIs GUI;
 
     /**
-     * Language handler for the plugin.
-     *
-     * @hidden
-     */
-    public icLanguage Language;
-
-    /**
      * Attribute handler for various game objects.
      *
      * @hidden
      */
     public icAttribute Attribute;
     
-    public icNewLanguage Translator;
+    public icLanguage Language;
+    
 
     private icConsole Console;
     private Attribute att;
@@ -128,8 +123,6 @@ public class iConomy extends Plugin {
         Console = new icConsole(this);
         Console.sendInfo("Enabled");
         this.moneyFormat = new MoneyFormate(this, Console);
-        this.Translator = new icNewLanguage(this, Console);
-        Translator.loadAllFromData();
         this.tools = (ToolsAPI) getPluginByName("ToolsAPI");
         if (tools != null) {
             Console.sendInfo("ini", "Load Config...");
@@ -149,8 +142,8 @@ public class iConomy extends Plugin {
             CashSystem = new CashSystem(this, Console);
             Console.sendInfo("ini", "Load Class...Bankystem");
             Bankystem = new Banksystem(this, Console);
-            Console.sendInfo("ini", "Load Class...Factory");
-            Factory = new FactorySystem(this, att);
+            Console.sendInfo("ini", "Load Class...Business");
+            Business = new BusinessSystem(this, att);
             Console.sendInfo("ini", "Load Class...GameObject");
             this.GameObject = new icGameObject(this, Console);
 
@@ -180,46 +173,19 @@ public class iConomy extends Plugin {
 
             Console.sendInfo("ini-DB", "Load Database...");
             Databases = new icDatabases(this, Console);
-            Databases.Factory.createDatabse();
-            Databases.Money.createDatabse();
             Console.sendInfo("ini-DB", "Load Database...Done");
 
             Console.sendInfo("ini-DB", "Load all from Database...");
-            try {
-                Databases.Money.Cash.loadAllFromDatabase(CashSystem.getCashList());
-                Databases.Money.Bank.loadAllFromDatabase(Bankystem.PlayerSystem.getPlayerAccounts());
-                Databases.Money.ATM.loadAllFromDatabase(GameObject.atm.getAtmList());
-                Databases.Factory.TabFactory.loadAllFromDatabase(Factory.getHashFactories());
-                Databases.Factory.TabBank.loadAllFromDatabase(Bankystem.FactoryBankSystem.getHashFactoryAccounts());
-                Databases.Money.NPC.loadAll(Bankystem.npcSystem.getNpcList());
-                Databases.startSaveTimer();
-            } catch (SQLException ex) {
-                Console.sendErr("DB", "Cant load all from Database!");
-                Console.sendErr("DB", "Ex-Msg: " + ex.getMessage());
-                Console.sendErr("DB", "Ex-SQLState: " + ex.getSQLState());
-                ex.printStackTrace();
-                Console.sendErr("SERVER", "STOP SERVER!");
-                Server.shutdown();
-            } catch (IOException ex) {
-                Console.sendErr("DB", "Cant load all from Database!");
-                Console.sendErr("DB", "IOException (Blob > Object)");
-                Console.sendErr("DB", "Ex-Msg: " + ex.getMessage());
-                ex.printStackTrace();
-                Console.sendErr("SERVER", "STOP SERVER!");
-                Server.shutdown();
-            } catch (ClassNotFoundException ex) {
-                Console.sendErr("DB", "Cant load all from Database!");
-                Console.sendErr("DB", "ClassNotFoundException: Class can not found (Blob > Object)");
-                Console.sendErr("DB", "Ex-Msg: " + ex.getMessage());
-                ex.printStackTrace();
-                Console.sendErr("SERVER", "STOP SERVER!");
-                Server.shutdown();
-            }
+            Databases.loadAll();
             Console.sendInfo("ini-DB", "Load all from Database...Done!");
-
+            
+            Console.sendInfo("ini-DB", "Load Sign...");
             Sign = new icSign(this, Console);
-
+            Console.sendInfo("ini-DB", "Load Sign...Done!");
+            
+            Console.sendInfo("ini-DB", "Load GUIs...");
             GUI = new GUIs(this, Console);
+            Console.sendInfo("ini-DB", "Load GUIs...Done!");
 
             Console.sendInfo("ini", "Load Languages...");
             this.Language = new icLanguage();
@@ -231,7 +197,7 @@ public class iConomy extends Plugin {
 
             jm.getBanList().add("defaultLanguage");
             String configFile = getPath() + System.getProperty("file.separator") + "Languages" + System.getProperty("file.separator") + "Language v" + this.getDescription("version") + ".json";
-            Console.sendInfo("ini", "Load Languages...Done!");
+            
             Language = (icLanguage) jm.update(Language, configFile);
             Console.sendInfo("ini", "Load Languages...Done!");
 
@@ -240,9 +206,9 @@ public class iConomy extends Plugin {
             registerEventListener(new AdminMoneyCommandListener(this, Console));
             registerEventListener(new icInputListener(this, Console));
             registerEventListener(new PlayerAtmListener(this, Console));
-            registerEventListener(new AdminFactoryCommandListener(this, Console));
-            registerEventListener(new PlayerFactoryCommandsListener(this));
-            registerEventListener(new FactoryListener(this));
+            registerEventListener(new AdminBusinessCommandListener(this, Console));
+            registerEventListener(new PlayerBusinessCommandsListener(this));
+            registerEventListener(new BusinessListener(this));
 
             Console.sendInfo("Check for Updates...");
             try {
@@ -254,6 +220,7 @@ public class iConomy extends Plugin {
         }
 
     }
+    
 
     /**
      * Called when the plugin is disabled. Saves all data to the database and
@@ -262,14 +229,13 @@ public class iConomy extends Plugin {
     @Override
     public void onDisable() {
         Databases.stopSaveTimer();
-        Translator.saveAllAsData();
         if (!StopPluginByDB) {
             Console.sendInfo("DB", "Save all to Database...");
             try {
                 Databases.saveAtm();
-                Databases.saveAll();
-                Databases.Factory.getDatabase().close();
-                Databases.Money.getDatabase().close();
+                Databases.saveAll(true);
+                //Databases.Business.getDatabase().close();
+                //Databases.Money.getDatabase().close();
                 Console.sendInfo("DB", "Save all to Database...Done!");
             } catch (SQLException ex) {
                 Console.sendErr("DB", "Can not save all to Database!");
@@ -310,6 +276,15 @@ public class iConomy extends Plugin {
             GUI.MoneyInfoGui.showGUI(player, "Cash: " + CashSystem.getCashAsFormatedString(player));
         }
     }
+    
+    public boolean isPlayerConneted(String uid) {
+        for (Player p : Server.getAllPlayers()) {
+            if (p.getUID().equals(uid)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * The Config class handles the configuration settings of the iConomy
@@ -325,12 +300,12 @@ public class iConomy extends Plugin {
         public final String AssetVersion;
 
         public long PlayerCashStartAmount, PlayerBankStartAmount, PlayerBankAccountCost,
-                FactoryCashStartAmount, FactoryBankStartAmount, FactoryCost;
-        public String Currency, MoneyFormat, FactroyCreateGroups;
+                BusinessCashStartAmount, BusinessBankStartAmount, BusinessCost;
+        public String Currency, MoneyFormat, BusinessCreateGroups;
         public float MoneyInfoTime, SaveTimer, SuitcaseTime;
         public int Debug;
         public boolean ShowBalanceAtStart, KillerGetMoney, LostMoneyByDeath, CreateAccountViaCommand,
-                Command_Bank_OnlyAdmin, SaveAllByPlayerDisconnect, FactoryPlotByAdmin;
+                Command_Bank_OnlyAdmin, SaveAllByPlayerDisconnect, BusinessPlotByAdmin;
         
         
         /**
@@ -408,25 +383,25 @@ public class iConomy extends Plugin {
                 Data.addCommend("# Indicates whether a normal bank account costs to create. Player must pay with cash. (0 = free)");
                 Data.addSetting("PlayerBankAccountCost", 0);
                 Data.addEmptyLine();
-                Data.addCommend("#--------------------------#");
-                Data.addCommend("#      Factory System      #");
-                Data.addCommend("#--------------------------#");
-                Data.addEmptyLine();
-                Data.addCommend("# Cash start amounth for new factories");
-                Data.addSetting("FactoryCashStartAmount", 0);
-                Data.addEmptyLine();
-                Data.addCommend("# Bank start amounth for new factories");
-                Data.addSetting("FactoryBankStartAmount", 0);
-                Data.addEmptyLine();
-                Data.addCommend("# Add new factory plot only by admin");
-                Data.addSetting("FactoryPlotByAdmin", true);
-                Data.addEmptyLine();
-                Data.addCommend("# Groups to create a Factory (Please add a space between the groups");
-                Data.addSetting("FactroyCreateGroups", "");
-                Data.addEmptyLine();
-                Data.addCommend("# Groups to create a Factory (Please add a space between the groups");
-                Data.addSetting("FactoryCost", "0");
-                Data.addEmptyLine();
+//                Data.addCommend("#--------------------------#");
+//                Data.addCommend("#      Business System      #");
+//                Data.addCommend("#--------------------------#");
+//                Data.addEmptyLine();
+//                Data.addCommend("# Cash start amounth for new factories");
+//                Data.addSetting("BusinessCashStartAmount", 0);
+//                Data.addEmptyLine();
+//                Data.addCommend("# Bank start amounth for new factories");
+//                Data.addSetting("BusinessBankStartAmount", 0);
+//                Data.addEmptyLine();
+//                Data.addCommend("# Add new business plot only by admin");
+//                Data.addSetting("BusinessPlotByAdmin", true);
+//                Data.addEmptyLine();
+//                Data.addCommend("# Groups to create a Business (Please add a space between the groups");
+//                Data.addSetting("BusinessCreateGroups", "");
+//                Data.addEmptyLine();
+//                Data.addCommend("# Groups to create a Business (Please add a space between the groups");
+//                Data.addSetting("BusinessCost", "0");
+//                Data.addEmptyLine();
                 Data.addCommend("#--------------------------#");
                 Data.addCommend("#         Suitcase         #");
                 Data.addCommend("#--------------------------#");
@@ -444,8 +419,7 @@ public class iConomy extends Plugin {
                 Data.CreateConfig();
                 Console.sendInfo("Config", "Done!");
 
-                FactoryBankStartAmount = mf.getMoneyAsLong(Data.getSetting("FactoryBankStartAmount"));
-                FactoryCashStartAmount = mf.getMoneyAsLong(Data.getSetting("FactoryCashStartAmount"));
+                
                 PlayerBankAccountCost = mf.getMoneyAsLong(Data.getSetting("PlayerBankAccountCost"));
                 PlayerBankStartAmount = mf.getMoneyAsLong(Data.getSetting("PlayerBankStartAmount"));
                 PlayerCashStartAmount = mf.getMoneyAsLong(Data.getSetting("PlayerCashStartAmount"));
@@ -461,13 +435,22 @@ public class iConomy extends Plugin {
                 CreateAccountViaCommand = Boolean.parseBoolean(Data.getSetting("CreateAccountViaCommand"));
                 Command_Bank_OnlyAdmin = Boolean.parseBoolean(Data.getSetting("Command_Bank_OnlyAdmin"));
                 SaveAllByPlayerDisconnect = Boolean.parseBoolean(Data.getSetting("SaveAllByPlayerDisconnect"));
-                FactoryPlotByAdmin = Boolean.parseBoolean(Data.getSetting("FactoryPlotByAdmin"));
-                FactroyCreateGroups = Data.getSetting("FactroyCreateGroups");
-                FactoryCost = moneyFormat.getMoneyAsLong(Data.getSetting("FactoryCost"));
+                
+//                BusinessCreateGroups = Data.getSetting("BusinessCreateGroups");
+//                BusinessPlotByAdmin = Boolean.parseBoolean(Data.getSetting("BusinessPlotByAdmin"));
+//                BusinessCost = mf.getMoneyAsLong(Data.getSetting("BusinessCost"));
+//                BusinessBankStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessBankStartAmount"));
+//                BusinessCashStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessCashStartAmount"));
+                
+                BusinessCreateGroups = "";
+                BusinessPlotByAdmin = true;
+                BusinessCost = 0;
+                BusinessBankStartAmount = 0;
+                BusinessCashStartAmount = 0;
 
                 if (Debug > 0) {
-                    Console.sendDebug("Config", "FactoryBankStartAmount = " + FactoryBankStartAmount);
-                    Console.sendDebug("Config", "FactoryCashStartAmount = " + FactoryCashStartAmount);
+//                    Console.sendDebug("Config", "BusinessBankStartAmount = " + BusinessBankStartAmount);
+//                    Console.sendDebug("Config", "BusinessCashStartAmount = " + BusinessCashStartAmount);
                     Console.sendDebug("Config", "  PlayerBankAccountCost = " + PlayerBankAccountCost);
                     Console.sendDebug("Config", " PlayerBankStartAmount = " + PlayerBankStartAmount);
                     Console.sendDebug("Config", " PlayerCashStartAmount = " + PlayerCashStartAmount);

@@ -1,9 +1,11 @@
 package de.sbg.unity.iconomy.Banksystem;
 
 import de.sbg.unity.iconomy.Npc.NpcSystem;
-import de.sbg.unity.iconomy.Events.Factory.AddFactoryAccount;
+import de.sbg.unity.iconomy.Events.Business.AddBusinessAccount;
 import de.sbg.unity.iconomy.Events.Money.PlayerAddBankEvent;
-import de.sbg.unity.iconomy.Factory.Factory;
+import de.sbg.unity.iconomy.Business.Business;
+import de.sbg.unity.iconomy.Utils.BusinessAccountPermission;
+import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
@@ -23,7 +25,7 @@ import net.risingworld.api.objects.Player;
 public class Banksystem {
 
     public final PlayerSystem PlayerSystem;
-    public final FactoryBankSystem FactoryBankSystem;
+    public final BusinessBankSystem BusinessBankSystem;
     private final icConsole Console;
     public NpcSystem npcSystem;
 
@@ -36,7 +38,7 @@ public class Banksystem {
     public Banksystem(iConomy plugin, icConsole Console) {
         this.Console = Console;
         this.PlayerSystem = new PlayerSystem(plugin, Console);
-        this.FactoryBankSystem = new FactoryBankSystem(plugin, Console);
+        this.BusinessBankSystem = new BusinessBankSystem(plugin, Console);
         this.npcSystem = new NpcSystem(plugin);
     }
 
@@ -51,7 +53,7 @@ public class Banksystem {
             list.add(pa);
         });
 
-        FactoryBankSystem.getFactoryAccounts().forEach(fa -> {
+        BusinessBankSystem.getBusinessAccounts().forEach(fa -> {
             list.add(fa);
         });
         return list;
@@ -122,6 +124,8 @@ public class Banksystem {
                     }
                     Console.sendErr("addPlayerAccount", "=======================================");
                     return null;
+                } catch (IOException ex) {
+                    
                 }
                 return PlayerAccounts.put(uid, pa);
             }
@@ -199,7 +203,7 @@ public class Banksystem {
             }
             for (PlayerAccount pa : PlayerAccounts.values()) {
                 if (pa.isMember(player)) {
-                    if (pa.getMember(player).getPermissions().UseAccount) {
+                    if (pa.getMember(player).hasPermission(PlayerAccountPermission.SHOW_ACCOUNT)) {
                         accounts.add(pa);
                     }
                 }
@@ -247,25 +251,25 @@ public class Banksystem {
     }
 
     /**
-     * The FactoryBankSystem class manages all factory bank accounts within the iConomy plugin.
+     * The BusinessBankSystem class manages all factory bank accounts within the iConomy plugin.
      * It handles adding, retrieving, and checking factory accounts, and integrates with the event system.
      */
-    public class FactoryBankSystem {
+    public class BusinessBankSystem {
 
         private final iConomy plugin;
         private final icConsole Console;
-        private final HashMap<Factory, FactoryAccount> FactoryAccounts;
+        private final HashMap<Business, BusinessAccount> BusinessAccounts;
 
         /**
-         * Constructor for the FactoryBankSystem class.
+         * Constructor for the BusinessBankSystem class.
          * 
          * @param plugin The iConomy plugin instance.
          * @param Console The console used for logging and output.
          */
-        public FactoryBankSystem(iConomy plugin, icConsole Console) {
+        public BusinessBankSystem(iConomy plugin, icConsole Console) {
             this.plugin = plugin;
             this.Console = Console;
-            this.FactoryAccounts = new HashMap<>();
+            this.BusinessAccounts = new HashMap<>();
         }
 
         /**
@@ -274,8 +278,8 @@ public class Banksystem {
          * @param factory The factory to check.
          * @return True if the factory has a bank account, false otherwise.
          */
-        public boolean hasFactoryAccount(Factory factory) {
-            return FactoryAccounts.containsKey(factory);
+        public boolean hasBusinessAccount(Business factory) {
+            return BusinessAccounts.containsKey(factory);
         }
 
         /**
@@ -283,17 +287,17 @@ public class Banksystem {
          * 
          * @param player The player creating the account.
          * @param factory The factory for which the account is being created.
-         * @return The created FactoryAccount, or null if the account could not be created.
+         * @return The created BusinessAccount, or null if the account could not be created.
          * @throws SQLException If a database error occurs.
          * @throws IOException If an I/O error occurs.
          */
-        public FactoryAccount addFactoryAccount(Player player, Factory factory) throws SQLException, IOException {
-            if (!hasFactoryAccount(factory)) {
-                int id = plugin.Databases.Factory.TabBank.add(factory);
-                AddFactoryAccount evt = new AddFactoryAccount(player, factory);
+        public BusinessAccount addBusinessAccount(Player player, Business factory) throws SQLException, IOException {
+            if (!hasBusinessAccount(factory)) {
+                int id = plugin.Databases.Business.TabBank.add(factory);
+                AddBusinessAccount evt = new AddBusinessAccount(player, factory);
                 plugin.triggerEvent(evt);
-                FactoryAccount fa = new FactoryAccount(plugin, Console, factory, id);
-                return FactoryAccounts.put(factory, fa);
+                BusinessAccount fa = new BusinessAccount(plugin, Console, factory, id);
+                return BusinessAccounts.put(factory, fa);
             }
             return null;
         }
@@ -301,19 +305,19 @@ public class Banksystem {
         /**
          * Retrieves all factory accounts in the system as a HashMap.
          * 
-         * @return A HashMap containing all FactoryAccount objects, keyed by Factory.
+         * @return A HashMap containing all BusinessAccount objects, keyed by Business.
          */
-        public HashMap<Factory, FactoryAccount> getHashFactoryAccounts() {
-            return FactoryAccounts;
+        public HashMap<Business, BusinessAccount> getHashBusinessAccounts() {
+            return BusinessAccounts;
         }
 
         /**
          * Retrieves all factory accounts in the system as a Collection.
          * 
-         * @return A Collection of all FactoryAccount objects.
+         * @return A Collection of all BusinessAccount objects.
          */
-        public Collection<FactoryAccount> getFactoryAccounts() {
-            return FactoryAccounts.values();
+        public Collection<BusinessAccount> getBusinessAccounts() {
+            return BusinessAccounts.values();
         }
 
         /**
@@ -321,21 +325,21 @@ public class Banksystem {
          * 
          * @return The number of factory accounts.
          */
-        public int getFactoryAccountsAmounth() {
-            return getFactoryAccounts().size();
+        public int getBusinessAccountsAmounth() {
+            return getBusinessAccounts().size();
         }
 
         /**
          * Retrieves all factory accounts that a specific player has access to.
          * 
          * @param player The player whose accounts are being retrieved.
-         * @return A Collection of FactoryAccount objects the player can access.
+         * @return A Collection of BusinessAccount objects the player can access.
          */
-        public Collection<FactoryAccount> getFactoryAccounts(Player player) {
-            Collection<FactoryAccount> accounts = new ArrayList<>();
-            for (FactoryAccount fa : getFactoryAccounts()) {
+        public Collection<BusinessAccount> getBusinessAccounts(Player player) {
+            Collection<BusinessAccount> accounts = new ArrayList<>();
+            for (BusinessAccount fa : getBusinessAccounts()) {
                 if (fa.isMember(player)) {
-                    if (fa.getMember(player).getPermissions().UseAccount) {
+                    if (fa.getMember(player).hasPermission(BusinessAccountPermission.USE_ACCOUNT)) {
                         accounts.add(fa);
                     }
                 } else if (fa.isOwner(player)) {
@@ -351,29 +355,29 @@ public class Banksystem {
          * @param player The player whose accounts are being counted.
          * @return The number of accounts the player can access.
          */
-        public int getFactoryAccountsAmounth(Player player) {
-            return getFactoryAccounts(player).size();
+        public int getBusinessAccountsAmounth(Player player) {
+            return getBusinessAccounts(player).size();
         }
 
         /**
          * Retrieves a factory account for a specific factory.
          * 
          * @param factory The factory whose account is being retrieved.
-         * @return The FactoryAccount object, or null if no account is found.
+         * @return The BusinessAccount object, or null if no account is found.
          */
-        public FactoryAccount getFactoryAccount(Factory factory) {
-            return FactoryAccounts.get(factory);
+        public BusinessAccount getBusinessAccount(Business factory) {
+            return BusinessAccounts.get(factory);
         }
 
         /**
          * Retrieves a factory account by the factory's ID.
          * 
          * @param factoryID The ID of the factory.
-         * @return The FactoryAccount object, or null if no account is found.
+         * @return The BusinessAccount object, or null if no account is found.
          */
-        public FactoryAccount getFactoryAccount(int factoryID) {
-            for (FactoryAccount fa : getFactoryAccounts()) {
-                if (fa.getFactory().getID() == factoryID) {
+        public BusinessAccount getBusinessAccount(int factoryID) {
+            for (BusinessAccount fa : getBusinessAccounts()) {
+                if (fa.getBusiness().getID() == factoryID) {
                     return fa;
                 }
             }

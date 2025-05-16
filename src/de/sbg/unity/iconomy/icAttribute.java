@@ -26,14 +26,14 @@ public class icAttribute {
         private final String icDummyMode;
         private final String icSelectNpc;
         private final String icSelectNpcMode;
-        private final String icFactoryPlotSelection;
+        private final String icBusinessPlotSelection;
         
         public icPlayer() {
             icAtmPlacer = "sbg-iConomy-icAtmPlacer";
             icDummyMode = "sbg-iConomy-icDummyMode";
             icSelectNpc = "sbg-iConomy-icSelectNpc";
             icSelectNpcMode = "sbg-iConomy-icSelectNpcMode";
-            icFactoryPlotSelection = "sbg-iConomy-icFactoryPlotSelection";
+            icBusinessPlotSelection = "sbg-iConomy-icBusinessPlotSelection";
         }
         
         public Model3DPlace getPlacer(Player player) {
@@ -67,12 +67,12 @@ public class icAttribute {
             player.setAttribute(icSelectNpcMode, b);
         }
         
-        public boolean getFactoryPlotSelection(Player player) {
-            return (boolean)player.getAttribute(icFactoryPlotSelection);
+        public boolean getBusinessPlotSelection(Player player) {
+            return (boolean)player.getAttribute(icBusinessPlotSelection);
         }
         
-        public void setFactoryPlotSelection(Player player, boolean b){
-            player.setAttribute(icFactoryPlotSelection, b);
+        public void setBusinessPlotSelection(Player player, boolean b){
+            player.setAttribute(icBusinessPlotSelection, b);
         }
         
     }

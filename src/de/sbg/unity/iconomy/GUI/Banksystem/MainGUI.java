@@ -4,12 +4,16 @@ import de.chaoswg.gui.StyleUI;
 import de.chaoswg.gui.StyleUI.Frame;
 import de.chaoswg.gui.UIFrame;
 import de.sbg.unity.iconomy.Banksystem.BankAccount;
-import de.sbg.unity.iconomy.Banksystem.FactoryAccount;
+import de.sbg.unity.iconomy.Banksystem.BankMember;
+import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
 import de.sbg.unity.iconomy.GUI.List.AccountList;
 import de.sbg.unity.iconomy.GUI.List.AccountList.UIAccountLabel;
+import de.sbg.unity.iconomy.Utils.BusinessAccountPermission;
+import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
+import de.sbg.unity.iconomy.icConsole;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,7 +24,6 @@ import net.risingworld.api.events.player.ui.PlayerUIElementClickEvent;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.ui.UIElement;
 import net.risingworld.api.ui.UILabel;
-import net.risingworld.api.ui.UIScrollView;
 import net.risingworld.api.ui.style.FlexDirection;
 import net.risingworld.api.ui.style.Font;
 import net.risingworld.api.ui.style.Justify;
@@ -39,28 +42,33 @@ public class MainGUI implements Listener {
     //private final UIScrollView menu;
     private final HashMap<UIElement, MenuElement> menuData;
     private final Player user;
-    private final UIElement menuElement, gMenu;
+    private final UIElement menuElement, groupMenu;
     private UIElement selectedMenuElement;
     private final AccountInfo accountInfo;
-    private final FactoryInfo factoryInfo;
-    private final FactoryPermissions factoryPermissions;
+    private final BusinessInfo factoryInfo;
+    private final BusinessPermissions factoryPermissions;
     private final MemberUI memberUI;
     private final Money money;
     private final PlayerPermissions playerPermissions;
     private final Statement statement;
     private final AccountList accountList;
+    private final icConsole Console;
+    private final String lang;
+    
 
     public MainGUI(Player player, boolean all, iConomy plugin) {
 
-        String lang = player.getLanguage();
+        lang = player.getLanguage();
         this.format = new TextFormat();
         this.plugin = plugin;
         this.menuData = new LinkedHashMap<>();
         this.user = player;
-
+        this.Console = new icConsole(plugin);
+        
+        Console.sendDebug("MainGUI", "Erstelle alle Tab-Inhalte neu");
         this.accountInfo = new AccountInfo(player, plugin);
-        this.factoryInfo = new FactoryInfo(plugin);
-        this.factoryPermissions = new FactoryPermissions(player, plugin);
+        this.factoryInfo = new BusinessInfo(plugin);
+        this.factoryPermissions = new BusinessPermissions(player, plugin);
         this.memberUI = new MemberUI(player, plugin);
         this.playerPermissions = new PlayerPermissions(player, plugin);
         this.statement = new Statement(player, plugin);
@@ -99,7 +107,7 @@ public class MainGUI implements Listener {
         grun.style.height.set(StyleKeyword.Auto);
         //grun.style.flexGrow.set(1);
 
-        UILabel accounts = new UILabel("Accounts"); //TODO Lang
+        UILabel accounts = new UILabel(plugin.Language.getGui().getAccounts(lang));
         accounts.setFontSize(22);
         accounts.setTextAlign(TextAnchor.MiddleCenter);
         accounts.setFont(Font.DefaultBold);
@@ -143,16 +151,16 @@ public class MainGUI implements Listener {
         rot.style.flexGrow.set(1);
         rot.style.marginLeft.set(5);
 
-        gMenu = new UIElement();
-        gMenu.style.width.set(StyleKeyword.Auto);
-        gMenu.style.height.set(35, Unit.Pixel);
-        gMenu.style.flexDirection.set(FlexDirection.Row);
+        groupMenu = new UIElement();
+        groupMenu.style.width.set(StyleKeyword.Auto);
+        groupMenu.style.height.set(35, Unit.Pixel);
+        groupMenu.style.flexDirection.set(FlexDirection.Row);
         //menu.style.flexGrow.set(1);
-        gMenu.style.justifyContent.set(Justify.SpaceAround);
-        gMenu.style.borderTopColor.set(ColorRGBA.Clear);
-        gMenu.style.borderLeftColor.set(ColorRGBA.Clear);
-        gMenu.style.borderRightColor.set(ColorRGBA.Clear);
-        gMenu.style.borderBottomColor.set(ColorRGBA.White);
+        groupMenu.style.justifyContent.set(Justify.SpaceAround);
+        groupMenu.style.borderTopColor.set(ColorRGBA.Clear);
+        groupMenu.style.borderLeftColor.set(ColorRGBA.Clear);
+        groupMenu.style.borderRightColor.set(ColorRGBA.Clear);
+        groupMenu.style.borderBottomColor.set(ColorRGBA.White);
 
         menuElement = new UIElement();
         menuElement.style.width.set(StyleKeyword.Auto);
@@ -170,15 +178,17 @@ public class MainGUI implements Listener {
         grun.addChild(accountList.getPanel());
         listTitel.addChild(labName);
         listTitel.addChild(labID);
-        rot.addChild(gMenu);
+        rot.addChild(groupMenu);
         rot.addChild(menuElement);
+        
+        plugin.registerEventListener(playerPermissions);
 
         if (plugin.Config.Debug > 0) {
             menuElement.setBorder(5); //DEBUG
             menuElement.setBorderColor(0, 1, 1, 1); //DEBUG
-            gMenu.setBorder(2); //DEBUG
-            gMenu.setBorderColor(1, 1, 0, 1); //DEBUG
-            gMenu.style.marginBottom.set(5); //DEBUG ? 
+            groupMenu.setBorder(2); //DEBUG
+            groupMenu.setBorderColor(1, 1, 0, 1); //DEBUG
+            groupMenu.style.marginBottom.set(5); //DEBUG ? 
             rot.setBorder(1); //DEBUG
             rot.setBorderColor(ColorRGBA.Red.toIntRGBA()); //DEBUG
             rot.setBackgroundColor(ColorRGBA.Red.toIntRGBA()); //DEBUG
@@ -214,24 +224,71 @@ public class MainGUI implements Listener {
 
             player.addUIElement(window);
             plugin.registerEventListener(window);
+            plugin.registerEventListener(money);
 
             //player.setMouseCursorVisible(true);
         }
 
     }
 
+    public UIElement getGroupMenu() {
+        return groupMenu;
+    }
+    
+    public AccountInfo getAccountInfo() {
+        return accountInfo;
+    }
+
+    public BusinessInfo getBusinessInfo() {
+        return factoryInfo;
+    }
+
+    public BusinessPermissions getBusinessPermissions() {
+        return factoryPermissions;
+    }
+
+    public MemberUI getMemberUI() {
+        return memberUI;
+    }
+
+    public Money getMoney() {
+        return money;
+    }
+
+    public PlayerPermissions getPlayerPermissions() {
+        return playerPermissions;
+    }
+
+    public Statement getStatement() {
+        return statement;
+    }
+
     public AccountList getAccountList() {
         return accountList;
     }
 
+    public Player getUser() {
+        return user;
+    }
+
+    public HashMap<UIElement, MenuElement> getMenuData() {
+        return menuData;
+    }
+
+    public UIElement getMenuElement() {
+        return menuElement;
+    }
+    
     private void setSelectedAccountLabel(UIAccountLabel account) {
         accountList.setSelectedAccountLabel(account);
     }
 
     public void createMenuListe(Player player, BankAccount ba) {
-
-        gMenu.removeAllChilds();
+        //Console.sendDebug("MainGUI", "createMenuListe");
+        groupMenu.removeAllChilds();
         menuData.clear();
+        
+        
 
         UIElement tabAccountInfo = new UIElement();
         tabAccountInfo.style.height.set(100, Unit.Percent);
@@ -240,7 +297,7 @@ public class MainGUI implements Listener {
         tabAccountInfo.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
         tabAccountInfo.setBorderColor(ColorRGBA.White.toIntRGBA());
 
-        UILabel labAccountInfo = new UILabel("Account Info"); //TODO Lang
+        UILabel labAccountInfo = new UILabel("Account Info");
         labAccountInfo.setFontSize(20);
         labAccountInfo.setFont(Font.DefaultBold);
         labAccountInfo.setFontColor(ColorRGBA.White.toIntRGBA());
@@ -255,7 +312,7 @@ public class MainGUI implements Listener {
         tabPermission.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
         tabPermission.setBorderColor(ColorRGBA.White.toIntRGBA());
 
-        UILabel labPermission = new UILabel("Permission"); //TODO Lang
+        UILabel labPermission = new UILabel(plugin.Language.getGui().getPermissions(lang));
         labPermission.setFontSize(20);
         labPermission.setFont(Font.DefaultBold);
         labPermission.setFontColor(ColorRGBA.White.toIntRGBA());
@@ -263,20 +320,20 @@ public class MainGUI implements Listener {
         labPermission.setPivot(Pivot.MiddleCenter);
         tabPermission.addChild(labPermission);
 
-        UIElement tabFactoryAccount = new UIElement();
-        tabFactoryAccount.style.height.set(100, Unit.Percent);
-        tabFactoryAccount.style.width.set(150, Unit.Pixel);
-        tabFactoryAccount.setBorder(2);
-        tabFactoryAccount.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
-        tabFactoryAccount.setBorderColor(ColorRGBA.White.toIntRGBA());
+        UIElement tabBusinessAccount = new UIElement();
+        tabBusinessAccount.style.height.set(100, Unit.Percent);
+        tabBusinessAccount.style.width.set(150, Unit.Pixel);
+        tabBusinessAccount.setBorder(2);
+        tabBusinessAccount.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
+        tabBusinessAccount.setBorderColor(ColorRGBA.White.toIntRGBA());
 
-        UILabel labFactoryAccount = new UILabel("Factory"); //TODO Lang
-        labFactoryAccount.setFontSize(20);
-        labFactoryAccount.setFont(Font.DefaultBold);
-        labFactoryAccount.setFontColor(ColorRGBA.White.toIntRGBA());
-        labFactoryAccount.setPosition(50, 50, true);
-        labFactoryAccount.setPivot(Pivot.MiddleCenter);
-        tabFactoryAccount.addChild(labFactoryAccount);
+        UILabel labBusinessAccount = new UILabel("Business"); //TODO Lang - Business
+        labBusinessAccount.setFontSize(20);
+        labBusinessAccount.setFont(Font.DefaultBold);
+        labBusinessAccount.setFontColor(ColorRGBA.White.toIntRGBA());
+        labBusinessAccount.setPosition(50, 50, true);
+        labBusinessAccount.setPivot(Pivot.MiddleCenter);
+        tabBusinessAccount.addChild(labBusinessAccount);
 
         UIElement tabMoney = new UIElement();
         tabMoney.style.height.set(100, Unit.Percent);
@@ -285,7 +342,7 @@ public class MainGUI implements Listener {
         tabMoney.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
         tabMoney.setBorderColor(ColorRGBA.White.toIntRGBA());
 
-        UILabel labMoney = new UILabel("Money"); //TODO Lang
+        UILabel labMoney = new UILabel(plugin.Language.getGui().getMoney(lang));
         labMoney.setFontSize(20);
         labMoney.setFont(Font.DefaultBold);
         labMoney.setFontColor(ColorRGBA.White.toIntRGBA());
@@ -298,10 +355,9 @@ public class MainGUI implements Listener {
         tabStatement.style.width.set(150, Unit.Pixel);
         tabStatement.setBorder(2);
         tabStatement.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
-
         tabStatement.setBorderColor(ColorRGBA.White.toIntRGBA());
 
-        UILabel labStatement = new UILabel("Statement"); //TODO Lang
+        UILabel labStatement = new UILabel(plugin.Language.getGui().getStatements(lang));
         labStatement.setFontSize(20);
         labStatement.setFont(Font.DefaultBold);
         labStatement.setFontColor(ColorRGBA.White.toIntRGBA());
@@ -316,7 +372,7 @@ public class MainGUI implements Listener {
         tabMember.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
         tabMember.setBorderColor(ColorRGBA.White.toIntRGBA());
 
-        UILabel labMember = new UILabel("Member"); //TODO Lang
+        UILabel labMember = new UILabel(plugin.Language.getGui().getMembers(lang));
         labMember.setFontSize(20);
         labMember.setFont(Font.DefaultBold);
         labMember.setFontColor(ColorRGBA.White.toIntRGBA());
@@ -326,21 +382,21 @@ public class MainGUI implements Listener {
 
         if (ba instanceof PlayerAccount pa) {
             menuData.put(tabAccountInfo, accountInfo);
-        } else if (ba instanceof FactoryAccount fa) {
-            menuData.put(tabFactoryAccount, factoryInfo);
+        } else if (ba instanceof BusinessAccount fa) {
+            menuData.put(tabBusinessAccount, factoryInfo);
         }
         menuData.put(tabMoney, money);
         menuData.put(tabStatement, statement);
         
 
         if (ba instanceof PlayerAccount pa) {
-            boolean result = pa.getOwnerUID().equals(player.getUID()) || (pa.isMember(player) && pa.getMember(player).getPermissions().ChangePermissions);
+            boolean result = pa.getOwnerUID().equals(player.getUID()) || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_PERMISSIONS));
             if (result) {
                 menuData.put(tabMember, memberUI);
                 menuData.put(tabPermission, playerPermissions);
             }
-        } else if (ba instanceof FactoryAccount fa) {
-            boolean result = fa.isOwner(player) || (fa.isMember(player) && fa.getMember(player).getPermissions().ChangePermissions);
+        } else if (ba instanceof BusinessAccount fa) {
+            boolean result = fa.isOwner(player) || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_PERMISSIONS));
             if (result) {
                 menuData.put(tabMember, memberUI);
                 menuData.put(tabPermission, factoryPermissions);
@@ -351,7 +407,7 @@ public class MainGUI implements Listener {
 
         menuData.forEach((icon, ui) -> {
             icon.setClickable(true);
-            gMenu.addChild(icon);
+            groupMenu.addChild(icon);
 
             if (z.get() == 0) {
                 icon.setBackgroundColor(1, 1, 0, 1);
@@ -363,7 +419,7 @@ public class MainGUI implements Listener {
                 menuElement.addChild(ui);
             }
         });
-
+        //Console.sendDebug("MainGUI", "createMenuListe ... Done!");
     }
 
     public UIFrame getWindow() {

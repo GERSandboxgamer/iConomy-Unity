@@ -76,7 +76,8 @@ public class AddBankMoneyEvent extends Event implements Cancellable {
         Sell,
         CashIn,
         Command,
-        API;
+        API,
+        Error;
        
     }
 }

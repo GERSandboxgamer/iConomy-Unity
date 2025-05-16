@@ -1,6 +1,6 @@
 name: iConomy
 main: de.sbg.unity.iconomy.iConomy
-version: 2.0.3.1
+version: 2.0.3.5
 author: Sandboxgamer
 description: "Virtual Money Manager"
 loadorder: -100

@@ -5,5 +5,5 @@ package de.sbg.unity.iconomy.Utils;
  * @author pbronke
  */
 public enum AccountType {
-    PlayerAccount, FactoryAccount;    
+    PlayerAccount, BusinessAccount;    
 }

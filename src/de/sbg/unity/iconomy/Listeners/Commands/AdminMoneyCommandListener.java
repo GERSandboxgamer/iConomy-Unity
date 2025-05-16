@@ -89,7 +89,11 @@ public class AdminMoneyCommandListener implements Listener {
                     }
 
                     if (cmd[1].toLowerCase().equals("bs") || cmd[1].toLowerCase().equals("banksystem")) {
-                        plugin.GUI.Bankystem.MainGui.showGUI(player);
+                        if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
+                            plugin.GUI.Bankystem.MainGui.showGUI(player);
+                        } else {
+                            player.showErrorMessageBox("No bank account", "You do not have a bank account!");
+                        }
                     }
 
                 }
@@ -328,7 +332,7 @@ public class AdminMoneyCommandListener implements Listener {
                     }
                     if (cmd[1].toLowerCase().equals("npc")) {
                         if (cmd[2].toLowerCase().equals("create")) {
-                            
+
                             Npcs.NpcDefinition def = Definitions.getNpcDefinition("dummy");
 
                             Npc npc = World.spawnNpc(def.id, player.getPosition(), player.getRotation());
@@ -337,7 +341,7 @@ public class AdminMoneyCommandListener implements Listener {
                             npc.setInteractable(true);
                             try {
                                 plugin.Bankystem.npcSystem.addNpc(npc, 1);
-                            } catch(SQLException ex ) {
+                            } catch (SQLException ex) {
                                 player.sendTextMessage(format.Color("red", "ERR: Can not save npc to database!"));
                                 Console.sendErr("Command (npc create)", "Can not save npc to database!");
                                 Console.sendErr("Command (npc create)", ex.getMessage());
@@ -345,7 +349,7 @@ public class AdminMoneyCommandListener implements Listener {
                                     Console.sendErr("Command (npc create)", ste.toString());
                                 }
                             }
-                            
+
                             plugin.Attribute.player.setSelectNpc(player, npc);
                         }
                     }

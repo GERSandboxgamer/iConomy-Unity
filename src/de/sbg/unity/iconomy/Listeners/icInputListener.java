@@ -1,7 +1,7 @@
 package de.sbg.unity.iconomy.Listeners;
 
+import de.sbg.unity.iconomy.Banksystem.BankMember;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
-import de.sbg.unity.iconomy.Utils.ServerObject;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
@@ -40,8 +40,8 @@ public class icInputListener implements Listener {
                     Console.sendInfo("Command", "              MoneyFormat=" + plugin.Config.MoneyFormat);
                     Console.sendInfo("Command", "   Command_Bank_OnlyAdmin=" + plugin.Config.Command_Bank_OnlyAdmin);
                     Console.sendInfo("Command", "  CreateAccountViaCommand=" + plugin.Config.CreateAccountViaCommand);
-                    Console.sendInfo("Command", "  FactoryBankStartAmount=" + plugin.Config.FactoryBankStartAmount);
-                    Console.sendInfo("Command", "  FactoryCashStartAmount=" + plugin.Config.FactoryCashStartAmount);
+                    Console.sendInfo("Command", "  BusinessBankStartAmount=" + plugin.Config.BusinessBankStartAmount);
+                    Console.sendInfo("Command", "  BusinessCashStartAmount=" + plugin.Config.BusinessCashStartAmount);
                     Console.sendInfo("Command", "           KillerGetMoney=" + plugin.Config.KillerGetMoney);
                     Console.sendInfo("Command", "         LostMoneyByDeath=" + plugin.Config.LostMoneyByDeath);
                     Console.sendInfo("Command", "            MoneyInfoTime=" + plugin.Config.MoneyInfoTime);
@@ -55,7 +55,7 @@ public class icInputListener implements Listener {
                     Console.sendInfo("Command", "======================================");
                 }
                 if (cmd[1].toLowerCase().equals("help")) {
-                    
+
                     Console.sendInfo("Command", "=========== iConomy-Help ===========");
                     Console.sendInfo("Command", "INFO: () = Optional; <> = Must");
                     Console.sendInfo("Command", cmd[0] + " config (reload)");
@@ -119,6 +119,8 @@ public class icInputListener implements Listener {
                         Console.sendInfo("Command", "List is empty!");
                     }
                 }
+                
+                
 
             }
 
@@ -228,6 +230,14 @@ public class icInputListener implements Listener {
                         }
                     } else {
                         Console.sendErr("Command", "Account not found!");
+                    }
+                }
+
+                if (cmd[1].toLowerCase().equals("bank")) {
+                    if (cmd[2].toLowerCase().equals("member")) {
+                        for (BankMember bm : plugin.Bankystem.PlayerSystem.getPlayerAccount(cmd[3]).getMembers()) {
+                            Console.sendInfo("Command", bm.getLastKnownMemberName());
+                        }
                     }
                 }
             }

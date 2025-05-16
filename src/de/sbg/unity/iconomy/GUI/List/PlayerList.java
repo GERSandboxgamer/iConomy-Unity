@@ -1,13 +1,12 @@
 package de.sbg.unity.iconomy.GUI.List;
 
 import de.sbg.unity.iconomy.Banksystem.BankAccount;
-import de.sbg.unity.iconomy.Banksystem.FactoryAccount;
+import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
 import de.sbg.unity.iconomy.Objects.OfflinePlayer;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,13 +31,14 @@ public class PlayerList implements Listener {
     private final Player player;
     private final TextFormat format;
     private final String lang;
-    private final UIElement panel;
+    private final UIElement panel, lockWindow;
     private final UIPlayerList playerListElements;
     private final UILabel buttonCancel;
     private final iConomy plugin;
     private UIPlayerLabel selectedPlayer;
     private final List<String> uidList;
     private final icConsole Console;
+    private final boolean titel;
 
     public interface SelectCallback {
 
@@ -53,6 +53,11 @@ public class PlayerList implements Listener {
         this.selectedPlayer = null;
         this.uidList = new ArrayList<>();
         this.Console = new icConsole(plugin);
+        this.titel = false;
+        this.lockWindow = new UIElement();
+
+        Console.sendDebug("PlayerList", "new PlayerList");
+        Console.sendDebug("PlayerList", "this.toString() = " + this.toString());
 
         panel = new UIElement();
         panel.style.flexDirection.set(FlexDirection.Column);
@@ -73,6 +78,11 @@ public class PlayerList implements Listener {
         this.selectedPlayer = null;
         this.uidList = new ArrayList<>();
         this.Console = new icConsole(plugin);
+        this.titel = titel;
+        this.lockWindow = new UIElement();
+
+        Console.sendDebug("PlayerList", "new PlayerList");
+        Console.sendDebug("PlayerList", "this.toString() = " + this.toString());
 
         panel = new UIElement();
         panel.style.flexDirection.set(FlexDirection.Column);
@@ -95,13 +105,13 @@ public class PlayerList implements Listener {
             titelBar.setBackgroundColor(ColorRGBA.Green.toIntRGBA());
         }
 
-        UILabel titel = new UILabel(titeltext); //TODO Lang
-        titel.setPosition(50, 50, true);
-        titel.setPivot(Pivot.MiddleCenter);
-        titel.setFontSize(25);
-        titel.setFontColor(255, 255, 255, 1);
-        titel.setBackgroundColor(255, 153, 51, 1);
-        titelBar.addChild(titel);
+        UILabel titelText = new UILabel(titeltext);
+        titelText.setPosition(50, 50, true);
+        titelText.setPivot(Pivot.MiddleCenter);
+        titelText.setFontSize(25);
+        titelText.setFontColor(255, 255, 255, 1);
+        titelText.setBackgroundColor(255, 153, 51, 1);
+        titelBar.addChild(titelText);
         panel.addChild(titelBar);
     }
 
@@ -111,20 +121,24 @@ public class PlayerList implements Listener {
         panel.setBackgroundColor(0, 0, 102, 1);
 
         if (titel) {
+            lockWindow.setSize(100, 100, titel);
+            lockWindow.setBackgroundColor(ColorRGBA.Black.r, ColorRGBA.Black.g, ColorRGBA.Black.b, 0.5f);
+
             TitelBar(titeltext);
             panel.setSize(500, 600, false);
             panel.setPosition(50, 50, true);
             panel.setPivot(Pivot.MiddleCenter);
+            lockWindow.addChild(panel);
         }
 //        } else {
 //            panel.setPivot(Pivot.UpperLeft);
 //            panel.setSize(100, 100, true);
 //        }
-        plugin.registerEventListener(playerListElements);
+
         plugin.registerEventListener(this);
+        plugin.registerEventListener(playerListElements);
 
         // Tabelle Überschrift
-        
         UIElement rot = new UIElement();
         rot.style.flexDirection.set(FlexDirection.Row);
         rot.style.justifyContent.set(Justify.SpaceBetween);
@@ -134,7 +148,7 @@ public class PlayerList implements Listener {
         }
         panel.addChild(rot);
 
-        UILabel labBenutzername = new UILabel(format.Bold("Benutzername")); //Lang
+        UILabel labBenutzername = new UILabel(format.Bold(plugin.Language.getGui().getUsername(lang)));
         labBenutzername.style.marginLeft.set(30, Unit.Pixel);
         labBenutzername.setPivot(Pivot.UpperLeft);
         labBenutzername.setFontSize(20);
@@ -151,16 +165,19 @@ public class PlayerList implements Listener {
             labUID.setBackgroundColor(ColorRGBA.Green.toIntRGBA());
         }
         rot.addChild(labUID);
-        
+
         // Tabelle Überschrift
-        
         panel.addChild(playerListElements);
 
         buttonCancel.setFontSize(25);
         buttonCancel.setClickable(true);
         panel.addChild(buttonCancel);
 
-        player.addUIElement(panel);
+        if (titel) {
+            player.addUIElement(lockWindow);
+        } else {
+            player.addUIElement(panel);
+        }
     }
 
     public void removeButtonCancel() {
@@ -168,6 +185,9 @@ public class PlayerList implements Listener {
     }
 
     public UIElement getPanel() {
+        if (titel) {
+            return lockWindow;
+        }
         return panel;
     }
 
@@ -193,6 +213,7 @@ public class PlayerList implements Listener {
 
     @EventMethod
     public void onPlayerClickCancelEvent(PlayerUIElementClickEvent event) {
+        Console.sendDebug("PlayerList", "onPlayerClickCancelEvent");
         Player p = event.getPlayer();
         if (player.equals(p)) {
             if (event.getUIElement() == buttonCancel) {
@@ -207,8 +228,19 @@ public class PlayerList implements Listener {
         private final SelectCallback cb;
         private final List<UIPlayerLabel> playerLabels;
 
+        public UIPlayerList(Player player, iConomy plugin) {
+            super(UIScrollView.ScrollViewMode.VerticalAndHorizontal);
+            Console.sendDebug("PlayerList", "new UIPlayerList (ID-UIPlayerList: " + this.getID() + ")");
+            this.selector = player;
+            this.cb = null;
+            this.playerLabels = new ArrayList<>();
+            this.setSize(100, 100, true);
+            setListStyle();
+        }
+
         public UIPlayerList(Player player, iConomy plugin, SelectCallback cb) {
             super(UIScrollView.ScrollViewMode.VerticalAndHorizontal);
+            Console.sendDebug("PlayerList", "new UIPlayerList (ID-UIPlayerList: " + this.getID() + ")");
             this.selector = player;
             this.cb = cb;
             this.playerLabels = new ArrayList<>();
@@ -225,6 +257,7 @@ public class PlayerList implements Listener {
         }
 
         public void addElements(List<String> offlinePlayersUID, boolean server) {
+            Console.sendDebug("PlayerList", "Add new Element!");
             if (server && Server.getAllPlayers().length >= 2) {
                 UIElement titelBox1 = new UIElement();
                 titelBox1.style.width.set(95, Unit.Percent);
@@ -241,7 +274,7 @@ public class PlayerList implements Listener {
                 onlineTitel.setPosition(50, 50, true);
                 titelBox1.addChild(onlineTitel);
                 this.addChild(titelBox1);
-                
+
                 if (plugin.Config.Debug > 0) {
                     onlineTitel.setFontColor(ColorRGBA.Black.toIntRGBA());
                 }
@@ -250,6 +283,7 @@ public class PlayerList implements Listener {
                     if (!p.getUID().equals(player.getUID())) {
                         uidList.add(p.getUID());
                         UIPlayerLabel pLabel = new UIPlayerLabel(p, player);
+                        Console.sendDebug("addElements", "Add Element: " + pLabel.getID());
                         this.playerLabels.add(pLabel);
                         this.addChild(pLabel);
                     }
@@ -270,13 +304,13 @@ public class PlayerList implements Listener {
                 offlineTitel.setPivot(Pivot.MiddleCenter);
                 offlineTitel.setPosition(50, 50, true);
                 titelBox2.addChild(offlineTitel);
-                
+
                 if (plugin.Config.Debug > 0) {
                     offlineTitel.setFontColor(ColorRGBA.Black.toIntRGBA());
                 }
             }
             if (plugin.Config.Debug > 0) {
-                
+
                 int f = 1;
                 while (f <= 15) {
                     UIPlayerLabel pLabel = new UIPlayerLabel("Debug " + f, String.valueOf(f), selector);
@@ -284,9 +318,62 @@ public class PlayerList implements Listener {
                     f = f + 1;
                 }
             }
+            Console.sendDebug("PlayerList", "Add new Element! ... Done!");
+        }
+
+        public void addBankMembers(BankAccount ba) {
+            Console.sendDebug("PlayerList-addBankMembers", "addBankMembers");
+            List<OfflinePlayer> list = new ArrayList<>();
+
+            if (ba instanceof PlayerAccount pa) {
+                Console.sendDebug("PlayerList-addBankMembers", "is PlayerAccount");
+                pa.getMembers().forEach((t) -> {
+                    list.add(new OfflinePlayer(t.getUID(), t.getLastKnownMemberName()));
+                    Console.sendDebug("PlayerList-addBankMembers", "add " + t.getLastKnownMemberName() + "(" + t.getUID() + ")");
+                });
+            }
+            if (ba instanceof BusinessAccount fa) {
+                fa.getMembers().forEach((t) -> {
+                    list.add(new OfflinePlayer(t.getUID(), t.getLastKnownMemberName()));
+                });
+            }
+            if (!list.isEmpty()) {
+                Console.sendDebug("PlayerList-addBankMembers", "List is NOT Empty!");
+                UIElement titelBox2 = new UIElement();
+                titelBox2.style.width.set(95, Unit.Percent);
+                titelBox2.style.height.set(50, Unit.Pixel);
+                titelBox2.style.marginLeft.set(2, Unit.Percent);
+                titelBox2.style.marginRight.set(2, Unit.Percent);
+                titelBox2.style.marginTop.set(2, Unit.Percent);
+
+                UILabel offlineTitel = new UILabel("== " + plugin.Language.getGui().getMembers(lang) + " ==");
+                offlineTitel.setFont(Font.DefaultBold);
+                offlineTitel.setFontSize(20);
+                offlineTitel.setFontColor(ColorRGBA.White.toIntRGBA());
+                offlineTitel.setPivot(Pivot.MiddleCenter);
+                offlineTitel.setPosition(50, 50, true);
+                titelBox2.addChild(offlineTitel);
+                this.addChild(titelBox2);
+
+                for (OfflinePlayer op : list) {
+                    if (!op.getUID().equals(player.getUID())) {
+                        Console.sendDebug("PlayerList-addBankMembers", "add OflinePlayer-Object " + op.getName());
+                        uidList.add(op.getUID());
+                        UIPlayerLabel pLabel = new UIPlayerLabel(op.getName(), op.getUID(), player);
+                        Console.sendDebug("addBankMembers", "Add Element: " + pLabel.getID());
+                        this.playerLabels.add(pLabel);
+                        this.addChild(pLabel);
+
+                    }
+                }
+            } else {
+                Console.sendDebug("PlayerList-addBankMembers", "List is Empty!");
+            }
+
         }
 
         public void addOfflineMembers(BankAccount ba) {
+            Console.sendDebug("PlayerList", "Add Offline Members!");
             List<OfflinePlayer> list = new ArrayList<>();
             List<String> server = new ArrayList<>();
 
@@ -297,11 +384,10 @@ public class PlayerList implements Listener {
                 pa.getMembers().forEach((t) -> {
                     if (!server.contains(t.getUID())) {
                         list.add(new OfflinePlayer(t.getUID(), t.getLastKnownMemberName()));
-
                     }
                 });
             }
-            if (ba instanceof FactoryAccount fa) {
+            if (ba instanceof BusinessAccount fa) {
                 fa.getMembers().forEach((t) -> {
                     if (!server.contains(t.getUID())) {
                         list.add(new OfflinePlayer(t.getUID(), t.getLastKnownMemberName()));
@@ -316,7 +402,7 @@ public class PlayerList implements Listener {
                 titelBox2.style.marginRight.set(2, Unit.Percent);
                 titelBox2.style.marginTop.set(2, Unit.Percent);
 
-                UILabel offlineTitel = new UILabel("== Offline Memebers =="); //TODO Lang
+                UILabel offlineTitel = new UILabel("== Offline " + plugin.Language.getGui().getMembers(lang) + " ==");
                 offlineTitel.setFont(Font.DefaultBold);
                 offlineTitel.setFontSize(20);
                 offlineTitel.setFontColor(ColorRGBA.White.toIntRGBA());
@@ -329,15 +415,18 @@ public class PlayerList implements Listener {
                     if (!op.getUID().equals(player.getUID())) {
                         uidList.add(op.getUID());
                         UIPlayerLabel pLabel = new UIPlayerLabel(op.getName(), op.getUID(), player);
+                        Console.sendDebug("addOfflineMembers", "Add Element: " + pLabel.getID());
                         this.playerLabels.add(pLabel);
                         this.addChild(pLabel);
 
                     }
                 }
             }
+            Console.sendDebug("PlayerList", "Add Offline Members! ... Done!");
         }
 
         public void clearElements() {
+            Console.sendDebug("PlayerList", "Clear PlayerList-Elements");
             this.playerLabels.clear();
             uidList.clear();
             this.removeAllChilds();
@@ -352,22 +441,50 @@ public class PlayerList implements Listener {
             return playerLabels;
         }
 
+        private UIElement child;
+
         @EventMethod
         public void onPlayerSelectPlayerEvent(PlayerUIElementClickEvent event) {
-            if (plugin.Config.Debug > 0) {
-                Console.sendDebug("onPlayerSelectPlayerEvent", "Klick");
-            }
-            Player p = event.getPlayer();
-            if (selector.equals(p)) {
-                if (event.getUIElement() instanceof UIPlayerLabel theSelectedPlayer) {
-                    if (selectedPlayer != null) {
-                        cb.onSelection(selector, theSelectedPlayer, selectedPlayer);
-                    } else {
-                        cb.onSelection(selector, theSelectedPlayer, null);
+            child = null;
+            if (event.getUIElement() != null) {
+                this.getChilds().forEach((t) -> {
+                    boolean b = event.getUIElement().equals(t);
+                    if (b) {
+                        child = t;
                     }
-                    setSelectedPlayer(theSelectedPlayer);
+                });
+                if (plugin.Config.Debug > 0) {
+                    if (event.getUIElement() != null) {
+                        Console.sendDebug("PlayerList-onPlayerSelectPlayerEvent", "EL ID AUSSEN = " + event.getUIElement().getID());
+                    } else {
+                        Console.sendDebug("PlayerList-onPlayerSelectPlayerEvent", "UIElement is null");
+                    }
+                    
+                    Console.sendDebug("PlayerList-onPlayerSelectPlayerEvent", "Klick");
+
                 }
+                Player p = event.getPlayer();
+                if (child != null) {
+                    Console.sendDebug("PlayerList", "Child != null");
+                    if (selector.equals(p)) {
+                        if (child instanceof UIPlayerLabel theSelectedPlayer) {
+                            Console.sendDebug("PlayerList", "is UIPlayerLabel (ID: " + theSelectedPlayer.getID() + ")");
+                            if (selectedPlayer != null) {
+                                cb.onSelection(selector, theSelectedPlayer, selectedPlayer);
+                            } else {
+                                cb.onSelection(selector, theSelectedPlayer, null);
+                            }
+                            setSelectedPlayer(theSelectedPlayer);
+                        }
+                    }
+                } else {
+                    Console.sendDebug("PlayerList-onPlayerSelectPlayerEvent", "Child = null");
+                }
+
+            } else {
+                Console.sendDebug("PlayerList-onPlayerSelectPlayerEvent", "UIElement is null");
             }
+            Console.sendDebug("PlayerList-onPlayerSelectPlayerEvent", "Event onPlayerSelectPlayerEvent ... Done!");
         }
     }
 
@@ -385,6 +502,7 @@ public class PlayerList implements Listener {
             this.playernameLabel = new UILabel(player.getName());
             this.uidLabel = new UILabel(player.getUID());
             this.attribute = new HashMap<>();
+            Console.sendDebug("PlayerList", "new UIPlayerLabel (ID: " + this.getID() + ")");
             setElement();
         }
 
@@ -394,6 +512,7 @@ public class PlayerList implements Listener {
             this.playernameLabel = new UILabel(playername);
             this.uidLabel = new UILabel(uid);
             this.attribute = new HashMap<>();
+            Console.sendDebug("PlayerList", "new UIPlayerLabel (ID: " + this.getID() + ")");
             setElement();
         }
 

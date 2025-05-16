@@ -27,7 +27,6 @@ public class Statement extends MenuElement implements Listener {
     private final iConomy plugin;
     private final String lang;
     private final Player player;
-    private final MainGUI gui;
     private final UIScrollView list;
     private BankAccount bankAccount;
 
@@ -36,7 +35,6 @@ public class Statement extends MenuElement implements Listener {
         this.plugin = plugin;
         this.lang = player.getLanguage();
         this.player = player;
-        this.gui = plugin.GUI.Bankystem.MainGui.getGui(player);
 
         this.setSize(100, 100, true);
         this.setBackgroundColor(ColorRGBA.Blue.toIntRGBA());
@@ -113,7 +111,15 @@ public class Statement extends MenuElement implements Listener {
 
     @EventMethod
     public void onPlayerClearButtonEvent(PlayerUIElementClickEvent event) {
-
+        UIElement el = event.getUIElement();
+        Player p = event.getPlayer();
+        
+        if (p.equals(player)) {
+            if (el == clearAll) {
+                bankAccount.clearStatement();
+                list.removeAllChilds();
+            }
+        }
     }
 
 }

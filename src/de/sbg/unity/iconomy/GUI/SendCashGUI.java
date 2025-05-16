@@ -52,7 +52,7 @@ public class SendCashGUI {
     }
 
     private void Body() {
-        
+
         UILabel message = new UILabel(plugin.Language.getGui().getSendCashGUI_BodyText(lang));
         message.setPosition(50, 15, true);
         message.setPivot(Pivot.UpperCenter);
@@ -79,7 +79,7 @@ public class SendCashGUI {
         Receiver.setSize(300, 50, false);
         Receiver.setFontSize(25);
         panel.addChild(Receiver);
-        
+
         findPlayer = new UIElement();
         findPlayer.style.backgroundImage.set(TextureAsset.loadFromPlugin(plugin, "/resources/Suche.png"));
         findPlayer.setSize(32, 32, false);
@@ -94,7 +94,6 @@ public class SendCashGUI {
 //        labPlayername.setFontSize(25);
 //        labPlayername.setVisible(false);
 //        panel.addChild(labReceiver);
-
         UILabel labCash = new UILabel(plugin.Language.getGui().getGUI_Amount(lang));
         labCash.setPosition(5, 64, true);
         labCash.setPivot(Pivot.UpperLeft);
@@ -107,7 +106,7 @@ public class SendCashGUI {
         Cash.setSize(250, 50, false);
         Cash.setFontSize(25);
         panel.addChild(Cash);
-        
+
         buttonSend = new UILabel(format.Bold(format.Color("green", "[" + plugin.Language.getGui().getSend(lang) + "]")));
         buttonSend.setPosition(95, 95, true);
         buttonSend.setPivot(Pivot.LowerRight);
@@ -188,11 +187,11 @@ public class SendCashGUI {
                 plugin.GUI.SelectOnlinePlayerGui.showGui(player, (sector, select, lastSelect) -> {
                     Receiver.setText(select.getPlayerObject().getUID());
                     plugin.GUI.SelectOnlinePlayerGui.hideGui(player);
-                    if (plugin.Config.Debug > 0 ) {
+                    if (plugin.Config.Debug > 0) {
                         Console.sendDebug("SendCashGuiListener", "Selected Player: " + select.getPlayerObject().getName());
                     }
                 });
-                
+
             }
 
             if (el == buttonSend) {

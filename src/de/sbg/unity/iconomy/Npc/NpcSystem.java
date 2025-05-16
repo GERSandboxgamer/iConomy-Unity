@@ -40,6 +40,14 @@ public class NpcSystem {
     public List<Npc> getNpcList() {
         return npcList;
     }
+    
+    public void removePlayer(Player player){
+        removePlayer(player.getUID());
+    }
+    
+    public void removePlayer(String uid) {
+        speak.remove(uid);
+    }
 
     public void addNpc(long id, int mode) throws SQLException{
         Npc npc = World.getNpc(id);
@@ -57,7 +65,7 @@ public class NpcSystem {
         
     }
 
-    public boolean removeNpc(long id) {
+    public boolean removeNpc(long id) throws SQLException {
         Npc npc = World.getNpc(id);
         if (npc != null) {
             return removeNpc(npc);
@@ -65,7 +73,8 @@ public class NpcSystem {
         return false;
     }
 
-    public boolean removeNpc(Npc npc) {
+    public boolean removeNpc(Npc npc) throws SQLException {
+        plugin.Databases.Money.NPC.remove(npc);
         return npcList.remove(npc);
     }
 
