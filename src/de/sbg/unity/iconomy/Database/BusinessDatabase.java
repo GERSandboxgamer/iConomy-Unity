@@ -100,6 +100,15 @@ public class BusinessDatabase {
                 + "FOREIGN KEY (business_id) REFERENCES business(ID) ON DELETE CASCADE"
                 + ");");
 
+        Database.execute("CREATE TABLE IF NOT EXISTS business_member_permissions ("
+                + "business_id INTEGER NOT NULL, "
+                + "member_uid TEXT NOT NULL, "
+                + "permission TEXT NOT NULL, "
+                + "PRIMARY KEY (business_id, member_uid, permission), "
+                + "FOREIGN KEY (business_id, member_uid) "
+                + "REFERENCES business_members(business_id, member_uid) ON DELETE CASCADE"
+                + ");");
+
         Database.execute("CREATE TABLE IF NOT EXISTS business_member_action ("
                 + "business_id INTEGER NOT NULL, "
                 + "member_uid TEXT NOT NULL, "
@@ -117,6 +126,12 @@ public class BusinessDatabase {
                 + "Plotname TEXT, "
                 + "BusinessID INTEGER, "
                 + "Price BIGINT"
+                + ");");
+        Database.execute("CREATE TABLE IF NOT EXISTS business_guest_permissions ("
+                + "business_id INTEGER NOT NULL, "
+                + "permission TEXT NOT NULL, "
+                + "PRIMARY KEY (business_id, permission), "
+                + "FOREIGN KEY (business_id) REFERENCES Business(ID) ON DELETE CASCADE"
                 + ");");
 
     }
