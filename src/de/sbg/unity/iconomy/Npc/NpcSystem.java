@@ -13,24 +13,15 @@ public class NpcSystem {
 
     private final List<Npc> npcList;
     private final iConomy plugin;
-    private final HashMap<String, SpeakSystem> speak;
+    
+    public final SpeakSystemManager speakSystem;
+    public final FollowSystemManager followSystem;
 
     public NpcSystem(iConomy plugin) {
         this.plugin = plugin;
         npcList = new ArrayList<>();
-        speak = new HashMap<>();
-    }
-
-    public void addPlayer(Player player) {
-        speak.put(player.getUID(), new SpeakSystem(player, plugin));
-    }
-
-    public SpeakSystem getSpeakSystem(Player player) {
-        return getSpeakSystem(player.getUID());
-    }
-
-    public SpeakSystem getSpeakSystem(String uid) {
-        return speak.get(uid);
+        speakSystem = new SpeakSystemManager();
+        followSystem = new FollowSystemManager();
     }
 
     public boolean isICNpc(Npc npc) {
@@ -40,16 +31,8 @@ public class NpcSystem {
     public List<Npc> getNpcList() {
         return npcList;
     }
-    
-    public void removePlayer(Player player){
-        removePlayer(player.getUID());
-    }
-    
-    public void removePlayer(String uid) {
-        speak.remove(uid);
-    }
 
-    public void addNpc(long id, int mode) throws SQLException{
+    public void addNpc(long id, int mode) throws SQLException {
         Npc npc = World.getNpc(id);
         if (npc != null) {
             addNpc(npc, mode);
@@ -57,12 +40,12 @@ public class NpcSystem {
 
     }
 
-    public void addNpc(Npc npc, int mode) throws SQLException{
+    public void addNpc(Npc npc, int mode) throws SQLException {
         npcList.add(npc);
         plugin.Attribute.npc.setNpcMode(npc, mode);
-       
-            plugin.Databases.Money.NPC.add(npc, mode);
-        
+
+        plugin.Databases.Money.NPC.add(npc, mode);
+
     }
 
     public boolean removeNpc(long id) throws SQLException {
@@ -76,6 +59,53 @@ public class NpcSystem {
     public boolean removeNpc(Npc npc) throws SQLException {
         plugin.Databases.Money.NPC.remove(npc);
         return npcList.remove(npc);
+    }
+
+    public class SpeakSystemManager {
+
+        private final HashMap<String, SpeakSystem> speak;
+
+        public SpeakSystemManager() {
+            speak = new HashMap<>();
+        }
+
+        public void addPlayer(Player player) {
+            speak.put(player.getUID(), new SpeakSystem(player, plugin));
+        }
+
+        public SpeakSystem getSpeakSystem(Player player) {
+            return getSpeakSystem(player.getUID());
+        }
+
+        public SpeakSystem getSpeakSystem(String uid) {
+            return speak.get(uid);
+        }
+
+        public void removePlayer(Player player) {
+            removePlayer(player.getUID());
+        }
+
+        public void removePlayer(String uid) {
+            speak.remove(uid);
+        }
+
+    }
+    
+    public class FollowSystemManager {
+        
+        private final HashMap<Player, FollowSystem> followList;
+        
+        public FollowSystemManager() {
+            this.followList = new HashMap<>();
+        }
+        
+        public FollowSystem getSystem(Player player) {
+            return followList.get(player);
+        }
+        
+        public void addPlayer(Player player){
+            followList.put(player, new FollowSystem(plugin, player));
+        }
     }
 
 }

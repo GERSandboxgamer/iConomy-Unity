@@ -65,10 +65,9 @@ public class SpeakSystem {
      * <p>Antworten (Deutsch):</p>
      * - "[Weiter]" -> führt zu id_01
      */
-    public SpeakObject id_00() {
+    public SpeakObject id_00(String npcName) {
         String[] sp0Text = {
-            plugin.Language.getNpc().getWelcome(player.getLanguage()),
-            String.format(plugin.Language.getNpc().getMyName(lang), npc.getName())
+            plugin.Language.getNpc().getWelcome(player.getLanguage()), String.format(plugin.Language.getNpc().getMyName(lang), npcName)
         };
         SpeakObject sp0 = new SpeakObject(sp0Text);
         sp0.addAnswer(plugin.Language.getNpc().getNext(lang), id_01());
@@ -89,15 +88,22 @@ public class SpeakSystem {
         SpeakObject sp1 = new SpeakObject(sp1Text);
 
         if (!plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
-            sp1.addAnswer(plugin.Language.getNpc().getCreateBank(lang), id_02());
+            sp1.addAnswer(plugin.Language.getNpc().getCreateBank(lang), ()-> {
+                plugin.GUI.speakGuiSystem.setNewText(player, id_02());
+            });
         } else {
-            sp1.addAnswer(plugin.Language.getNpc().getCreateBank(lang), id_03());
+            sp1.addAnswer(plugin.Language.getNpc().getCreateBank(lang), () -> {
+                plugin.GUI.speakGuiSystem.setNewText(player, id_03());
+            });
         }
 
         //sp1.addAnswer("Hallo, ich möchte meine Schuldengrenze erhöhen.", 4);
         if (plugin.Config.BusinessCreateGroups.contains(player.getPermissionGroup())) {
             sp1.addAnswer(plugin.Language.getNpc().getHelloCreateCompany(lang), id_CS()); //TODO id_07
         }
+        
+        System.out.println("Antwort: '" + plugin.Language.getNpc().getCreateBank(lang) + "'");
+        System.out.println("Antwort: '" + plugin.Language.getNpc().getHelloCreateCompany(lang) + "'");
 
         // Gespräch beenden:
         sp1.addAnswer(plugin.Language.getNpc().getGoodbye(lang));
@@ -162,8 +168,12 @@ public class SpeakSystem {
         };
         SpeakObject sp3 = new SpeakObject(sp3Text);
 
-        sp3.addAnswer(plugin.Language.getNpc().getBusinessAccount(lang), id_CS()); //TODO id_04
-        sp3.addAnswer(plugin.Language.getNpc().getAnotherRequest(lang), id_01());
+        sp3.addAnswer(plugin.Language.getNpc().getBusinessAccount(lang), () -> {
+            plugin.GUI.speakGuiSystem.setNewText(player, id_CS());
+        }); //TODO id_04
+        sp3.addAnswer(plugin.Language.getNpc().getAnotherRequest(lang), () -> {
+            plugin.GUI.speakGuiSystem.setNewText(player, id_01());
+        });
         sp3.addAnswer(plugin.Language.getNpc().getNotNecessary(lang));
         return sp3;
     }
@@ -182,8 +192,7 @@ public class SpeakSystem {
 
         sp4.addAnswer(plugin.Language.getNpc().getOfCourseNot(lang), () -> {
             long min = plugin.Bankystem.PlayerSystem.getPlayerAccount(player).getMin();
-            // TODO Konfig-Eintrag: Wieviel senken?
-            plugin.Bankystem.PlayerSystem.getPlayerAccount(player).setMin(min - 5);
+            plugin.Bankystem.PlayerSystem.getPlayerAccount(player).setMin(0 - plugin.BankMinConfig.getGroupMin(player.getPermissionGroup()));
             plugin.GUI.speakGuiSystem.setNewText(player, id_05());
         });
 
@@ -564,7 +573,9 @@ public class SpeakSystem {
         String[] spCsText = {plugin.Language.getNpc().getComingSoon(lang)};
         SpeakObject spCS = new SpeakObject(spCsText);
         
-        spCS.addAnswer(plugin.Language.getNpc().getOk(lang), id_01());
+        spCS.addAnswer("OK", () -> {
+            plugin.GUI.speakGuiSystem.setNewText(player, id_01());
+        });
         spCS.addAnswer(plugin.Language.getNpc().getOkGoodbye(lang));
         return spCS;
     }

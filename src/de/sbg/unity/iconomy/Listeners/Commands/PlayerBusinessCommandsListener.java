@@ -49,7 +49,7 @@ public class PlayerBusinessCommandsListener implements Listener {
 //                                    if (!fp.getName().isBlank()) {
 //                                        player.sendTextMessage("Name: '" + fp.getName() + "'");
 //                                    } else {
-//                                        player.sendTextMessage("[Business] No name set!"); //TODO Lang
+//                                        player.sendTextMessage("[Business] No name set!"); //TODO Lang Business
 //                                    }
 //                                    
 //                                }

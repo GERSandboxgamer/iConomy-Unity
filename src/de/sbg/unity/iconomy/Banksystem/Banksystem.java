@@ -18,9 +18,10 @@ import net.risingworld.api.Server;
 import net.risingworld.api.objects.Player;
 
 /**
- * The Banksystem class handles the banking system within the iConomy plugin. It manages both player accounts
- * and factory accounts through separate systems. It provides methods to retrieve, add, and check the existence
- * of bank accounts, both for players and factories.
+ * The Banksystem class handles the banking system within the iConomy plugin. It
+ * manages both player accounts and factory accounts through separate systems.
+ * It provides methods to retrieve, add, and check the existence of bank
+ * accounts, both for players and factories.
  */
 public class Banksystem {
 
@@ -31,7 +32,7 @@ public class Banksystem {
 
     /**
      * Constructor for the Banksystem class.
-     * 
+     *
      * @param plugin The iConomy plugin instance.
      * @param Console The console used for logging and output.
      */
@@ -44,7 +45,7 @@ public class Banksystem {
 
     /**
      * Retrieves all bank accounts, including player and factory accounts.
-     * 
+     *
      * @return A List of all BankAccount objects.
      */
     public List<BankAccount> getAllBankAccounts() {
@@ -60,17 +61,32 @@ public class Banksystem {
     }
 
     /**
-     * Gets the total number of bank accounts, including both player and factory accounts.
-     * 
+     * Gets the total number of bank accounts, including both player and factory
+     * accounts.
+     *
      * @return The number of bank accounts.
      */
     public int getBankAccountAmounth() {
         return getAllBankAccounts().size();
     }
 
+    public boolean isOwner(Player player, BankAccount ba) {
+        return isOwner(player.getUID(), ba);
+    }
+
+    public boolean isOwner(String playerUID, BankAccount ba) {
+        if (ba instanceof PlayerAccount pa) {
+            return pa.getOwnerUID().equals(playerUID);
+        } else if (ba instanceof BusinessAccount fa) {
+            return fa.isOwner(playerUID);
+        }
+        return false;
+    }
+
     /**
-     * The PlayerSystem class manages all player bank accounts within the iConomy plugin.
-     * It handles adding, retrieving, and checking player accounts, and integrates with the event system.
+     * The PlayerSystem class manages all player bank accounts within the
+     * iConomy plugin. It handles adding, retrieving, and checking player
+     * accounts, and integrates with the event system.
      */
     public class PlayerSystem {
 
@@ -80,7 +96,7 @@ public class Banksystem {
 
         /**
          * Constructor for the PlayerSystem class.
-         * 
+         *
          * @param plugin The iConomy plugin instance.
          * @param Console The console used for logging and output.
          */
@@ -92,9 +108,10 @@ public class Banksystem {
 
         /**
          * Adds a new bank account for a player.
-         * 
+         *
          * @param player The player for whom the account is being created.
-         * @return The created PlayerAccount, or null if the account could not be created.
+         * @return The created PlayerAccount, or null if the account could not
+         * be created.
          */
         public PlayerAccount addPlayerAccount(Player player) {
             return addPlayerAccount(player.getUID());
@@ -102,9 +119,10 @@ public class Banksystem {
 
         /**
          * Adds a new bank account for a player, specified by UID.
-         * 
+         *
          * @param uid The UID of the player.
-         * @return The created PlayerAccount, or null if the account could not be created.
+         * @return The created PlayerAccount, or null if the account could not
+         * be created.
          */
         public PlayerAccount addPlayerAccount(String uid) {
             PlayerAccount pa = new PlayerAccount(plugin, Console, uid);
@@ -125,7 +143,7 @@ public class Banksystem {
                     Console.sendErr("addPlayerAccount", "=======================================");
                     return null;
                 } catch (IOException ex) {
-                    
+
                 }
                 return PlayerAccounts.put(uid, pa);
             }
@@ -134,8 +152,9 @@ public class Banksystem {
 
         /**
          * Retrieves all player accounts in the system.
-         * 
-         * @return A HashMap containing all PlayerAccount objects, keyed by player UID.
+         *
+         * @return A HashMap containing all PlayerAccount objects, keyed by
+         * player UID.
          */
         public HashMap<String, PlayerAccount> getPlayerAccounts() {
             return PlayerAccounts;
@@ -143,7 +162,7 @@ public class Banksystem {
 
         /**
          * Gets the total number of player accounts.
-         * 
+         *
          * @return The number of player accounts.
          */
         public int getPlayerAccountsAmounth() {
@@ -152,7 +171,7 @@ public class Banksystem {
 
         /**
          * Checks if a specific player has a bank account.
-         * 
+         *
          * @param player The player to check.
          * @return True if the player has a bank account, false otherwise.
          */
@@ -165,7 +184,7 @@ public class Banksystem {
 
         /**
          * Checks if a specific player, identified by UID, has a bank account.
-         * 
+         *
          * @param uid The UID of the player.
          * @return True if the player has a bank account, false otherwise.
          */
@@ -179,7 +198,7 @@ public class Banksystem {
 
         /**
          * Retrieves a player account for a specific player.
-         * 
+         *
          * @param player The player whose account is being retrieved.
          * @return The PlayerAccount object, or null if no account is found.
          */
@@ -192,7 +211,7 @@ public class Banksystem {
 
         /**
          * Retrieves all player accounts that a specific player has access to.
-         * 
+         *
          * @param player The player whose accounts are being retrieved.
          * @return A List of PlayerAccount objects the player can access.
          */
@@ -213,7 +232,7 @@ public class Banksystem {
 
         /**
          * Gets the number of player accounts a specific player has access to.
-         * 
+         *
          * @param player The player whose accounts are being counted.
          * @return The number of accounts the player can access.
          */
@@ -223,7 +242,7 @@ public class Banksystem {
 
         /**
          * Retrieves a player account by UID or name.
-         * 
+         *
          * @param uid The UID or name of the player account.
          * @return The PlayerAccount object, or null if no account is found.
          */
@@ -251,8 +270,9 @@ public class Banksystem {
     }
 
     /**
-     * The BusinessBankSystem class manages all factory bank accounts within the iConomy plugin.
-     * It handles adding, retrieving, and checking factory accounts, and integrates with the event system.
+     * The BusinessBankSystem class manages all factory bank accounts within the
+     * iConomy plugin. It handles adding, retrieving, and checking factory
+     * accounts, and integrates with the event system.
      */
     public class BusinessBankSystem {
 
@@ -262,7 +282,7 @@ public class Banksystem {
 
         /**
          * Constructor for the BusinessBankSystem class.
-         * 
+         *
          * @param plugin The iConomy plugin instance.
          * @param Console The console used for logging and output.
          */
@@ -274,7 +294,7 @@ public class Banksystem {
 
         /**
          * Checks if a factory has a bank account.
-         * 
+         *
          * @param factory The factory to check.
          * @return True if the factory has a bank account, false otherwise.
          */
@@ -284,10 +304,11 @@ public class Banksystem {
 
         /**
          * Adds a new bank account for a factory.
-         * 
+         *
          * @param player The player creating the account.
          * @param factory The factory for which the account is being created.
-         * @return The created BusinessAccount, or null if the account could not be created.
+         * @return The created BusinessAccount, or null if the account could not
+         * be created.
          * @throws SQLException If a database error occurs.
          * @throws IOException If an I/O error occurs.
          */
@@ -304,8 +325,9 @@ public class Banksystem {
 
         /**
          * Retrieves all factory accounts in the system as a HashMap.
-         * 
-         * @return A HashMap containing all BusinessAccount objects, keyed by Business.
+         *
+         * @return A HashMap containing all BusinessAccount objects, keyed by
+         * Business.
          */
         public HashMap<Business, BusinessAccount> getHashBusinessAccounts() {
             return BusinessAccounts;
@@ -313,7 +335,7 @@ public class Banksystem {
 
         /**
          * Retrieves all factory accounts in the system as a Collection.
-         * 
+         *
          * @return A Collection of all BusinessAccount objects.
          */
         public Collection<BusinessAccount> getBusinessAccounts() {
@@ -322,7 +344,7 @@ public class Banksystem {
 
         /**
          * Gets the total number of factory accounts.
-         * 
+         *
          * @return The number of factory accounts.
          */
         public int getBusinessAccountsAmounth() {
@@ -331,9 +353,10 @@ public class Banksystem {
 
         /**
          * Retrieves all factory accounts that a specific player has access to.
-         * 
+         *
          * @param player The player whose accounts are being retrieved.
-         * @return A Collection of BusinessAccount objects the player can access.
+         * @return A Collection of BusinessAccount objects the player can
+         * access.
          */
         public Collection<BusinessAccount> getBusinessAccounts(Player player) {
             Collection<BusinessAccount> accounts = new ArrayList<>();
@@ -351,7 +374,7 @@ public class Banksystem {
 
         /**
          * Gets the number of factory accounts a specific player has access to.
-         * 
+         *
          * @param player The player whose accounts are being counted.
          * @return The number of accounts the player can access.
          */
@@ -361,7 +384,7 @@ public class Banksystem {
 
         /**
          * Retrieves a factory account for a specific factory.
-         * 
+         *
          * @param factory The factory whose account is being retrieved.
          * @return The BusinessAccount object, or null if no account is found.
          */
@@ -371,7 +394,7 @@ public class Banksystem {
 
         /**
          * Retrieves a factory account by the factory's ID.
-         * 
+         *
          * @param factoryID The ID of the factory.
          * @return The BusinessAccount object, or null if no account is found.
          */
@@ -383,5 +406,6 @@ public class Banksystem {
             }
             return null;
         }
+
     }
 }

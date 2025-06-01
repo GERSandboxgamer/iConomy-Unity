@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum BusinessAccountPermission {
-    ADD_MEMBER,
-    REMOVE_MEMBER,
+    CHANGE_MEMBERS,
     CREATE_ACCOUNT,
     SEND_MONEY,
     CHANGE_OWNER,
     DELETE_ACCOUNT,
     USE_ACCOUNT,
-    CHANGE_PERMISSIONS;
+    CHANGE_PERMISSIONS,
+    SHOW_STATEMENTS;
     // usw. falls du mehr brauchst// usw. falls du mehr brauchst// usw. falls du mehr brauchst// usw. falls du mehr brauchst// usw. falls du mehr brauchst// usw. falls du mehr brauchst// usw. falls du mehr brauchst// usw. falls du mehr brauchst
     
     public static List<String> getAllPermisionAsString(){

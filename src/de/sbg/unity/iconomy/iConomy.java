@@ -1,6 +1,5 @@
 package de.sbg.unity.iconomy;
 
-import com.sun.java.accessibility.util.Translator;
 import de.chaoswg.ClassPluginJSONManager;
 import de.chaoswg.ToolsAPI;
 import de.sbg.unity.configmanager.ConfigData;
@@ -28,6 +27,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import net.risingworld.api.Plugin;
 import net.risingworld.api.Server;
@@ -64,8 +64,8 @@ public class iConomy extends Plugin {
     public CashSystem CashSystem;
 
     /**
-     * The business system responsible for managing factories, their members, and
-     * their financials.
+     * The business system responsible for managing factories, their members,
+     * and their financials.
      */
     public BusinessSystem Business;
 
@@ -87,9 +87,8 @@ public class iConomy extends Plugin {
      * @hidden
      */
     public icAttribute Attribute;
-    
+
     public icLanguage Language;
-    
 
     private icConsole Console;
     private Attribute att;
@@ -101,6 +100,8 @@ public class iConomy extends Plugin {
      * Configuration settings for iConomy.
      */
     public Config Config;
+    
+    public BankMinChangeConfig BankMinConfig;
 
     /**
      * Flag to stop the plugin due to database issues.
@@ -125,17 +126,19 @@ public class iConomy extends Plugin {
         this.moneyFormat = new MoneyFormate(this, Console);
         this.tools = (ToolsAPI) getPluginByName("ToolsAPI");
         if (tools != null) {
-            Console.sendInfo("ini", "Load Config...");
-            this.Config = new Config(this, Console);
+            Console.sendInfo("ini", "Loads Config...");
+            this.Config = new Config(this, Console, "2.1"); //TODO Asset Version
             try {
                 Config.iniConfig();
+                BankMinConfig = new BankMinChangeConfig(this, Console);
+                BankMinConfig.iniBankMins();
             } catch (IOException ex) {
                 Console.sendErr("Config", "Can not load Config");
             }
-            Console.sendInfo("ini", "Load Config...Done!");
+            Console.sendInfo("ini", "Load Configs...Done!");
             Console.sendInfo("Debug", "Debug = " + Config.Debug);
             Console.sendInfo("ini", "Load Class...");
-            
+
             Console.sendInfo("ini", "Load Class...Attribute");
             this.att = new Attribute(this);
             Console.sendInfo("ini", "Load Class...CashSystem");
@@ -178,11 +181,11 @@ public class iConomy extends Plugin {
             Console.sendInfo("ini-DB", "Load all from Database...");
             Databases.loadAll();
             Console.sendInfo("ini-DB", "Load all from Database...Done!");
-            
+
             Console.sendInfo("ini-DB", "Load Sign...");
             Sign = new icSign(this, Console);
             Console.sendInfo("ini-DB", "Load Sign...Done!");
-            
+
             Console.sendInfo("ini-DB", "Load GUIs...");
             GUI = new GUIs(this, Console);
             Console.sendInfo("ini-DB", "Load GUIs...Done!");
@@ -197,7 +200,7 @@ public class iConomy extends Plugin {
 
             jm.getBanList().add("defaultLanguage");
             String configFile = getPath() + System.getProperty("file.separator") + "Languages" + System.getProperty("file.separator") + "Language v" + this.getDescription("version") + ".json";
-            
+
             Language = (icLanguage) jm.update(Language, configFile);
             Console.sendInfo("ini", "Load Languages...Done!");
 
@@ -220,7 +223,6 @@ public class iConomy extends Plugin {
         }
 
     }
-    
 
     /**
      * Called when the plugin is disabled. Saves all data to the database and
@@ -276,7 +278,7 @@ public class iConomy extends Plugin {
             GUI.MoneyInfoGui.showGUI(player, "Cash: " + CashSystem.getCashAsFormatedString(player));
         }
     }
-    
+
     public boolean isPlayerConneted(String uid) {
         for (Player p : Server.getAllPlayers()) {
             if (p.getUID().equals(uid)) {
@@ -296,7 +298,7 @@ public class iConomy extends Plugin {
         private final icConsole Console;
         private final ConfigManager Manager;
         private final MoneyFormate mf;
-        
+
         public final String AssetVersion;
 
         public long PlayerCashStartAmount, PlayerBankStartAmount, PlayerBankAccountCost,
@@ -306,20 +308,19 @@ public class iConomy extends Plugin {
         public int Debug;
         public boolean ShowBalanceAtStart, KillerGetMoney, LostMoneyByDeath, CreateAccountViaCommand,
                 Command_Bank_OnlyAdmin, SaveAllByPlayerDisconnect, BusinessPlotByAdmin;
-        
-        
+
         /**
          * Constructs the configuration handler.
          *
          * @param plugin The main plugin instance.
          * @param Console The console for logging and output.
          */
-        public Config(iConomy plugin, icConsole Console) {
+        public Config(iConomy plugin, icConsole Console, String assetVersion) {
             this.PLUGIN = plugin;
             this.Console = Console;
             this.Manager = (ConfigManager) plugin.getPluginByName("ConfigManager");
             this.mf = new MoneyFormate(plugin, Console);
-            this.AssetVersion = "1.0"; //TODO Asset Version
+            this.AssetVersion = assetVersion;
         }
 
         /**
@@ -419,7 +420,6 @@ public class iConomy extends Plugin {
                 Data.CreateConfig();
                 Console.sendInfo("Config", "Done!");
 
-                
                 PlayerBankAccountCost = mf.getMoneyAsLong(Data.getSetting("PlayerBankAccountCost"));
                 PlayerBankStartAmount = mf.getMoneyAsLong(Data.getSetting("PlayerBankStartAmount"));
                 PlayerCashStartAmount = mf.getMoneyAsLong(Data.getSetting("PlayerCashStartAmount"));
@@ -435,13 +435,12 @@ public class iConomy extends Plugin {
                 CreateAccountViaCommand = Boolean.parseBoolean(Data.getSetting("CreateAccountViaCommand"));
                 Command_Bank_OnlyAdmin = Boolean.parseBoolean(Data.getSetting("Command_Bank_OnlyAdmin"));
                 SaveAllByPlayerDisconnect = Boolean.parseBoolean(Data.getSetting("SaveAllByPlayerDisconnect"));
-                
+
 //                BusinessCreateGroups = Data.getSetting("BusinessCreateGroups");
 //                BusinessPlotByAdmin = Boolean.parseBoolean(Data.getSetting("BusinessPlotByAdmin"));
 //                BusinessCost = mf.getMoneyAsLong(Data.getSetting("BusinessCost"));
 //                BusinessBankStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessBankStartAmount"));
 //                BusinessCashStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessCashStartAmount"));
-                
                 BusinessCreateGroups = "";
                 BusinessPlotByAdmin = true;
                 BusinessCost = 0;
@@ -468,6 +467,54 @@ public class iConomy extends Plugin {
             }
         }
 
+    }
+
+    public class BankMinChangeConfig {
+
+        private final iConomy PLUGIN;
+        private final icConsole Console;
+        private final ConfigManager Manager;
+        private final MoneyFormate mf;
+        private final ConfigData Data;
+        private final HashMap<String, Long> bankMins;
+
+        public BankMinChangeConfig(iConomy plugin, icConsole Console) throws IOException {
+            this.PLUGIN = plugin;
+            this.Console = Console;
+            this.mf = new MoneyFormate(plugin, Console);
+            this.Manager = (ConfigManager) plugin.getPluginByName("ConfigManager");
+            this.bankMins = new HashMap<>();
+            Data = Manager.newConfig(plugin.getName(), plugin.getPath(), "bankmin");
+        }
+
+        public void iniBankMins() throws IOException {
+            List<String> groups = new ArrayList<>();
+            if (Manager != null) {
+                Data.addCommend("#--------------------------#");
+                Data.addCommend("#       BankMin-Config     #");
+                Data.addCommend("#--------------------------#");
+                Data.addEmptyLine();
+                Data.addCommend("# Lege fest, welche Gruppe wie viel Schulden machen darf");
+                Data.addCommend("# - Bitte positiver Wert eingeben!");
+                Data.addCommend("# - -1 = Unendlich");
+                for (String group : Server.getAllPermissionGroups()) {
+                    Data.addSetting(group, 0);
+                    groups.add(group);
+                }
+                Data.CreateConfig();
+                for (String g : groups) {
+                    bankMins.put(g, mf.getMoneyAsLong(Data.getSetting(g)));
+                }
+            }
+        }
+
+        public long getGroupMin(String group) {
+            if (bankMins.containsKey(group)) {
+                return bankMins.get(group);
+            }
+            Console.sendWarning("BankMinConfig", "Group '" + group + "' not in the Config!"); 
+            return 0l;
+        }
     }
 
 }

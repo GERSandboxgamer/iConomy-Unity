@@ -85,13 +85,11 @@ public class PlayerPermissions extends MenuElement implements Listener {
         uiRight.setBorderColor(ColorRGBA.White.toIntRGBA());
         uiBig.addChild(uiRight);
 
-        
-
         this.addChild(titelBox);
         this.addChild(uiBig);
 
         if (plugin.Config.Debug > 0) {
-            
+
             uiBig.setBorder(5);
             uiBig.setBorderColor(ColorRGBA.Green.toIntRGBA());
             playerList.getPanel().setBorder(1);
@@ -138,21 +136,26 @@ public class PlayerPermissions extends MenuElement implements Listener {
                     lab.setBackgroundColor(ColorRGBA.Green.toIntRGBA());
                     lab.setPermissionValue(true);
                 }
-                
-                switch(lab.getPermission()) {
-                    
-                    case SHOW_ACCOUNT -> {
-                        if (plugin.isPlayerConneted(lab.getPlayerUID())) {
-                            Player m = Server.getPlayerByUID(lab.getPlayerUID());
-                            MainGUI gui = plugin.GUI.Bankystem.MainGui.getGui(m);
-                            if (gui != null) {
+
+                Player m = Server.getPlayerByUID(lab.getPlayerUID());
+                if (m != null) {
+                    MainGUI gui = plugin.GUI.Bankystem.MainGui.getGui(m);
+                    if (plugin.isPlayerConneted(lab.getPlayerUID()) && gui != null) {
+                        switch (lab.getPermission()) {
+
+                            case SHOW_ACCOUNT -> {
                                 gui.getAccountList().updateAccounts(gui.getAccountList().isOwn(), gui.getAccountList().isAll());
+                            }
+                            case CHANGE_MEMBERS, CHANGE_PERMISSIONS, SHOW_STATEMENTS -> {
+                                gui.createMenuListe(m, playerAccount);
+                            }
+                            case ADD_CASH, REMOVE_CASH, SEND_MONEY -> {
+                                gui.createMenuListe(m, playerAccount);
+                                gui.getMoney().updatePermission();
                             }
                         }
                     }
-                    
                 }
-
             }
         }
 

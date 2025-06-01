@@ -73,7 +73,7 @@ public class PlayerAtmListener implements Listener {
 
                     }
                 } else {
-                    player.showStatusMessage("Das geht mit diesem Item nicht!", 5); //TODO LANG
+                    player.showStatusMessage(plugin.Language.getStatus().getItemNotGoing(lang), 5);
                 }
             }
         }

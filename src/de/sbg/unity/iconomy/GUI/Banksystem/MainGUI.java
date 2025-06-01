@@ -4,7 +4,6 @@ import de.chaoswg.gui.StyleUI;
 import de.chaoswg.gui.StyleUI.Frame;
 import de.chaoswg.gui.UIFrame;
 import de.sbg.unity.iconomy.Banksystem.BankAccount;
-import de.sbg.unity.iconomy.Banksystem.BankMember;
 import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
 import de.sbg.unity.iconomy.GUI.List.AccountList;
@@ -54,7 +53,6 @@ public class MainGUI implements Listener {
     private final AccountList accountList;
     private final icConsole Console;
     private final String lang;
-    
 
     public MainGUI(Player player, boolean all, iConomy plugin) {
 
@@ -64,7 +62,7 @@ public class MainGUI implements Listener {
         this.menuData = new LinkedHashMap<>();
         this.user = player;
         this.Console = new icConsole(plugin);
-        
+
         Console.sendDebug("MainGUI", "Erstelle alle Tab-Inhalte neu");
         this.accountInfo = new AccountInfo(player, plugin);
         this.factoryInfo = new BusinessInfo(plugin);
@@ -180,7 +178,7 @@ public class MainGUI implements Listener {
         listTitel.addChild(labID);
         rot.addChild(groupMenu);
         rot.addChild(menuElement);
-        
+
         plugin.registerEventListener(playerPermissions);
 
         if (plugin.Config.Debug > 0) {
@@ -234,7 +232,7 @@ public class MainGUI implements Listener {
     public UIElement getGroupMenu() {
         return groupMenu;
     }
-    
+
     public AccountInfo getAccountInfo() {
         return accountInfo;
     }
@@ -278,7 +276,7 @@ public class MainGUI implements Listener {
     public UIElement getMenuElement() {
         return menuElement;
     }
-    
+
     private void setSelectedAccountLabel(UIAccountLabel account) {
         accountList.setSelectedAccountLabel(account);
     }
@@ -287,8 +285,14 @@ public class MainGUI implements Listener {
         //Console.sendDebug("MainGUI", "createMenuListe");
         groupMenu.removeAllChilds();
         menuData.clear();
-        
-        
+        if (plugin.Config.Debug > 0) {
+            if (ba instanceof PlayerAccount pa) {
+                Console.sendDebug("MenuList", "Create list for Player: " + pa.getLastKnownOwnerName());
+            }
+            if (ba instanceof BusinessAccount fa) {
+                Console.sendDebug("MenuList", "Create list for Business: " + fa.getBusiness().getName());
+            }
+        }
 
         UIElement tabAccountInfo = new UIElement();
         tabAccountInfo.style.height.set(100, Unit.Percent);
@@ -381,26 +385,63 @@ public class MainGUI implements Listener {
         tabMember.addChild(labMember);
 
         if (ba instanceof PlayerAccount pa) {
+            boolean owner = pa.getOwnerUID().equals(player.getUID());
             menuData.put(tabAccountInfo, accountInfo);
-        } else if (ba instanceof BusinessAccount fa) {
-            menuData.put(tabBusinessAccount, factoryInfo);
-        }
-        menuData.put(tabMoney, money);
-        menuData.put(tabStatement, statement);
-        
 
-        if (ba instanceof PlayerAccount pa) {
-            boolean result = pa.getOwnerUID().equals(player.getUID()) || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_PERMISSIONS));
-            if (result) {
+            boolean permMoney = owner || (pa.isMember(player) && (pa.getMember(player).hasPermission(PlayerAccountPermission.ADD_CASH) || pa.getMember(player).hasPermission(PlayerAccountPermission.REMOVE_CASH) || pa.getMember(player).hasPermission(PlayerAccountPermission.SEND_MONEY)));
+            
+            if (permMoney) {
+                menuData.put(tabMoney, money);
+            }
+
+            boolean memberPerms = owner || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_MEMBERS));
+            boolean statePerms = owner || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.SHOW_STATEMENTS));
+            boolean permPerms = owner || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_PERMISSIONS));
+
+            if (statePerms) {
+                menuData.put(tabStatement, statement);
+            }
+            if (memberPerms) {
                 menuData.put(tabMember, memberUI);
+            }
+            if (permPerms) {
                 menuData.put(tabPermission, playerPermissions);
             }
+            
+            Console.sendDebug("MenuList", "      owner = " + owner);
+            Console.sendDebug("MenuList", "  permMoney = " + permMoney);
+            Console.sendDebug("MenuList", "memberPerms = " + memberPerms);
+            Console.sendDebug("MenuList", " statePerms = " + statePerms);
+            Console.sendDebug("MenuList", "  permPerms = " + permPerms);
+
         } else if (ba instanceof BusinessAccount fa) {
-            boolean result = fa.isOwner(player) || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_PERMISSIONS));
-            if (result) {
+            boolean owner = fa.isOwner(player);
+            menuData.put(tabBusinessAccount, factoryInfo);
+            boolean permMoney = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.SEND_MONEY));
+
+            if (permMoney) {
+                menuData.put(tabMoney, money);
+            }
+
+            boolean memberPerms = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_MEMBERS));
+            boolean statePerms = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.SHOW_STATEMENTS));
+            boolean permPerms = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_PERMISSIONS));
+
+            if (statePerms) {
+                menuData.put(tabStatement, statement);
+            }
+            if (memberPerms) {
                 menuData.put(tabMember, memberUI);
+            }
+            if (permPerms) {
                 menuData.put(tabPermission, factoryPermissions);
             }
+            
+            Console.sendDebug("MenuList", "      owner = " + owner);
+            Console.sendDebug("MenuList", "  permMoney = " + permMoney);
+            Console.sendDebug("MenuList", "memberPerms = " + memberPerms);
+            Console.sendDebug("MenuList", " statePerms = " + statePerms);
+            Console.sendDebug("MenuList", "  permPerms = " + permPerms);
         }
 
         AtomicInteger z = new AtomicInteger(0);

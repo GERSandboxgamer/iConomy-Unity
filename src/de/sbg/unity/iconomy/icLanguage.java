@@ -13,6 +13,7 @@ public class icLanguage {
     private Npc npc;
     private GameObject gameObject;
     private Model3DPlaceLang.RadialPlaceClass RadialPlace;
+    private NpcCommand npcCommand;
 //    private Business factory;
 
     public icLanguage() {
@@ -23,6 +24,7 @@ public class icLanguage {
         this.gameObject = new GameObject();
         this.RadialPlace = new Model3DPlaceLang().new RadialPlaceClass();
         this.npc = new Npc();
+        this.npcCommand = new NpcCommand();
 
 //      this.factory = new Business();
         setDefaultLanguage("en");
@@ -101,6 +103,16 @@ public class icLanguage {
         getCommand().setAdminSetbank(AdminSetbank);
 
         //TODO Lang - Status
+        HashMap<String, String> AddCashSuccessful = new HashMap<>();
+        AddCashSuccessful.put("de", "Cash erfolgreich zur Bank hinzugefügt!");
+        AddCashSuccessful.put("en", "Add cash successful to bank account!");
+        getStatus().setAddCashSuccessful(AddCashSuccessful);
+
+        HashMap<String, String> ItemNotGoing = new HashMap<>();
+        ItemNotGoing.put("de", "Dieses Item geht nicht!");
+        ItemNotGoing.put("en", "This Item is not going!");
+        getStatus().setSendMoneyOK(ItemNotGoing);
+
         HashMap<String, String> SendMoneyOK = new HashMap<>();
         SendMoneyOK.put("de", "Erfolgreich Geld an anderen Spieler gesendet!");
         SendMoneyOK.put("en", "Send money to other player successfully!");
@@ -197,6 +209,32 @@ public class icLanguage {
         getStatus().setPlayerDeath_MoneyEmpty_Player(PlayerDeath_MoneyEmpty_Player);
 
         //TODO Lang - GUI
+        HashMap<String, String> NoPlayerFound = new HashMap<>();
+        NoPlayerFound.put("de", "Es wurde kein weiterer Spieler gefunden!");
+        NoPlayerFound.put("en", "No other player was found!");
+        getGui().setNoPlayerFound(NoPlayerFound);
+
+        HashMap<String, String> SelectAccount = new HashMap<>();
+        SelectAccount.put("de", "Bankkonto auswählen");
+        SelectAccount.put("en", "Select Account");
+        getGui().setSelectAccount(SelectAccount);
+
+        HashMap<String, String> SelectOnlinePlayer = new HashMap<>();
+        SelectOnlinePlayer.put("de", "Online-Spieler auswählen");
+        SelectOnlinePlayer.put("en", "Select Online Player");
+        getGui().setSelectOnlinePlayer(SelectOnlinePlayer);
+
+        HashMap<String, String> ClearAll = new HashMap<>();
+        ClearAll.put("de", "Alles leeren");
+        ClearAll.put("en", "Clear all");
+        getGui().setClearAll(ClearAll);
+
+        HashMap<String, String> RemoveCashFormBankMessage = new HashMap<>();
+        RemoveCashFormBankMessage.put("de", "Du hast Cash vom Bankkonto genommen!");
+        RemoveCashFormBankMessage.put("en", "Remove cash successful from bank account!");
+        getGui().setRemoveCashFormBankMessage(RemoveCashFormBankMessage);
+
+        //NÄCHSTER SCHRITT: UNTEN EINFÜGEN BEI "GUI"
         HashMap<String, String> PlaceAtmGui_Amount = new HashMap<>();
         PlaceAtmGui_Amount.put("de", "Menge");
         PlaceAtmGui_Amount.put("en", "Amount");
@@ -485,8 +523,8 @@ public class icLanguage {
         getNpc().setQuestionHelp(questionHelp);
 
         HashMap<String, String> createBank = new HashMap<>(); // 4
-        createBank.put("de", "Hallo, ich möchte ein Bankkonto erstellen.");
-        createBank.put("en", "Hello, I would like to open a bank account.");
+        createBank.put("de", "Hallo. Ich möchte ein Bankkonto erstellen.");
+        createBank.put("en", "Hello. I would like to open a bank account.");
         getNpc().setCreateBank(createBank);
 
         HashMap<String, String> goodbye = new HashMap<>(); // 5
@@ -503,12 +541,12 @@ public class icLanguage {
         costMessage.put("de", "Das macht dann %s.");
         costMessage.put("en", "That will be %s.");
         getNpc().setCostMessage(costMessage);
-        
+
         HashMap<String, String> createBankAccountSaccessfully = new HashMap<>();
         createBankAccountSaccessfully.put("de", "Ich habe erfolgreich ein Bankaccount für Sie angelegt.");
         createBankAccountSaccessfully.put("en", "I have successfully created a bank account for you.");
         getNpc().setCreateBankAccountSaccessfully(createBankAccountSaccessfully);
-        
+
         HashMap<String, String> createBankAccountFailMoney = new HashMap<>();
         createBankAccountFailMoney.put("de", "Du hast leider nicht genug Geld dafür.");
         createBankAccountFailMoney.put("en", "Unfortunately, you don't have enough money for that.");
@@ -760,8 +798,8 @@ public class icLanguage {
         getNpc().setNext(next);
 
         HashMap<String, String> helloCreateCompany = new HashMap<>(); // 1
-        helloCreateCompany.put("de", "Hallo, ich möchte eine Firma gründen.");
-        helloCreateCompany.put("en", "Hello, I would like to start a company.");
+        helloCreateCompany.put("de", "Hallo. Ich möchte eine Firma gründen.");
+        helloCreateCompany.put("en", "Hello. I would like to start a company.");
         getNpc().setHelloCreateCompany(helloCreateCompany);
 
         HashMap<String, String> pay = new HashMap<>(); // 2
@@ -788,12 +826,72 @@ public class icLanguage {
         noTryAgainLater.put("de", "Nein. Ich versuche es später nochmal.");
         noTryAgainLater.put("en", "No. I will try again later.");
         getNpc().setNoTryAgainLater(noTryAgainLater);
-        
+
         HashMap<String, String> comingSoon = new HashMap<>();
         comingSoon.put("de", "Diese Funktion steht bald zur Verfügung!");
-        comingSoon.put("de", "Coming Soon!");
+        comingSoon.put("en", "Coming Soon!");
         getNpc().setComingSoon(comingSoon);
 
+        //NPC Commands
+        HashMap<String, String> selectNpc = new HashMap<>();
+        selectNpc.put("de", "Ausgewählter NPC: %s (ID: %d)");
+        selectNpc.put("en", "Select NPC: %s (ID: %d)");
+        getNpcCommand().setSelectNpc(selectNpc);
+
+        HashMap<String, String> unselectNpc = new HashMap<>();
+        unselectNpc.put("de", "Du hast nicht länger augewählt: %s (ID: %d)");
+        unselectNpc.put("en", "You have not longer select NPC: %s (ID: %d)");
+        getNpcCommand().setUnselectNpc(unselectNpc);
+
+        HashMap<String, String> removeNpc = new HashMap<>();
+        removeNpc.put("de", "Du hast den NPC gelöscht!");
+        removeNpc.put("en", "You have remove the NPC!");
+        getNpcCommand().setRemoveNpc(removeNpc);
+
+        HashMap<String, String> addNpc = new HashMap<>();
+        addNpc.put("de", "Du hast den NPC hinzugefügt!");
+        addNpc.put("en", "You have added the NPC!");
+        getNpcCommand().setAddNpc(addNpc);
+
+        HashMap<String, String> startNpcSelection = new HashMap<>();
+        startNpcSelection.put("de", "NPC-Select-Modus aktiviert! Bitte mit einem NPC interagieren!");
+        startNpcSelection.put("en", "NPC Select Mode activated! Please interact with a NPC!");
+        getNpcCommand().setStartNpcSelection(startNpcSelection);
+
+        HashMap<String, String> stopNpcSelection = new HashMap<>();
+        stopNpcSelection.put("de", "NPC-Select-Modus deaktiviert!");
+        stopNpcSelection.put("en", "NPC select mode disabled!");
+        getNpcCommand().setStopNpcSelection(stopNpcSelection);
+
+        HashMap<String, String> startNpcAddSelection = new HashMap<>();
+        startNpcAddSelection.put("de", "NPC-Add-Select-Modus aktiviert! Bitte mit einem NPC interagieren!");
+        startNpcAddSelection.put("en", "NPC Add Select Mode activated! Please interact with a NPC!");
+        getNpcCommand().setStartNpcAddSelection(startNpcAddSelection);
+
+        HashMap<String, String> stopNpcAddSelection = new HashMap<>();
+        stopNpcAddSelection.put("de", "NPC-Add-Select-Modus deaktiviert!");
+        stopNpcAddSelection.put("en", "NPC Add Select Mode disabled!");
+        getNpcCommand().setStopNpcAddSelection(stopNpcAddSelection);
+
+        HashMap<String, String> moveNpc = new HashMap<>();
+        moveNpc.put("de", "Ausgewählter NPC: %s (ID: %d)");
+        moveNpc.put("en", "Select NPC: %s (ID: %d)");
+        getNpcCommand().setMoveNpc(moveNpc);
+
+        HashMap<String, String> startFollow = new HashMap<>();
+        startFollow.put("de", "Ausgewählter NPC: %s (ID: %d)");
+        startFollow.put("en", "Select NPC: %s (ID: %d)");
+        getNpcCommand().setStartFollow(startFollow);
+
+        HashMap<String, String> stopFollow = new HashMap<>();
+        stopFollow.put("de", "Ausgewählter NPC: %s (ID: %d)");
+        stopFollow.put("en", "Select NPC: %s (ID: %d)");
+        getNpcCommand().setStopFollow(stopFollow);
+
+    }
+
+    public NpcCommand getNpcCommand() {
+        return npcCommand;
     }
 
     public Model3DPlaceLang.RadialPlaceClass getRadialPlace() {
@@ -830,6 +928,159 @@ public class icLanguage {
 
     public void setDefaultLanguage(String defaultLanguage) {
         this.defaultLanguage = defaultLanguage;
+    }
+
+    public class NpcCommand {
+
+        private HashMap<String, String> AddNpc, SelectNpc, UnselectNpc, RemoveNpc, startNpcSelection, stopNpcSelection, startNpcAddSelection, stopNpcAddSelection, MoveNpc,
+                StartFollow, StopFollow;
+
+        public NpcCommand() {
+            this.AddNpc = new HashMap<>();
+            this.SelectNpc = new HashMap<>();
+            this.UnselectNpc = new HashMap<>();
+            this.RemoveNpc = new HashMap<>();
+            this.startNpcAddSelection = new HashMap<>();
+            this.stopNpcAddSelection = new HashMap<>();
+            this.startNpcSelection = new HashMap<>();
+            this.stopNpcSelection = new HashMap<>();
+            this.MoveNpc = new HashMap<>();
+            this.StartFollow = new HashMap<>();
+            this.StopFollow = new HashMap<>();
+        }
+
+        public String getMoveNpc(String lang) {
+            return MoveNpc.get(lang) != null ? MoveNpc.get(lang) : MoveNpc.get(defaultLanguage);
+        }
+
+        public String getStartFollow(String lang) {
+            return StartFollow.get(lang) != null ? StartFollow.get(lang) : StartFollow.get(defaultLanguage);
+        }
+
+        public String getStopFollow(String lang) {
+            return StopFollow.get(lang) != null ? StopFollow.get(lang) : StopFollow.get(defaultLanguage);
+        }
+
+        public void setMoveNpc(HashMap<String, String> MoveNpc) {
+            this.MoveNpc = MoveNpc;
+        }
+
+        public void setStartFollow(HashMap<String, String> StartFollow) {
+            this.StartFollow = StartFollow;
+        }
+
+        public void setStopFollow(HashMap<String, String> StopFollow) {
+            this.StopFollow = StopFollow;
+        }
+
+        public HashMap<String, String> getMoveNpc() {
+            return MoveNpc;
+        }
+
+        public HashMap<String, String> getStartFollow() {
+            return StartFollow;
+        }
+
+        public HashMap<String, String> getStopFollow() {
+            return StopFollow;
+        }
+
+        public String getStartNpcSelection(String lang) {
+            return startNpcSelection.get(lang) != null ? startNpcSelection.get(lang) : startNpcSelection.get(defaultLanguage);
+        }
+
+        public String getStopNpcSelection(String lang) {
+            return stopNpcSelection.get(lang) != null ? stopNpcSelection.get(lang) : stopNpcSelection.get(defaultLanguage);
+        }
+
+        public String getStartNpcAddSelection(String lang) {
+            return startNpcAddSelection.get(lang) != null ? startNpcAddSelection.get(lang) : startNpcAddSelection.get(defaultLanguage);
+        }
+
+        public String getStopNpcAddSelection(String lang) {
+            return stopNpcAddSelection.get(lang) != null ? stopNpcAddSelection.get(lang) : stopNpcAddSelection.get(defaultLanguage);
+        }
+
+        public String getUnselectNpc(String lang) {
+            return UnselectNpc.get(lang) != null ? UnselectNpc.get(lang) : UnselectNpc.get(defaultLanguage);
+        }
+
+        public String getRemoveNpc(String lang) {
+            return RemoveNpc.get(lang) != null ? RemoveNpc.get(lang) : RemoveNpc.get(defaultLanguage);
+        }
+
+        public String getAddNpc(String lang) {
+            return AddNpc.get(lang) != null ? AddNpc.get(lang) : AddNpc.get(defaultLanguage);
+        }
+
+        public String getSelectNpc(String lang) {
+            return SelectNpc.get(lang) != null ? SelectNpc.get(lang) : SelectNpc.get(defaultLanguage);
+        }
+
+        public HashMap<String, String> getStartNpcAddSelection() {
+            return startNpcAddSelection;
+        }
+
+        public HashMap<String, String> getStartNpcSelection() {
+            return startNpcSelection;
+        }
+
+        public HashMap<String, String> getStopNpcAddSelection() {
+            return stopNpcAddSelection;
+        }
+
+        public HashMap<String, String> getStopNpcSelection() {
+            return stopNpcSelection;
+        }
+
+        public void setStartNpcAddSelection(HashMap<String, String> startNpcAddSelection) {
+            this.startNpcAddSelection = startNpcAddSelection;
+        }
+
+        public void setStartNpcSelection(HashMap<String, String> startNpcSelection) {
+            this.startNpcSelection = startNpcSelection;
+        }
+
+        public void setStopNpcAddSelection(HashMap<String, String> stopNpcAddSelection) {
+            this.stopNpcAddSelection = stopNpcAddSelection;
+        }
+
+        public void setStopNpcSelection(HashMap<String, String> stopNpcSelection) {
+            this.stopNpcSelection = stopNpcSelection;
+        }
+
+        public HashMap<String, String> getAddNpc() {
+            return AddNpc;
+        }
+
+        public HashMap<String, String> getRemoveNpc() {
+            return RemoveNpc;
+        }
+
+        public HashMap<String, String> getSelectNpc() {
+            return SelectNpc;
+        }
+
+        public HashMap<String, String> getUnselectNpc() {
+            return UnselectNpc;
+        }
+
+        public void setAddNpc(HashMap<String, String> AddNpc) {
+            this.AddNpc = AddNpc;
+        }
+
+        public void setRemoveNpc(HashMap<String, String> RemoveNpc) {
+            this.RemoveNpc = RemoveNpc;
+        }
+
+        public void setSelectNpc(HashMap<String, String> SelectNpc) {
+            this.SelectNpc = SelectNpc;
+        }
+
+        public void setUnselectNpc(HashMap<String, String> UnselectNpc) {
+            this.UnselectNpc = UnselectNpc;
+        }
+
     }
 
     public class Command {
@@ -964,7 +1215,7 @@ public class icLanguage {
                 AdminGiveMoney, TransferCancel, PlayerNotAnounthMoney, EmptyAmount, SendCashToSelf,
                 OtherPlayerNotAnounthMoney, PlayerHasNoAccount, OtherPlayerHasNoAccount, AmountBigger,
                 PlayerDeath_KillerAdd, PlayerDeath_MoneyEmpty, Sign_Misspelled, Sign_OK, Sign_Distroy_Fail,
-                PlayerDeath_MoneyEmpty_Player, SendMoneyOK;
+                PlayerDeath_MoneyEmpty_Player, SendMoneyOK, ItemNotGoing, AddCashSuccessful;
 
         public Status() {
             this.AdminGiveMoney = new HashMap<>();
@@ -984,6 +1235,32 @@ public class icLanguage {
             this.Sign_Distroy_Fail = new HashMap<>();
             this.PlayerDeath_MoneyEmpty_Player = new HashMap<>();
             this.SendMoneyOK = new HashMap<>();
+            this.ItemNotGoing = new HashMap<>();
+            this.AddCashSuccessful = new HashMap<>();
+        }
+
+        public String getAddCashSuccessful(String lang) {
+            return AddCashSuccessful.get(lang) != null ? AddCashSuccessful.get(lang) : AddCashSuccessful.get(defaultLanguage);
+        }
+
+        public HashMap<String, String> getAddCashSuccessful() {
+            return AddCashSuccessful;
+        }
+
+        public void setAddCashSuccessful(HashMap<String, String> AddCashSuccessful) {
+            this.AddCashSuccessful = AddCashSuccessful;
+        }
+
+        public String getItemNotGoing(String lang) {
+            return ItemNotGoing.get(lang) != null ? ItemNotGoing.get(lang) : ItemNotGoing.get(defaultLanguage);
+        }
+
+        public void setItemNotGoing(HashMap<String, String> ItemNotGoing) {
+            this.ItemNotGoing = ItemNotGoing;
+        }
+
+        public HashMap<String, String> getItemNotGoing() {
+            return ItemNotGoing;
         }
 
         public HashMap<String, String> getSendMoneyOK() {
@@ -1257,7 +1534,8 @@ public class icLanguage {
                 PlaceAtmGui_UpDown_Pos, PlaceAtmGui_LeftRight_Pos, PlaceAtmGui_PageUpDown, PlaceAtmGui_UpDown_Rot, PlaceAtmGui_LeftRight_Rot,
                 PlaceAtmGui_Plus_Pos, PlaceAtmGui_Minus_Pos, PlaceAtmGui_Plus_Rot, PlaceAtmGui_Minus_Rot, PlaceAtmGui_Enter, PlaceAtmGui_Multiply,
                 PlaceAtmGui_Amount, PlaceAtmGui_Mode, PlaceAtmGui_Escape, Transfer, TransferText, Cash, Accounts, OwnAccount, OtherAccount,
-                Username, AccountInfoText, Statements, Permissions, Money, MoneyText, Members, MemberText1, MemberText2, Balance, MinBalance, Owner;
+                Username, AccountInfoText, Statements, Permissions, Money, MoneyText, Members, MemberText1, MemberText2, Balance, MinBalance, Owner,
+                NoPlayerFound, SelectAccount, SelectOnlinePlayer, ClearAll, RemoveCashFormBankMessage;
 
         public GUI() {
             this.Cancel = new HashMap<>();
@@ -1305,7 +1583,71 @@ public class icLanguage {
             Balance = new HashMap<>();
             MinBalance = new HashMap<>();
             Owner = new HashMap<>();
+            NoPlayerFound = new HashMap<>();
+            SelectAccount = new HashMap<>();
+            SelectOnlinePlayer = new HashMap<>();
+            ClearAll = new HashMap<>();
+            RemoveCashFormBankMessage = new HashMap<>();
+        }
+        
+        public String getNoPlayerFound(String lang) {
+            return NoPlayerFound.get(lang) != null ? NoPlayerFound.get(lang) : NoPlayerFound.get(defaultLanguage);
+        }
+        
+        public String getSelectAccount(String lang) {
+            return SelectAccount.get(lang) != null ? SelectAccount.get(lang) : SelectAccount.get(defaultLanguage);
+        }
+        
+        public String getSelectOnlinePlayer(String lang) {
+            return SelectOnlinePlayer.get(lang) != null ? SelectOnlinePlayer.get(lang) : SelectOnlinePlayer.get(defaultLanguage);
+        }
+        
+        public String getClearAll(String lang) {
+            return ClearAll.get(lang) != null ? ClearAll.get(lang) : ClearAll.get(defaultLanguage);
+        }
+        
+        public String getRemoveCashFormBankMessage(String lang) {
+            return RemoveCashFormBankMessage.get(lang) != null ? RemoveCashFormBankMessage.get(lang) : RemoveCashFormBankMessage.get(defaultLanguage);
+        }
+        
+        public HashMap<String, String> getClearAll() {
+            return ClearAll;
+        }
 
+        public HashMap<String, String> getNoPlayerFound() {
+            return NoPlayerFound;
+        }
+
+        public HashMap<String, String> getRemoveCashFormBankMessage() {
+            return RemoveCashFormBankMessage;
+        }
+
+        public HashMap<String, String> getSelectAccount() {
+            return SelectAccount;
+        }
+
+        public HashMap<String, String> getSelectOnlinePlayer() {
+            return SelectOnlinePlayer;
+        }
+
+        public void setClearAll(HashMap<String, String> ClearAll) {
+            this.ClearAll = ClearAll;
+        }
+
+        public void setNoPlayerFound(HashMap<String, String> NoPlayerFound) {
+            this.NoPlayerFound = NoPlayerFound;
+        }
+
+        public void setRemoveCashFormBankMessage(HashMap<String, String> RemoveCashFormBankMessage) {
+            this.RemoveCashFormBankMessage = RemoveCashFormBankMessage;
+        }
+
+        public void setSelectAccount(HashMap<String, String> SelectAccount) {
+            this.SelectAccount = SelectAccount;
+        }
+
+        public void setSelectOnlinePlayer(HashMap<String, String> SelectOnlinePlayer) {
+            this.SelectOnlinePlayer = SelectOnlinePlayer;
         }
 
         public String getBalance(String lang) {
@@ -2060,13 +2402,13 @@ public class icLanguage {
             this.AssignName = new HashMap<>();
             this.AreYouSure = new HashMap<>();
             this.NoTryAgainLater = new HashMap<>();
-            
+
             this.createBankAccountSaccessfully = new HashMap<>();
             this.NotAnounthMoney = new HashMap<>();
             this.ComingSoon = new HashMap<>();
         }
-        
-        public String getComingSoon(String lang){
+
+        public String getComingSoon(String lang) {
             return ComingSoon.getOrDefault(lang, ComingSoon.get(defaultLanguage));
         }
 
@@ -2077,8 +2419,8 @@ public class icLanguage {
         public void setComingSoon(HashMap<String, String> ComingSoon) {
             this.ComingSoon = ComingSoon;
         }
-        
-        public String getNotAnounthMoney(String lang){
+
+        public String getNotAnounthMoney(String lang) {
             return NotAnounthMoney.getOrDefault(lang, NotAnounthMoney.get(defaultLanguage));
         }
 
@@ -2097,7 +2439,7 @@ public class icLanguage {
         public void setCreateBankAccountSaccessfully(HashMap<String, String> createBankAccountSaccessfully) {
             this.createBankAccountSaccessfully = createBankAccountSaccessfully;
         }
-        
+
         public String getCreateBankAccountSaccessfully(String lang) {
             return createBankAccountSaccessfully.getOrDefault(lang, createBankAccountSaccessfully.get(defaultLanguage));
         }
