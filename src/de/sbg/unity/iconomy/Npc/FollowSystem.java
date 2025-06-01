@@ -1,7 +1,5 @@
 package de.sbg.unity.iconomy.Npc;
 
-import de.sbg.unity.iconomy.iConomy;
-import de.sbg.unity.iconomy.icConsole;
 import java.util.ArrayList;
 import java.util.List;
 import net.risingworld.api.Timer;
@@ -9,7 +7,7 @@ import net.risingworld.api.objects.Npc;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.utils.Vector3f;
 
-public class FollowSystem {
+public class FollowSystem { // Public class
 
     private final Player player;
     private Npc npc;
@@ -20,17 +18,18 @@ public class FollowSystem {
     private Timer walkTmer;
 
     private static final int MAX_POSITION_LIST_SIZE = 40;
-    private static final float TELEPORT_DISTANCE_THRESHOLD = 30.0f;
-    private static final float ARRIVED_THRESHOLD = 0.5f;
-    private static final float STUCK_DISTANCE_THRESHOLD = 0.1f;
+    private static final float TELEPORT_DISTANCE_THRESHOLD = 30.0f; // Teleportiert, wenn NPC > 30m vom Spieler ist
+    private static final float ARRIVED_THRESHOLD = 1.0f; // Schwellenwert, wann der NPC als "angekommen" gilt (z.B. 1 Meter)
+    private static final float STUCK_DISTANCE_THRESHOLD = 0.05f; // Wenn NPC sich weniger als 0.05m in X Ticks bewegt
+    private static final int STUCK_TICKS = 100; // Anzahl der Ticks (100 * 0.1s = 10 Sekunden), bis als festgesteckt gilt
+    private static final float STAND_BEHIND_DISTANCE = 2.0f; // Abstand in Metern, den der NPC hinter dem Spieler halten soll, wenn er stillsteht
+
     private int stuckCounter;
     private Vector3f lastNpcPositionCheck;
 
     private boolean isNpcLocked;
-    private final icConsole Console;
-    private final iConomy plugin;
 
-    public FollowSystem(iConomy plugin, Player player) {
+    public FollowSystem(Player player) {
         this.player = player;
         this.positionList = new ArrayList<>();
         this.writePosition = false;
@@ -39,11 +38,10 @@ public class FollowSystem {
         this.stuckCounter = 0;
         this.lastNpcPositionCheck = null;
         this.isNpcLocked = false;
-        this.Console = new icConsole(plugin);
-        this.plugin = plugin;
     }
 
-    //region Getter und Setter (unverändert)
+    //region Getter und Setter
+
     public int getDistance() {
         return distance;
     }
@@ -54,6 +52,17 @@ public class FollowSystem {
 
     public void setNpc(Npc npc) {
         this.npc = npc;
+        // Beim Setzen des NPC sicherstellen, dass er sich in einer guten Startposition befindet, falls er nicht schon dort ist
+        if (npc != null && player != null) {
+            Vector3f playerForward = player.getViewDirection(); // Korrigiert: getViewDirection()
+            Vector3f desiredStandPos = player.getPosition().subtract(playerForward.mult(STAND_BEHIND_DISTANCE)); // Korrigiert: mult()
+            if (npc.getPosition().distance(desiredStandPos) > 5.0f) { // Wenn mehr als 5m entfernt, teleportieren
+                npc.setPosition(desiredStandPos);
+                npc.setLocked(true); // Direkt sperren, bis der Spieler sich bewegt
+                isNpcLocked = true;
+                positionList.clear(); // Liste leeren
+            }
+        }
     }
 
     public void setDistance(int distance) {
@@ -70,7 +79,6 @@ public class FollowSystem {
             positionList.clear();
             stuckCounter = 0;
             lastNpcPositionCheck = null;
-            // Wenn das Schreiben wieder beginnt, den NPC entsperren, falls er gelockt war
             if (npc != null && isNpcLocked) {
                 npc.setLocked(false);
                 isNpcLocked = false;
@@ -89,9 +97,8 @@ public class FollowSystem {
     public void addPosition(Vector3f pos) {
         if (writePosition || !writeStandby) {
             if (positionList.size() >= MAX_POSITION_LIST_SIZE) {
-                positionList.remove(0);
+                positionList.remove(0); // Älteste Position entfernen
             }
-            Console.sendDebug("NPC-AddPos", "Add Position:  " + pos.toString());
             positionList.add(pos);
         }
     }
@@ -109,6 +116,7 @@ public class FollowSystem {
     }
 
     //endregion
+
     public void startFollow() {
         if (walkTmer != null) {
             walkTmer.kill();
@@ -120,7 +128,6 @@ public class FollowSystem {
         stuckCounter = 0;
         if (npc != null) {
             lastNpcPositionCheck = npc.getPosition();
-            // Beim Start des Folgens sicherstellen, dass NPC entsperrt ist
             if (isNpcLocked) {
                 npc.setLocked(false);
                 isNpcLocked = false;
@@ -128,24 +135,23 @@ public class FollowSystem {
         }
     }
 
-    /**
-     * Stoppt das Folgen des NPC und friert ihn an seiner aktuellen Position
-     * ein.
-     */
     public void stopFollow() {
         if (walkTmer != null) {
             walkTmer.kill();
             walkTmer = null;
         }
         if (this.npc != null) {
-            this.npc.setLocked(true); // NPC einfrieren, wie gewünscht
+            // Berechne die gewünschte Stehposition hinter dem Spieler
+            Vector3f playerForward = player.getViewDirection(); // Korrigiert: getViewDirection()
+            Vector3f desiredStandPos = player.getPosition().subtract(playerForward.mult(STAND_BEHIND_DISTANCE)); // Korrigiert: mult()
+            this.npc.setPosition(desiredStandPos); // NPC an gewünschte Position hinter Spieler setzen
+            this.npc.setLocked(true); // NPC einfrieren
             this.isNpcLocked = true; // Internen Zustand aktualisieren
         }
-        this.npc = null; // NPC-Referenz löschen
+        this.npc = null;
         positionList.clear();
         stuckCounter = 0;
         lastNpcPositionCheck = null;
-        // isNpcLocked bleibt auf true, wenn NPC gesetzt war, sonst false
     }
 
     private void follow() {
@@ -154,87 +160,92 @@ public class FollowSystem {
         }
 
         Vector3f currentNpcPos = npc.getPosition();
+        float distanceToPlayer = player.getPosition().distance(currentNpcPos);
 
-        // --- Prüfung auf Feststecken oder zu große Entfernung (Teleportationslogik) ---
-        // Fall 1: NPC ist zu weit vom Spieler entfernt -> Teleportieren und sperren
-        if (player.getPosition().distance(currentNpcPos) > TELEPORT_DISTANCE_THRESHOLD) {
-            npc.setPosition(player.getPosition().add(new Vector3f(1, 0, 1))); // Leicht versetzt zum Spieler
-            npc.setLocked(true); // NEU: NPC nach Teleportation sperren
-            isNpcLocked = true;   // Internen Zustand aktualisieren
+        // --- Primäre Teleportationslogik (Notfall): Wenn NPC zu weit vom Spieler entfernt ist ---
+        if (distanceToPlayer > TELEPORT_DISTANCE_THRESHOLD) {
+            Vector3f playerForward = player.getViewDirection(); // Korrigiert: getViewDirection()
+            Vector3f teleportTargetPos = player.getPosition().subtract(playerForward.mult(STAND_BEHIND_DISTANCE)); // Korrigiert: mult()
+            
+            npc.setPosition(teleportTargetPos); // Teleportiert
+            npc.setLocked(true); // NPC nach Teleportation sperren
+            isNpcLocked = true;
             positionList.clear(); // Liste leeren, um von neuem zu beginnen
             stuckCounter = 0;
             lastNpcPositionCheck = npc.getPosition();
             return;
         }
-
-        // Wenn der NPC **gesperrt** ist, prüfen, ob er entsperrt werden muss
-        // Dies ist die Hauptlogik zum "Wiederbeleben" eines gesperrten NPC
+        
+        // Wenn der NPC gesperrt ist, prüfen, ob er entsperrt werden muss
         if (isNpcLocked) {
-            // Entsperren, wenn genügend neue Positionen da sind (Spieler läuft wieder)
             if (positionList.size() > this.distance) {
                 npc.setLocked(false);
                 isNpcLocked = false;
-                // Dann den Rest der Logik ausführen, um sofort loszulaufen
             } else {
-                // Immer noch gesperrt, da Spieler sich nicht genug bewegt hat, oder Liste zu klein.
-                return; // Nichts weiter tun, solange er gesperrt ist und keine Freigabe-Bedingung erfüllt ist
+                return; // Immer noch gesperrt
             }
+        }
+
+        // --- Feststecken-Erkennung (bevor der NPC sich bewegt) ---
+        if (lastNpcPositionCheck != null) {
+            if (currentNpcPos.distance(lastNpcPositionCheck) < STUCK_DISTANCE_THRESHOLD) {
+                stuckCounter++;
+            } else {
+                stuckCounter = 0;
+            }
+        }
+        lastNpcPositionCheck = currentNpcPos;
+
+        // Fall 2: NPC steckt fest -> Teleportieren und sperren
+        if (stuckCounter > STUCK_TICKS) {
+            Vector3f playerForward = player.getViewDirection(); // Korrigiert: getViewDirection()
+            Vector3f teleportTargetPos = player.getPosition().subtract(playerForward.mult(STAND_BEHIND_DISTANCE)); // Korrigiert: mult()
+            
+            npc.setPosition(teleportTargetPos); // Teleportiert
+            npc.setLocked(true); // NPC nach Teleportation sperren
+            isNpcLocked = true;
+            positionList.clear(); // Liste leeren
+            stuckCounter = 0;
+            lastNpcPositionCheck = npc.getPosition();
+            return;
         }
 
         // --- Logik für das Halten der Distanz und das Bewegen ---
         // NPC wartet, bis genügend Positionen für seinen Abstand gesammelt wurden.
         // Oder wenn er seine letzte "Abstandsposition" erreicht hat.
         if (positionList.size() <= this.distance) {
-            // NPC hat seinen Abstand erreicht oder ist noch nicht genug zurückgeblieben.
-            // Er soll stehen bleiben und gesperrt werden, um Trippeln zu vermeiden.
-            if (!isNpcLocked) { // Sperren, falls er nicht schon gesperrt ist
+            // Wenn der NPC seinen Zielabstand erreicht hat, sollte er die finale Position hinter dem Spieler einnehmen
+            // und dort gelockt werden, um das Trippeln zu vermeiden.
+            if (!isNpcLocked) {
+                Vector3f playerForward = player.getViewDirection(); // Korrigiert: getViewDirection()
+                Vector3f desiredStandPos = player.getPosition().subtract(playerForward.mult(STAND_BEHIND_DISTANCE)); // Korrigiert: mult()
+                
+                // Nur setzen, wenn er nicht schon sehr nah dran ist, um unnötige Teleports zu vermeiden
+                if (currentNpcPos.distance(desiredStandPos) > ARRIVED_THRESHOLD) {
+                     npc.setPosition(desiredStandPos);
+                }
+               
                 npc.setLocked(true);
                 isNpcLocked = true;
             }
-            stuckCounter = 0;
-            lastNpcPositionCheck = currentNpcPos;
-            return;
+            return; // Nichts weiter tun, da er wartet/steht
         }
 
         // Wenn die Liste groß genug ist, bestimme die Zielposition.
+        // Dies ist die Position, die 'distance' Schritte vom Ende der Liste (der neuesten) entfernt ist.
         int targetIndex = positionList.size() - this.distance;
-        targetIndex = Math.max(0, targetIndex);
+        targetIndex = Math.max(0, targetIndex); 
         Vector3f targetPos = positionList.get(targetIndex);
 
         // Überprüfen, ob der NPC nah genug am aktuellen Zielpunkt ist.
         if (currentNpcPos.distance(targetPos) < ARRIVED_THRESHOLD) {
-            // NPC hat seinen Zielpunkt erreicht oder ist sehr nah dran.
-            // Er soll dort bleiben und gesperrt werden, um Trippeln zu vermeiden.
-            if (!isNpcLocked) { // Sperren, falls er nicht schon gesperrt ist
-                npc.setLocked(true);
-                isNpcLocked = true;
-            }
-            stuckCounter = 0;
-            lastNpcPositionCheck = currentNpcPos;
-            return;
+            // NPC hat diesen spezifischen Pfadpunkt erreicht.
+            // Er soll sich nicht trippeln. Wenn er hier ankommt, bewegt er sich zum nächsten Punkt.
+            stuckCounter = 0; // Kein Feststecken, wenn er angekommen ist
+            return; 
         } else {
             // NPC zum Ziel bewegen, da er noch nicht angekommen ist.
-            // Hier wird er nur bewegt, wenn er NICHT gelockt war (was durch die obige isNpcLocked-Prüfung gewährleistet ist)
             npc.moveTo(targetPos);
-
-            // --- Feststecken-Erkennung ---
-            if (lastNpcPositionCheck != null && currentNpcPos.distance(lastNpcPositionCheck) < STUCK_DISTANCE_THRESHOLD) {
-                stuckCounter++;
-            } else {
-                stuckCounter = 0;
-            }
-            lastNpcPositionCheck = currentNpcPos;
-
-            // Fall 2: NPC steckt fest -> Teleportieren und sperren
-            if (stuckCounter > 50) { // 50 Ticks * 0.1s/Tick = 5 Sekunden
-                npc.setPosition(player.getPosition().add(new Vector3f(1, 0, 1))); // Leicht versetzt zum Spieler
-                npc.setLocked(true); // NEU: NPC nach Teleportation sperren
-                isNpcLocked = true;   // Internen Zustand aktualisieren
-                positionList.clear(); // Liste leeren
-                stuckCounter = 0;
-                lastNpcPositionCheck = npc.getPosition();
-            }
         }
-
     }
 }

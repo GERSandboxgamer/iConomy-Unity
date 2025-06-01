@@ -92,7 +92,7 @@ public class icPlayerListener implements Listener {
                     player.sendTextMessage(format.Color("orange", "======== Help ========"));
                     player.sendTextMessage(format.Color("orange", "Info: | = Or; <> = must; () = Optional"));
                     player.sendTextMessage(format.Color("orange", "/balance - Show the balance"));
-                    player.sendTextMessage(format.Color("orange", cmd[0]) + "Show the balance");
+                    player.sendTextMessage(format.Color("orange", cmd[0] + " - Show the balance"));
                     if (plugin.Config.CreateAccountViaCommand) {
                         player.sendTextMessage(format.Color("orange", cmd[0] + " [createbank|cb] - Create a bank account"));
                     }

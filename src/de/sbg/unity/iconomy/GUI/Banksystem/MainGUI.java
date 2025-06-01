@@ -388,15 +388,15 @@ public class MainGUI implements Listener {
             boolean owner = pa.getOwnerUID().equals(player.getUID());
             menuData.put(tabAccountInfo, accountInfo);
 
-            boolean permMoney = owner || (pa.isMember(player) && (pa.getMember(player).hasPermission(PlayerAccountPermission.ADD_CASH) || pa.getMember(player).hasPermission(PlayerAccountPermission.REMOVE_CASH) || pa.getMember(player).hasPermission(PlayerAccountPermission.SEND_MONEY)));
+            boolean permMoney = (owner || player.isAdmin()) || (pa.isMember(player) && (pa.getMember(player).hasPermission(PlayerAccountPermission.ADD_CASH) || pa.getMember(player).hasPermission(PlayerAccountPermission.REMOVE_CASH) || pa.getMember(player).hasPermission(PlayerAccountPermission.SEND_MONEY)));
             
             if (permMoney) {
                 menuData.put(tabMoney, money);
             }
 
-            boolean memberPerms = owner || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_MEMBERS));
-            boolean statePerms = owner || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.SHOW_STATEMENTS));
-            boolean permPerms = owner || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_PERMISSIONS));
+            boolean memberPerms = (owner || player.isAdmin()) || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_MEMBERS));
+            boolean statePerms = (owner || player.isAdmin()) || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.SHOW_STATEMENTS));
+            boolean permPerms = (owner || player.isAdmin()) || (pa.isMember(player) && pa.getMember(player).hasPermission(PlayerAccountPermission.CHANGE_PERMISSIONS));
 
             if (statePerms) {
                 menuData.put(tabStatement, statement);
@@ -417,15 +417,15 @@ public class MainGUI implements Listener {
         } else if (ba instanceof BusinessAccount fa) {
             boolean owner = fa.isOwner(player);
             menuData.put(tabBusinessAccount, factoryInfo);
-            boolean permMoney = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.SEND_MONEY));
+            boolean permMoney = (owner || player.isAdmin()) || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.SEND_MONEY));
 
             if (permMoney) {
                 menuData.put(tabMoney, money);
             }
 
-            boolean memberPerms = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_MEMBERS));
-            boolean statePerms = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.SHOW_STATEMENTS));
-            boolean permPerms = owner || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_PERMISSIONS));
+            boolean memberPerms = (owner || player.isAdmin()) || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_MEMBERS));
+            boolean statePerms = (owner || player.isAdmin()) || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.SHOW_STATEMENTS));
+            boolean permPerms = (owner || player.isAdmin()) || (fa.isMember(player) && fa.getMember(player).hasPermission(BusinessAccountPermission.CHANGE_PERMISSIONS));
 
             if (statePerms) {
                 menuData.put(tabStatement, statement);

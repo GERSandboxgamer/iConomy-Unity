@@ -104,7 +104,7 @@ public class NpcSystem {
         }
         
         public void addPlayer(Player player){
-            followList.put(player, new FollowSystem(plugin, player));
+            followList.put(player, new FollowSystem(player));
         }
     }
 

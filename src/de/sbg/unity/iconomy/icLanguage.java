@@ -874,18 +874,18 @@ public class icLanguage {
         getNpcCommand().setStopNpcAddSelection(stopNpcAddSelection);
 
         HashMap<String, String> moveNpc = new HashMap<>();
-        moveNpc.put("de", "Ausgewählter NPC: %s (ID: %d)");
-        moveNpc.put("en", "Select NPC: %s (ID: %d)");
+        moveNpc.put("de", "NPC auf deine Position bewegt.");
+        moveNpc.put("en", "NPC move to your position!");
         getNpcCommand().setMoveNpc(moveNpc);
 
         HashMap<String, String> startFollow = new HashMap<>();
-        startFollow.put("de", "Ausgewählter NPC: %s (ID: %d)");
-        startFollow.put("en", "Select NPC: %s (ID: %d)");
+        startFollow.put("de", "NPC folgt dir jetzt!");
+        startFollow.put("en", "NPC are following you now!");
         getNpcCommand().setStartFollow(startFollow);
 
         HashMap<String, String> stopFollow = new HashMap<>();
-        stopFollow.put("de", "Ausgewählter NPC: %s (ID: %d)");
-        stopFollow.put("en", "Select NPC: %s (ID: %d)");
+        stopFollow.put("de", "NPC folgt dir nicht mehr.");
+        stopFollow.put("en", "NPC no longer follows you.");
         getNpcCommand().setStopFollow(stopFollow);
 
     }
