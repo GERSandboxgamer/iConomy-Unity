@@ -42,7 +42,7 @@ public class AdminBusinessCommandListener implements Listener {
 //                                                plugin.Factory.factoryPlots.addPlot(t);
 //                                                Server.addArea(t, true);
 //                                                plugin.Attribute.area.setAreaShow(t, false);
-//                                                player.sendTextMessage("Add Area");//TODO Lang
+//                                                player.sendTextMessage("Add Area");//TODO Lang Business
 //                                            } catch (SQLException ex) {
 //                                                player.sendTextMessage("Can not save Plot do Database!");
 //                                                Console.sendErr("============== iConomy-Facotry Error ==============");
@@ -84,17 +84,17 @@ public class AdminBusinessCommandListener implements Listener {
 //                                if (cmd[3].toLowerCase().equals("price") || cmd[3].toLowerCase().equals("p")) {
 //                                    if (a != null && plugin.Factory.factoryPlots.isPlot(a)) {
 //                                        plugin.Factory.factoryPlots.getPlot(a).setPrice(plugin.moneyFormat.getMoneyAsLong(cmd[4]));
-//                                        player.sendTextMessage("Set Price");//TODO Lang
+//                                        player.sendTextMessage("Set Price");//TODO Lang Business
 //                                    } else {
-//                                        player.sendTextMessage("You are not in a factory plot");//TODO Lang
+//                                        player.sendTextMessage("You are not in a factory plot");//TODO Lang Business
 //                                    }
 //                                }
 //                                if (cmd[3].toLowerCase().equals("name") || cmd[3].toLowerCase().equals("n")) {
 //                                    if (a != null && plugin.Factory.factoryPlots.isPlot(a)) {
 //                                        plugin.Factory.factoryPlots.getPlot(a).setName(cmd[4]);
-//                                        player.sendTextMessage("Set name to " + cmd[4]);//TODO Lang
+//                                        player.sendTextMessage("Set name to " + cmd[4]);//TODO Lang Business
 //                                    } else {
-//                                        player.sendTextMessage("You are not in a factory plot");//TODO Lang
+//                                        player.sendTextMessage("You are not in a factory plot");//TODO Lang Business
 //                                    }
 //                                }
 //                            }

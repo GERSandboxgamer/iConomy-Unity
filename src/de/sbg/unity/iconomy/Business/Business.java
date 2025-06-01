@@ -694,7 +694,7 @@ public class Business {
 
     public static class BusinessInfoMessage {
 
-        //TODO Lang
+        //TODO Lang Business
         public final String PlayerEnterPlot;
 
         public BusinessInfoMessage(Player player) {

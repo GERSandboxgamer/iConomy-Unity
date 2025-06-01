@@ -46,7 +46,7 @@ public class Statement extends MenuElement implements Listener {
         gButten.setBorder(5);
         gButten.setBorderColor(ColorRGBA.Green.toIntRGBA());
 
-        clearAll = new UIButton("Clear all"); //TODO Lang
+        clearAll = new UIButton(plugin.Language.getGui().getClearAll(lang));
         clearAll.setSize(160, 60, false);
         clearAll.setPosition(50, 50, true);
         clearAll.setPivot(Pivot.MiddleCenter);

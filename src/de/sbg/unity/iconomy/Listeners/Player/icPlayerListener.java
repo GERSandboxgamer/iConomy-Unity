@@ -16,12 +16,16 @@ import net.risingworld.api.Server;
 import net.risingworld.api.definitions.Npcs;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
+import net.risingworld.api.events.player.PlayerChangePositionEvent;
 import net.risingworld.api.events.player.PlayerCommandEvent;
+import net.risingworld.api.events.player.PlayerConnectEvent;
 import net.risingworld.api.events.player.PlayerDeathEvent;
 import net.risingworld.api.events.player.PlayerDisconnectEvent;
 import net.risingworld.api.events.player.PlayerGameObjectInteractionEvent;
 import net.risingworld.api.events.player.PlayerNpcInteractionEvent;
 import net.risingworld.api.events.player.PlayerSpawnEvent;
+import net.risingworld.api.events.player.PlayerStartFlyingEvent;
+import net.risingworld.api.events.player.PlayerStopFlyingEvent;
 import net.risingworld.api.objects.Npc;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.worldelements.GameObject;
@@ -44,7 +48,7 @@ public class icPlayerListener implements Listener {
         plugin.Attribute.player.setSelectNpc(player, null);
         plugin.Attribute.player.setDummyMode(player, false);
         plugin.Attribute.player.setNpcSelectMode(player, false);
-        plugin.Bankystem.npcSystem.addPlayer(player);
+        plugin.Bankystem.npcSystem.speakSystem.addPlayer(player);
         plugin.Attribute.player.setBusinessPlotSelection(player, false);
 
         try {
@@ -88,12 +92,12 @@ public class icPlayerListener implements Listener {
                     player.sendTextMessage(format.Color("orange", "======== Help ========"));
                     player.sendTextMessage(format.Color("orange", "Info: | = Or; <> = must; () = Optional"));
                     player.sendTextMessage(format.Color("orange", "/balance - Show the balance"));
-                    player.sendTextMessage(format.Color("orange", cmd[0]) + "Show the balance");
+                    player.sendTextMessage(format.Color("orange", cmd[0] + " - Show the balance"));
                     if (plugin.Config.CreateAccountViaCommand) {
                         player.sendTextMessage(format.Color("orange", cmd[0] + " [createbank|cb] - Create a bank account"));
                     }
                     player.sendTextMessage(format.Color("orange", cmd[0] + " help - Show the help"));
-                    player.sendTextMessage(format.Color("orange", cmd[0] + " send - Send Money to other player"));
+                    player.sendTextMessage(format.Color("orange", cmd[0] + " send - Send money to other player"));
                     //player.sendTextMessage(format.Color("orange", cmd[0] + " factroy help")); //TODO Business
                     if (player.isAdmin()) {
                         player.sendTextMessage(format.Color("red", "===== Only Admin ====="));
@@ -107,8 +111,13 @@ public class icPlayerListener implements Listener {
                         player.sendTextMessage(format.Color("red", cmd[0] + " <createbank|cb> <Player> - Create a bank account for a player"));
                         player.sendTextMessage(format.Color("red", cmd[0] + " bs (true|false) - Show the banksystem (true = Admin-Mode)"));
                         player.sendTextMessage(format.Color("red", cmd[0] + " bank addatm - Add a new ATM to the world"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " npc add - Add a Dummy-NPC as 'bank npc'"));
                         player.sendTextMessage(format.Color("red", cmd[0] + " npc create <name> - Create a 'bank npc'"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " npc follow - The 'bank npc' is following you"));
+                        player.sendTextMessage(format.Color("red", cmd[0] + " npc move - The 'bank npc' move to your position"));
                         player.sendTextMessage(format.Color("red", cmd[0] + " npc select - Select a 'bank npc'"));
+                        
+                        
                     }
                     player.sendTextMessage(format.Color("orange", "======================"));
                 }
@@ -248,7 +257,7 @@ public class icPlayerListener implements Listener {
     @EventMethod
     public void onPlayerDisconnectEvent(PlayerDisconnectEvent event) {
         Player player = event.getPlayer();
-        plugin.Bankystem.npcSystem.removePlayer(player);
+        plugin.Bankystem.npcSystem.speakSystem.removePlayer(player);
         if (plugin.Config.SaveAllByPlayerDisconnect) {
             try {
                 plugin.Databases.saveAll();
@@ -282,6 +291,7 @@ public class icPlayerListener implements Listener {
     @EventMethod
     public void onPlayerNpcInteraktionEvent(PlayerNpcInteractionEvent event) {
         Player player = event.getPlayer();
+        String lang = player.getLanguage();
         Npc npc = event.getNpc();
 
         if (npc.getDefinition().type == Npcs.Type.Human) {
@@ -289,6 +299,7 @@ public class icPlayerListener implements Listener {
                 if (plugin.Attribute.player.isDummyMode(player)) {
                     try {
                         plugin.Bankystem.npcSystem.addNpc(npc, 1);
+                        player.sendTextMessage(format.Color("green", plugin.Language.getNpcCommand().getAddNpc(lang)));
                     } catch (SQLException ex) {
                         player.sendTextMessage(format.Color("red", "ERR: Can not save npc to database!"));
                         Console.sendErr("Command (npc create)", "Can not save npc to database!");
@@ -300,15 +311,47 @@ public class icPlayerListener implements Listener {
                     npc.setLocked(true);
                 }
             } else {
-                if (plugin.Attribute.player.getNpcSelectMode(player)) {
+                if (plugin.Attribute.player.isNpcSelectMode(player)) {
                     plugin.Attribute.player.setNpcSelectMode(player, false);
                     plugin.Attribute.player.setSelectNpc(player, npc);
-                    //TODO MSG
+                    player.sendTextMessage(format.Color("green", String.format(plugin.Language.getNpcCommand().getSelectNpc(lang), npc.getName(), npc.getGlobalID())));
+                } else {
+                    if (plugin.Bankystem.npcSystem.followSystem.getSystem(player).getNpc() == null || plugin.Bankystem.npcSystem.followSystem.getSystem(player).getNpc().getGlobalID() != npc.getGlobalID()) {
+                        plugin.GUI.speakGuiSystem.show(player, npc);
+                    }
                 }
-                plugin.GUI.speakGuiSystem.show(player, npc);
             }
         }
 
+    }
+    
+    @EventMethod
+    public void onPlayerStartFlyingEvent(PlayerStartFlyingEvent event) {
+        Player player = event.getPlayer();
+        plugin.Bankystem.npcSystem.followSystem.getSystem(player).setWriteStandby(true);
+    }
+    
+    @EventMethod
+    public void onPlayerStopFlyingEvent(PlayerStopFlyingEvent event) {
+        Player player = event.getPlayer();
+        plugin.Bankystem.npcSystem.followSystem.getSystem(player).setWriteStandby(false);
+    }
+
+    @EventMethod
+    public void onPlayerChangePositionEvent(PlayerChangePositionEvent event) {
+        Player player = event.getPlayer();
+        plugin.Bankystem.npcSystem.followSystem.getSystem(player).addPosition(event.getPosition());
+    }
+
+    @EventMethod
+    public void onPlayerConnectEvent(PlayerConnectEvent event) {
+        Player player = event.getPlayer();
+        plugin.Bankystem.npcSystem.followSystem.addPlayer(player);
+        plugin.Bankystem.npcSystem.speakSystem.addPlayer(player);
+        plugin.Attribute.player.setBusinessPlotSelection(player, false);
+        plugin.Attribute.player.setDummyMode(player, false);
+        plugin.Attribute.player.setNpcSelectMode(player, false);
+        plugin.Attribute.player.setSelectNpc(player, null);
     }
 
 }

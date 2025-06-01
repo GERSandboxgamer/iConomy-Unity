@@ -92,7 +92,7 @@ public class AdminMoneyCommandListener implements Listener {
                         if (plugin.Bankystem.PlayerSystem.hasPlayerAccount(player)) {
                             plugin.GUI.Bankystem.MainGui.showGUI(player);
                         } else {
-                            player.showErrorMessageBox("No bank account", "You do not have a bank account!");
+                            player.showErrorMessageBox("Bank", plugin.Language.getGui().getNoAccount(lang));
                         }
                     }
 
@@ -157,22 +157,55 @@ public class AdminMoneyCommandListener implements Listener {
 
                     }
                     if (cmd[1].toLowerCase().equals("npc")) {
-                        if (cmd[2].toLowerCase().equals("select")) {
-                            boolean mode = plugin.Attribute.player.getNpcSelectMode(player);
+                        if (cmd[2].toLowerCase().equals("select") || cmd[2].toLowerCase().equals("s")) {
+                            boolean mode = plugin.Attribute.player.isNpcSelectMode(player);
                             if (!mode) {
                                 plugin.Attribute.player.setNpcSelectMode(player, true);
-                                //TODO MSG
+                                player.sendTextMessage(format.Color("green", plugin.Language.getNpcCommand().getStartNpcSelection(lang)));
                             } else {
                                 plugin.Attribute.player.setNpcSelectMode(player, false);
-                                //TODO MSG
+                                player.sendTextMessage(format.Color("orange", plugin.Language.getNpcCommand().getStopNpcSelection(lang)));
                             }
-                            if (cmd[2].toLowerCase().equals("move")) {
-                                Npc npc = plugin.Attribute.player.getSelectNpc(player);
-                                if (npc != null) {
-                                    npc.setPosition(player.getPosition());
-                                    npc.setRotation(player.getRotation());
-                                    npc.setViewDirection(player.getViewDirection());
+                        }
+
+                        if (cmd[2].toLowerCase().equals("add") || cmd[2].toLowerCase().equals("a")) {
+                            boolean mode = plugin.Attribute.player.isDummyMode(player);
+                            if (!mode) {
+                                plugin.Attribute.player.setDummyMode(player, true);
+                                player.sendTextMessage(format.Color("green", plugin.Language.getNpcCommand().getStartNpcAddSelection(lang))); 
+                            } else {
+                                plugin.Attribute.player.setDummyMode(player, false);
+                                player.sendTextMessage(format.Color("orange", plugin.Language.getNpcCommand().getStopNpcAddSelection(lang)));
+                            }
+                        }
+
+                        Npc npc = plugin.Attribute.player.getSelectNpc(player);
+                        if (npc != null) {
+                            if (cmd[2].toLowerCase().equals("move") || cmd[2].toLowerCase().equals("m")) {
+                                npc.setPosition(player.getPosition());
+                                npc.setRotation(player.getRotation());
+                                npc.setViewDirection(player.getViewDirection());
+                                player.sendTextMessage(format.Color("green", plugin.Language.getNpcCommand().getMoveNpc(lang)));
+                            }
+                            if (cmd[2].toLowerCase().equals("follow") || cmd[2].toLowerCase().equals("f")) {
+                                Console.sendDebug("Command - npc follow", "follow erkannt");
+                                Console.sendDebug("Command - npc follow", "npc not null");
+                                if (!plugin.Bankystem.npcSystem.followSystem.getSystem(player).isWritePosition()) {
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).setNpc(npc);
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).setDistance(5);
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).setWritePosition(true);
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).startFollow();
+                                    player.sendTextMessage(format.Color("green", plugin.Language.getNpcCommand().getStartFollow(lang)));
+                                } else {
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).setWritePosition(false);
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).stopFollow();
+                                    plugin.Bankystem.npcSystem.followSystem.getSystem(player).setNpc(null);
+                                    player.sendTextMessage(format.Color("orange", plugin.Language.getNpcCommand().getStopFollow(lang)));
                                 }
+                            }
+                            if (cmd[2].toLowerCase().equals("unselect") || cmd[2].toLowerCase().equals("us")) {
+                                plugin.Attribute.player.setSelectNpc(player, null);
+                                player.sendTextMessage(format.Color("green", String.format(plugin.Language.getNpcCommand().getUnselectNpc(lang), npc.getName(), npc.getGlobalID())));
                             }
                         }
                     }

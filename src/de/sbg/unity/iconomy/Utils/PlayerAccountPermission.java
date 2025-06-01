@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum PlayerAccountPermission {
-    ADD_MEMBER,
-    REMOVE_MEMBER,
+    CHANGE_MEMBERS,
     SEND_MONEY,
     ADD_CASH,
     REMOVE_CASH,

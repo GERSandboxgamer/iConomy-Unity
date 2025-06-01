@@ -20,9 +20,9 @@ public class BusinessListener implements Listener {
 //            Business b = plugin.Business.getBusinessByPlot(player);
 //            if (!b.isOwner(player) && !(b.isMember(player) && b.getMember(player).hasPermission(BusinessPermission.ENTER_PLOTS)) && !b.getPlayerPermissions().EnterPlots) {
 //                event.setCancelled(true);
-//                player.showStatusMessage("Du darfst das Firmengelände nicht betreten!", 5); //TODOD Lang
+//                player.showStatusMessage("Du darfst das Firmengelände nicht betreten!", 5); //TODO Lang Business
 //            } else {
-//                player.showLocationTicker("Firma: " + b.getName(), 5); //TODO Lang
+//                player.showLocationTicker("Firma: " + b.getName(), 5); //TODO Lang Business
 //                b.addInfo(new BusinessInfoMessage(player).PlayerEnterPlot);
 //                String msg;
 //                if (b.isMember(player)) {

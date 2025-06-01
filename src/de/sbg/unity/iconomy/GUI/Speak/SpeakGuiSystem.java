@@ -1,6 +1,5 @@
 package de.sbg.unity.iconomy.GUI.Speak;
 
-import de.sbg.unity.iconomy.Npc.SpeakSystem;
 import de.sbg.unity.iconomy.Npc.SpeakSystem.SpeakObject;
 import de.sbg.unity.iconomy.iConomy;
 import net.risingworld.api.objects.Npc;
@@ -17,15 +16,13 @@ public class SpeakGuiSystem {
     }
 
     public void show(Player player, Npc npc) {
-        show(player, npc, plugin.Bankystem.npcSystem.getSpeakSystem(player).id_00());
+        show(player, npc, plugin.Bankystem.npcSystem.speakSystem.getSpeakSystem(player).id_00(npc.getName()));
     }
 
     public SpeakMainGui show(Player player, Npc npc, SpeakObject so) {
         if (!player.hasAttribute(guiAtt)) {
             SpeakMainGui gui = new SpeakMainGui(player, plugin);
             player.setAttribute(guiAtt, gui);
-            SpeakSystem ss = plugin.Bankystem.npcSystem.getSpeakSystem(player);
-            ss.setNpc(npc);
             setNewText(player, so);
             
             player.setMouseCursorVisible(true);

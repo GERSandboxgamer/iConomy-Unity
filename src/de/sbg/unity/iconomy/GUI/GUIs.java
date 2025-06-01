@@ -237,7 +237,7 @@ public class GUIs {
         public PlayerList showGui(Player player, SelectCallback cb) {
             if (!player.hasAttribute(GuiPlayerAtt)) {
                 if (Server.getPlayerCount() >= 2 || plugin.Config.Debug > 0) {
-                    String titeltext = "Select Online Player"; //TODO Lang
+                    String titeltext = plugin.Language.getGui().getSelectOnlinePlayer(player.getLanguage());
                     PlayerList gui = new PlayerList(player, true, titeltext, plugin, cb);
                     gui.getPlayerListElements().addElements();
                     plugin.registerEventListener(gui);
@@ -245,7 +245,7 @@ public class GUIs {
                     player.setMouseCursorVisible(true);
                     return gui;
                 }
-                player.showErrorMessageBox("No Players", "Es wurden keine weiteren Spieler gefunden!"); //TODO Lang
+                player.showErrorMessageBox("No Players", plugin.Language.getGui().getNoPlayerFound(player.getLanguage()));
                 return null;
             }
             return getGui(player);
@@ -283,7 +283,7 @@ public class GUIs {
 
         public SelectAccountGUI showGUI(Player player, AccountList.SelectCallback cb) {
             if (!player.hasAttribute(GuiSelectAccount)) {
-                SelectAccountGUI gui = new SelectAccountGUI(player, "Select Account", plugin, cb); //TODO Lang
+                SelectAccountGUI gui = new SelectAccountGUI(player, plugin.Language.getGui().getSelectAccount(player.getLanguage()), plugin, cb);
                 player.setAttribute(GuiSelectAccount, gui);
                 player.setMouseCursorVisible(true);
                 player.addUIElement(gui.getWindow());
