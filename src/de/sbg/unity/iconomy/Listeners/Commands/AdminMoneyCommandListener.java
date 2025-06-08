@@ -8,7 +8,7 @@ import de.sbg.unity.iconomy.Events.Money.AddBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
-import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
+import de.sbg.unity.iconomy.Exeptions.CashFormatException;
 import de.sbg.unity.iconomy.Objects.AtmObject;
 import de.sbg.unity.iconomy.Utils.AtmUtils;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
@@ -22,6 +22,8 @@ import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.risingworld.api.Server;
 import net.risingworld.api.World;
 import net.risingworld.api.definitions.Definitions;
@@ -288,7 +290,7 @@ public class AdminMoneyCommandListener implements Listener {
 
                         } catch (NumberFormatException ex) {
                             player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getMoneyMustBeNumber(lang)));
-                        } catch (CashFormatExeption ex) {
+                        } catch (CashFormatException ex) {
                             player.sendTextMessage(format.Color("red", plugin.Language.getStatus().getAmountBigger(lang)));
                         }
                     }

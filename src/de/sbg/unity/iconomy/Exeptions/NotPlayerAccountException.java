@@ -4,8 +4,8 @@ package de.sbg.unity.iconomy.Exeptions;
  *
  * @hidden  
  */
-public class NotPlayerAccountExeption extends Exception{
-    public NotPlayerAccountExeption() {
+public class NotPlayerAccountException extends Exception{
+    public NotPlayerAccountException() {
         super("The BankAccount is not a PlayerAccount!");
     }
 }

@@ -3,7 +3,7 @@ package de.sbg.unity.iconomy.CashSystem;
 import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.PlayerSendCashToPlayerEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
-import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
+import de.sbg.unity.iconomy.Exeptions.CashFormatException;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
 import de.sbg.unity.iconomy.Utils.TextFormat;
 import de.sbg.unity.iconomy.Utils.TransferResult;
@@ -239,9 +239,9 @@ public class CashSystem {
      * @param player The player whose cash amount to set.
      * @param cash The new cash amount.
      * @return The result of the operation.
-     * @throws CashFormatExeption If the cash amount is negative.
+     * @throws CashFormatException If the cash amount is negative.
      */
-    public TransferResult setCash(Player player, long cash) throws CashFormatExeption {
+    public TransferResult setCash(Player player, long cash) throws CashFormatException {
         return setCash(player.getUID(), cash);
     }
 
@@ -251,15 +251,15 @@ public class CashSystem {
      * @param uid The UID of the player.
      * @param cash The new cash amount.
      * @return The result of the operation.
-     * @throws CashFormatExeption If the cash amount is negative.
+     * @throws CashFormatException If the cash amount is negative.
      */
-    public TransferResult setCash(String uid, long cash) throws CashFormatExeption {
+    public TransferResult setCash(String uid, long cash) throws CashFormatException {
         if (CashList.containsKey(uid)) {
             if (cash >= 0) {
                 CashList.put(uid, cash);
                 return TransferResult.Successful;
             } else {
-                throw new CashFormatExeption("Cash is less than zero!");
+                throw new CashFormatException("Cash is less than zero!");
             }
         } else {
             return TransferResult.PlayerNotExist;

@@ -1,12 +1,10 @@
 package de.sbg.unity.iconomy;
 
 import de.chaoswg.model3d.Model3DPlace;
-import java.util.ArrayList;
 import net.risingworld.api.objects.Area;
 import net.risingworld.api.objects.Npc;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.utils.ColorRGBA;
-import net.risingworld.api.utils.Vector3f;
 import net.risingworld.api.worldelements.Area3D;
 
 public class icAttribute {

@@ -1,6 +1,7 @@
 package de.sbg.unity.iconomy.Business;
 
 import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
+import de.sbg.unity.iconomy.Business.BusinessPlots.BusinessPlot;
 import de.sbg.unity.iconomy.Events.Business.AddBusinessMemberEvent;
 import de.sbg.unity.iconomy.Events.Business.AddOwnerEvent;
 import de.sbg.unity.iconomy.Events.Business.BusinessAddCashEvent;
@@ -15,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import net.risingworld.api.Server;
 import net.risingworld.api.objects.Area;
 import net.risingworld.api.objects.Player;
 import net.risingworld.api.utils.Quaternion;
@@ -30,8 +30,7 @@ import net.risingworld.api.utils.Vector3f;
  * and plots.
  */
 public class Business {
-
-    private final List<Area> Plots;
+    
     private BusinessAccount BusinessBankAccount;
     private final iConomy plugin;
     private final List<String> Owners, Infos;
@@ -56,7 +55,6 @@ public class Business {
     @Deprecated
     public Business(iConomy plugin, String Name, int ID) {
         this.plugin = plugin;
-        this.Plots = new ArrayList<>();
         this.Owners = new ArrayList<>();
         this.Members = new ArrayList<>();
         this.Infos = new ArrayList<>();
@@ -78,7 +76,6 @@ public class Business {
     @Deprecated
     public Business(iConomy plugin, String Name, int ID, String businessBankID) {
         this.plugin = plugin;
-        this.Plots = new ArrayList<>();
         this.Owners = new ArrayList<>();
         this.Members = new ArrayList<>();
         this.Infos = new ArrayList<>();
@@ -123,15 +120,6 @@ public class Business {
 
     public void addAllInfos(List<String> infos) {
         Infos.addAll(infos);
-    }
-
-    public void addAllPlots(List<Long> plots) {
-        for (long l : plots) {
-            Area a = Server.getArea(l);
-            if (a != null) {
-                Plots.add(a);
-            }
-        }
     }
 
     // Business Identification
@@ -486,42 +474,6 @@ public class Business {
         return Members.stream().anyMatch(fw -> (fw.hasPermission(BusinessPermission.WORK)));
     }
 
-    // Plot Management
-    /**
-     * Adds a plot to the business.
-     *
-     * @param area The plot (Area) to add.
-     * @return True if the plot was added, false otherwise.
-     */
-    public boolean addPlot(Area area) {
-        return Plots.add(area);
-    }
-
-    /**
-     * Removes a plot from the business.
-     *
-     * @param area The plot (Area) to remove.
-     * @return True if the plot was removed, false otherwise.
-     */
-    public boolean removePlot(Area area) {
-        return Plots.remove(area);
-    }
-
-    /**
-     * Gets a plot of the business by area ID.
-     *
-     * @param areaID The ID of the area (plot).
-     * @return The Area object representing the plot.
-     */
-    public Area getPlot(int areaID) {
-        for (Area a : Plots) {
-            if (a.getID() == areaID) {
-                return a;
-            }
-        }
-        return null;
-    }
-
     // Teleport Management
     /**
      * Gets the teleport point of the business. Warning: Can return null.
@@ -633,14 +585,14 @@ public class Business {
      *
      * @return A List of Area objects representing the plots of the business.
      */
-    public List<Area> getPlots() {
-        return Plots;
+    public List<BusinessPlot> getPlots() {
+        return plugin.Business.businessPlots.getAllPlotsFromBusiness(this);
     }
 
     public List<Long> getPlotsID() {
         List<Long> ids = new ArrayList<>();
-        Plots.forEach(a -> {
-            ids.add(a.getID());
+        plugin.Business.businessPlots.getAllPlotsFromBusiness(this).forEach(a -> {
+            ids.add(a.getArea().getID());
         });
         return ids;
     }

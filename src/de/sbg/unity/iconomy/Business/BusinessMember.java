@@ -9,6 +9,7 @@ public class BusinessMember implements Serializable {
 
     private final String UID;
     private final Set<BusinessPermission> permissions;
+    
 
     public BusinessMember(String uid) {
         this.UID = uid;
@@ -43,7 +44,7 @@ public class BusinessMember implements Serializable {
     
     public class MemberAction {
         
-        
+        //TODO Business MemberAction
         
     }
     

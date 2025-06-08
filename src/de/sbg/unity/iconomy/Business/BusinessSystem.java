@@ -1,8 +1,9 @@
 package de.sbg.unity.iconomy.Business;
 
+import de.sbg.unity.iconomy.Business.BusinessPlots.BusinessPlot;
 import de.sbg.unity.iconomy.Events.Business.AddBusinessEvent;
 import de.sbg.unity.iconomy.Events.Business.RemoveBusinessEvent;
-import de.sbg.unity.iconomy.Exeptions.BusinessAlreadyExistsExeption;
+import de.sbg.unity.iconomy.Exeptions.BusinessAlreadyExistsException;
 import de.sbg.unity.iconomy.Utils.Attribute;
 import de.sbg.unity.iconomy.iConomy;
 import java.util.ArrayList;
@@ -88,11 +89,11 @@ public class BusinessSystem {
      * @param player The player who is creating the business.
      * @param BusinessName The name of the new business.
      * @return The newly created Business object.
-     * @throws BusinessAlreadyExistsExeption If a business with the same name
+     * @throws BusinessAlreadyExistsException If a business with the same name
      * already exists.
      * @throws SQLException If an SQL error occurs.
      */
-    public Business addNewBusiness(Player player, String BusinessName) throws BusinessAlreadyExistsExeption, SQLException {
+    public Business addNewBusiness(Player player, String BusinessName) throws BusinessAlreadyExistsException, SQLException {
         if (!getAllBusinessNames().contains(BusinessName)) {
 
             AddBusinessEvent evt = new AddBusinessEvent(player);
@@ -105,7 +106,7 @@ public class BusinessSystem {
             }
 
         } else {
-            throw new BusinessAlreadyExistsExeption("Business already exists with the name: " + BusinessName);
+            throw new BusinessAlreadyExistsException("Business already exists with the name: " + BusinessName);
         }
         return null;
     }
@@ -149,8 +150,8 @@ public class BusinessSystem {
     public Business getBusinessByPlot(long id) {
         if (isBusinessPlot(id)) {
             for (Business f : getBusinesss()) {
-                for (Area a : f.getPlots()) {
-                    if (a.getID() == id) {
+                for (BusinessPlot a : f.getPlots()) {
+                    if (a.getArea().getID() == id) {
                         return f;
                     }
                 }
@@ -166,7 +167,7 @@ public class BusinessSystem {
      * @return True if the area is a business plot, false otherwise.
      */
     public boolean isBusinessPlot(Area area) {
-        return getAllBusinessPlots().stream().anyMatch(a -> (a.getID() == area.getID()));
+        return getAllBusinessPlots().stream().anyMatch(a -> (a.getArea().getID() == area.getID()));
     }
 
     public boolean isEmptyBusinessPlot(Area area) {
@@ -180,7 +181,7 @@ public class BusinessSystem {
      * @return True if the area is a business plot, false otherwise.
      */
     public boolean isBusinessPlot(long id) {
-        return getAllBusinessPlots().stream().anyMatch(a -> (a.getID() == id));
+        return getAllBusinessPlots().stream().anyMatch(a -> (a.getArea().getID() == id));
     }
 
     /**
@@ -220,6 +221,7 @@ public class BusinessSystem {
         if (!evt.isCancelled()) {
             businessBankID.remove(f.getBusinessBankID());
             plugin.Databases.Business.TabBusiness.remove(f);
+            businessPlots.removeAllBusinessPlots(f);
             return BusinessList.remove(f.getID()) != null;
         }
         return false;
@@ -249,8 +251,8 @@ public class BusinessSystem {
      *
      * @return A List of areas that are business plots.
      */
-    public List<Area> getAllBusinessPlots() {
-        List<Area> l = new ArrayList<>();
+    public List<BusinessPlot> getAllBusinessPlots() {
+        List<BusinessPlot> l = new ArrayList<>();
         BusinessList.values().stream().filter(f -> (f.hasBusinessPlots())).forEachOrdered(f -> {
             f.getPlots().forEach(fa -> {
                 l.add(fa);

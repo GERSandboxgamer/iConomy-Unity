@@ -2,7 +2,7 @@ package de.sbg.unity.iconomy.Npc;
 
 import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
-import de.sbg.unity.iconomy.Exeptions.BusinessAlreadyExistsExeption;
+import de.sbg.unity.iconomy.Exeptions.BusinessAlreadyExistsException;
 import de.sbg.unity.iconomy.Business.Business;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import static de.sbg.unity.iconomy.Utils.TransferResult.NotEnoughMoney;
@@ -357,7 +357,7 @@ public class SpeakSystem {
                                 nameOK = true;
                                 factoryname = t;
                             }
-                        } catch (BusinessAlreadyExistsExeption ex) {
+                        } catch (BusinessAlreadyExistsException ex) {
                             player.showErrorMessageBox(
                                 plugin.Language.getNpc().getBusinessExists(lang),
                                 plugin.Language.getNpc().getNameAlreadyExists(lang)
@@ -407,7 +407,7 @@ public class SpeakSystem {
      * 1) "Leider konnte ich Ihre neue Unternehmen wegen eines Systemfehlers nicht anlegen."
      * 2) "Bei Fragen, wenden Sie sich bitte an einen Admin."
      * <p>Antwort (Deutsch):</p>
-     * - "OK." -> beendet
+     * - "OK." -> beende
      */
     public SpeakObject id_13() {
         String[] sp13Text = {plugin.Language.getNpc().getSystemErrorCompany(lang), plugin.Language.getNpc().getAdminHelp(lang)};

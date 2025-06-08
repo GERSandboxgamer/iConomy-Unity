@@ -6,7 +6,7 @@ package de.sbg.unity.iconomy.GUI.Banksystem;
 
 import de.sbg.unity.iconomy.Banksystem.BankAccount;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
-import de.sbg.unity.iconomy.Exeptions.NotPlayerAccountExeption;
+import de.sbg.unity.iconomy.Exeptions.NotPlayerAccountException;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import net.risingworld.api.objects.Player;
@@ -154,8 +154,8 @@ public class AccountInfo extends MenuElement{
             
         } else {
             try {
-                throw new NotPlayerAccountExeption();
-            } catch (NotPlayerAccountExeption ex) {
+                throw new NotPlayerAccountException();
+            } catch (NotPlayerAccountException ex) {
                 Console.sendErr(ex.getMessage());
                 for (StackTraceElement st : ex.getStackTrace()) {
                     Console.sendErr(st.toString());

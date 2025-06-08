@@ -73,6 +73,7 @@ public class PlayerAtmListener implements Listener {
 
                     }
                 } else {
+                    Console.sendDebug("ATM-Hit", "NICHT MÖGLICH!");
                     player.showStatusMessage(plugin.Language.getStatus().getItemNotGoing(lang), 5);
                 }
             }

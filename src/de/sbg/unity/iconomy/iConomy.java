@@ -31,9 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import net.risingworld.api.Plugin;
 import net.risingworld.api.Server;
+import net.risingworld.api.World;
 import net.risingworld.api.assets.AssetBundle;
 import net.risingworld.api.assets.PrefabAsset;
 import net.risingworld.api.events.Listener;
+import net.risingworld.api.objects.Area;
 import net.risingworld.api.objects.Player;
 
 /**
@@ -236,8 +238,8 @@ public class iConomy extends Plugin {
             try {
                 Databases.saveAtm();
                 Databases.saveAll(true);
-                //Databases.Business.getDatabase().close();
-                //Databases.Money.getDatabase().close();
+                Databases.Business.getDatabase().close();
+                Databases.Money.getDatabase().close();
                 Console.sendInfo("DB", "Save all to Database...Done!");
             } catch (SQLException ex) {
                 Console.sendErr("DB", "Can not save all to Database!");
@@ -384,25 +386,25 @@ public class iConomy extends Plugin {
                 Data.addCommend("# Indicates whether a normal bank account costs to create. Player must pay with cash. (0 = free)");
                 Data.addSetting("PlayerBankAccountCost", 0);
                 Data.addEmptyLine();
-//                Data.addCommend("#--------------------------#");
-//                Data.addCommend("#      Business System      #");
-//                Data.addCommend("#--------------------------#");
-//                Data.addEmptyLine();
-//                Data.addCommend("# Cash start amounth for new factories");
-//                Data.addSetting("BusinessCashStartAmount", 0);
-//                Data.addEmptyLine();
-//                Data.addCommend("# Bank start amounth for new factories");
-//                Data.addSetting("BusinessBankStartAmount", 0);
-//                Data.addEmptyLine();
-//                Data.addCommend("# Add new business plot only by admin");
-//                Data.addSetting("BusinessPlotByAdmin", true);
-//                Data.addEmptyLine();
-//                Data.addCommend("# Groups to create a Business (Please add a space between the groups");
-//                Data.addSetting("BusinessCreateGroups", "");
-//                Data.addEmptyLine();
-//                Data.addCommend("# Groups to create a Business (Please add a space between the groups");
-//                Data.addSetting("BusinessCost", "0");
-//                Data.addEmptyLine();
+                Data.addCommend("#--------------------------#");
+                Data.addCommend("#      Business System      #");
+                Data.addCommend("#--------------------------#");
+                Data.addEmptyLine();
+                Data.addCommend("# Cash start amounth for new factories");
+                Data.addSetting("BusinessCashStartAmount", 0);
+                Data.addEmptyLine();
+                Data.addCommend("# Bank start amounth for new factories");
+                Data.addSetting("BusinessBankStartAmount", 0);
+                Data.addEmptyLine();
+                Data.addCommend("# Add new business plot only by admin");
+                Data.addSetting("BusinessPlotByAdmin", true);
+                Data.addEmptyLine();
+                Data.addCommend("# Groups to create a Business (Please add a space between the groups");
+                Data.addSetting("BusinessCreateGroups", "");
+                Data.addEmptyLine();
+                Data.addCommend("# Groups to create a Business (Please add a space between the groups");
+                Data.addSetting("BusinessCost", "0");
+                Data.addEmptyLine();
                 Data.addCommend("#--------------------------#");
                 Data.addCommend("#         Suitcase         #");
                 Data.addCommend("#--------------------------#");
@@ -436,20 +438,15 @@ public class iConomy extends Plugin {
                 Command_Bank_OnlyAdmin = Boolean.parseBoolean(Data.getSetting("Command_Bank_OnlyAdmin"));
                 SaveAllByPlayerDisconnect = Boolean.parseBoolean(Data.getSetting("SaveAllByPlayerDisconnect"));
 
-//                BusinessCreateGroups = Data.getSetting("BusinessCreateGroups");
-//                BusinessPlotByAdmin = Boolean.parseBoolean(Data.getSetting("BusinessPlotByAdmin"));
-//                BusinessCost = mf.getMoneyAsLong(Data.getSetting("BusinessCost"));
-//                BusinessBankStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessBankStartAmount"));
-//                BusinessCashStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessCashStartAmount"));
-                BusinessCreateGroups = "";
-                BusinessPlotByAdmin = true;
-                BusinessCost = 0;
-                BusinessBankStartAmount = 0;
-                BusinessCashStartAmount = 0;
+                BusinessCreateGroups = Data.getSetting("BusinessCreateGroups");
+                BusinessPlotByAdmin = Boolean.parseBoolean(Data.getSetting("BusinessPlotByAdmin"));
+                BusinessCost = mf.getMoneyAsLong(Data.getSetting("BusinessCost"));
+                BusinessBankStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessBankStartAmount"));
+                BusinessCashStartAmount = mf.getMoneyAsLong(Data.getSetting("BusinessCashStartAmount"));
 
                 if (Debug > 0) {
-//                    Console.sendDebug("Config", "BusinessBankStartAmount = " + BusinessBankStartAmount);
-//                    Console.sendDebug("Config", "BusinessCashStartAmount = " + BusinessCashStartAmount);
+                    Console.sendDebug("Config", "BusinessBankStartAmount = " + BusinessBankStartAmount);
+                    Console.sendDebug("Config", "BusinessCashStartAmount = " + BusinessCashStartAmount);
                     Console.sendDebug("Config", "  PlayerBankAccountCost = " + PlayerBankAccountCost);
                     Console.sendDebug("Config", " PlayerBankStartAmount = " + PlayerBankStartAmount);
                     Console.sendDebug("Config", " PlayerCashStartAmount = " + PlayerCashStartAmount);

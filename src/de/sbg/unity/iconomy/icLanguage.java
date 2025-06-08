@@ -111,7 +111,7 @@ public class icLanguage {
         HashMap<String, String> ItemNotGoing = new HashMap<>();
         ItemNotGoing.put("de", "Dieses Item geht nicht!");
         ItemNotGoing.put("en", "This Item is not going!");
-        getStatus().setSendMoneyOK(ItemNotGoing);
+        getStatus().setItemNotGoing(ItemNotGoing);
 
         HashMap<String, String> SendMoneyOK = new HashMap<>();
         SendMoneyOK.put("de", "Erfolgreich Geld an anderen Spieler gesendet!");

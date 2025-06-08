@@ -4,7 +4,7 @@ import de.sbg.unity.iconomy.Events.Money.AddBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.AddCashEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveBankMoneyEvent;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
-import de.sbg.unity.iconomy.Exeptions.CashFormatExeption;
+import de.sbg.unity.iconomy.Exeptions.CashFormatException;
 import de.sbg.unity.iconomy.Utils.AccountType;
 import de.sbg.unity.iconomy.Utils.BankStatement;
 import de.sbg.unity.iconomy.Utils.MoneyFormate;
@@ -365,7 +365,7 @@ public class BankAccount {
                         try {
                             plugin.CashSystem.setCash(player, c);
                             Money -= amount;
-                        } catch (CashFormatExeption ex) {
+                        } catch (CashFormatException ex) {
                             return TransferResult.MoneyFormat;
                         }
                         addStatement("Cash out -" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), player.getName());
@@ -402,7 +402,7 @@ public class BankAccount {
                     Money += amount;
                     addStatement("Cash in +" + plugin.moneyFormat.getMoneyAsDefaultFormatedString(amount), player.getName());
                     return TransferResult.Successful;
-                } catch (CashFormatExeption ex) {
+                } catch (CashFormatException ex) {
                     return TransferResult.MoneyFormat;
                 }
             }

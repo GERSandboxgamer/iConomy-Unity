@@ -4,6 +4,7 @@ import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
 import de.sbg.unity.iconomy.Banksystem.BusinessBankMember;
 import de.sbg.unity.iconomy.Business.Business;
 import de.sbg.unity.iconomy.Business.BusinessPlots.BusinessPlot;
+import de.sbg.unity.iconomy.Exeptions.SQLCreateNoBusinessAccountException;
 import de.sbg.unity.iconomy.Utils.BankStatement;
 import de.sbg.unity.iconomy.Utils.DatabaseFormat;
 import de.sbg.unity.iconomy.Utils.BusinessAccountPermission;
@@ -20,8 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import net.risingworld.api.database.Database;
-import net.risingworld.api.utils.Quaternion;
-import net.risingworld.api.utils.Vector3f;
 
 public class BusinessDatabase {
 
@@ -85,9 +84,6 @@ public class BusinessDatabase {
                 + "BusinessBankID TEXT, "
                 + "Cash BIGINT DEFAULT 0, "
                 + "Info BLOB, "
-                + "TeleX FLOAT, TeleY FLOAT, TeleZ FLOAT, "
-                + "TelRotX FLOAT, TelRotY FLOAT, TelRotZ FLOAT, TelRotW FLOAT, "
-                + "ChestUID BIGINT, "
                 + "BusinessType TEXT, "
                 + "More TEXT"
                 + ");");
@@ -120,12 +116,20 @@ public class BusinessDatabase {
                 + "FOREIGN KEY (business_id, member_uid) REFERENCES business_members(business_id, member_uid) ON DELETE CASCADE"
                 + ");");
 
-        Database.execute("CREATE TABLE IF NOT EXISTS Plots ("
-                + "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-                + "Area BIGINT, "
-                + "Plotname TEXT, "
-                + "BusinessID INTEGER, "
-                + "Price BIGINT"
+        Database.execute("CREATE TABLE IF NOT EXISTS Plot ("
+                + "ID INTEGER AUTOINCREMENT NOT NULL, "
+                + "Area BIGINT NOT NULL, "
+                + "Plotname TEXT NOT NULL, "
+                + "BusinessID INTEGER NOT NULL, "
+                + "EnterMsg TEXT, "
+                + "LeaveMsg TEXT, "
+                + "Titel TEXT, "
+                + "TeleX FLOAT, TeleY FLOAT, TeleZ FLOAT, "
+                + "TelRotX FLOAT, TelRotY FLOAT, TelRotZ FLOAT, TelRotW FLOAT, "
+                + "ChestUID BIGINT, "
+                + "Price BIGINT, "
+                + "PRIMARY KEY (BusinessID, Area, Plotname), "
+                + "FOREIGN KEY (BusinessID) REFERENCES business(ID) ON DELETE CASCADE"
                 + ");");
         Database.execute("CREATE TABLE IF NOT EXISTS business_guest_permissions ("
                 + "business_id INTEGER NOT NULL, "
@@ -133,6 +137,15 @@ public class BusinessDatabase {
                 + "PRIMARY KEY (business_id, permission), "
                 + "FOREIGN KEY (business_id) REFERENCES Business(ID) ON DELETE CASCADE"
                 + ");");
+        
+//        Database.execute("CREATE TABLE IF NOT EXISTS business_plot_members ("
+//                + "plot_ID INTEGER NOT NULL, "
+//                + "member_uid TEXT NOT NULL, "
+//                + "EnterMsg TEXT NOT NULL, "
+//                + "LeaveMsg TEXT NOT NULL, "
+//                + "PRIMARY KEY (plot_ID, member_uid), "
+//                + "FOREIGN KEY (plot_ID) REFERENCES Plots(ID) ON DELETE CASCADE"
+//                + ");");
 
     }
 
@@ -150,8 +163,7 @@ public class BusinessDatabase {
             this.DatabaseFormat = new DatabaseFormat();
         }
 
-        public int add(Business f) throws SQLException, IOException {
-            int id;
+        public int add(Business f) throws SQLException, IOException, SQLCreateNoBusinessAccountException {
             List<BankStatement> stList = new ArrayList<>();
             PreparedStatement pstmt = conn.prepareStatement("INSERT INTO Bank (BusinessID, Money, Min, Statements) VALUES (?, ?, ?, ?)");
             pstmt.setInt(1, f.getID());
@@ -161,10 +173,14 @@ public class BusinessDatabase {
             pstmt.executeUpdate();
             pstmt.close();
 
-            try (ResultSet result = db.executeQuery("SELECT * FROM 'Bank' WHERE BusinessID=" + f.getID())) {
-                id = result.getInt("ID");
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT last_insert_rowid()");
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                throw new SQLCreateNoBusinessAccountException(f);
             }
-            return id;
         }
 
         public void remove(BusinessAccount fa) throws SQLException {
@@ -312,6 +328,11 @@ public class BusinessDatabase {
             return id;
         }
 
+        /**
+         * Remove the Business form the Database and all Plots
+         * @param b
+         * @throws SQLException
+         */
         public void remove(Business b) throws SQLException {
             pstmt = conn.prepareStatement("DELETE FROM Business WHERE ID=" + b.getID());
             pstmt.executeUpdate();
@@ -319,59 +340,11 @@ public class BusinessDatabase {
         }
 
         public void loadAllFromDatabase(HashMap<Integer, Business> BusinessList) throws SQLException, IOException, ClassNotFoundException {
-            int BusinessID;
-            String BusinessName, BusinessBankID;
-            List<String> Info;
-            long Cash;
-            //List<Long> Plots;
-
-            Vector3f Tele;
-            Quaternion Rot;
-            long ChestUID;
-
-            try (ResultSet result = Database.executeQuery("SELECT * FROM 'Business'")) {
-                while (result.next()) {
-                    BusinessID = result.getInt("ID");
-                    BusinessName = result.getString("BusinessName");
-                    BusinessBankID = result.getString("BusinessBankID");
-                    Cash = result.getLong("Cash");
-                    //Plots = (List<Long>) DatabaseFormat.toObject(result.getBytes("Plots"));
-                    Info = (List<String>) DatabaseFormat.toObject(result.getBytes("Info"));
-                    Tele = new Vector3f(result.getFloat("TeleX"), result.getFloat("TeleY"), result.getFloat("TeleZ"));
-                    Rot = new Quaternion(result.getFloat("TelRotX"), result.getFloat("TelRotY"), result.getFloat("TelRotZ"), result.getFloat("TelRotW"));
-                    ChestUID = result.getLong("ChestUID");
-
-                    Business b = new Business(plugin, BusinessName, BusinessID, BusinessBankID);
-                    //b.addAllOwners(Owners);
-                    b.setCash(Cash);
-                    b.addAllInfos(Info);
-                    b.setTelepoint(Tele);
-                    b.setTelepointRotation(Rot);
-                    b.setChestUID(ChestUID);
-                    //f.addAllPlots(Plots);
-                    BusinessList.put(BusinessID, b);
-                }
-            }
+            
         }
 
         public void saveAllToDatabase(Collection<Business> Businesss) throws SQLException, IOException {
-            for (Business f : Businesss) {
-                pstmt = conn.prepareStatement("UPDATE Business SET BusinessName=?, Cash=?, Info=?, "
-                        + "TeleX=?, TeleY=?, TeleZ=?, TelRotX=?, TelRotY=?, TelRotZ=?, TelRotW=?, ChestUID=? WHERE ID=" + f.getID());
-                pstmt.setString(1, f.getName());
-                pstmt.setLong(3, f.getCash());
-                pstmt.setBytes(6, DatabaseFormat.toBlob(f.getInfos()));
-                pstmt.setFloat(7, f.getTelepoint().x);
-                pstmt.setFloat(8, f.getTelepoint().y);
-                pstmt.setFloat(9, f.getTelepoint().z);
-                pstmt.setFloat(10, f.getTelepointRotation().x);
-                pstmt.setFloat(11, f.getTelepointRotation().y);
-                pstmt.setFloat(12, f.getTelepointRotation().z);
-                pstmt.setFloat(13, f.getTelepointRotation().w);
-                pstmt.setLong(14, f.getChestUID());
-                pstmt.executeUpdate();
-                pstmt.close();
-            }
+            
         }
     }
 
@@ -391,7 +364,7 @@ public class BusinessDatabase {
         public int add(BusinessPlot fa) throws SQLException {
             int id = -1;
 
-            pstmt = conn.prepareStatement("INSERT INTO Plots (Area) VALUES (?)");
+            pstmt = conn.prepareStatement("INSERT INTO Plots (Area, Plotname, Price, BusinessID) VALUES (?, ?, ?, ?)");
             pstmt.setLong(1, fa.getArea().getID());
             pstmt.setString(2, fa.getName());
             pstmt.setLong(3, fa.getPrice());
@@ -413,8 +386,19 @@ public class BusinessDatabase {
             return id;
         }
 
+        /**
+         * Remove Area from Database and from the Server
+         * @param areaID
+         * @throws SQLException
+         */
         public void remove(long areaID) throws SQLException {
             pstmt = conn.prepareStatement("DELETE FROM Plots WHERE Area=" + areaID);
+            pstmt.executeUpdate();
+            pstmt.close();
+        }
+        
+        public void removeByBusiness(int businessID)  throws SQLException {
+            pstmt = conn.prepareStatement("DELETE FROM Plots WHERE BusinessID=" + businessID);
             pstmt.executeUpdate();
             pstmt.close();
         }

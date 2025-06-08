@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import net.risingworld.api.Server;
 import net.risingworld.api.objects.Area;
 
 public class BusinessPlots {
@@ -23,7 +24,7 @@ public class BusinessPlots {
         return plots.values();
     }
 
-    public HashMap<Area, BusinessPlot> getPlots() {
+    public HashMap<Area, BusinessPlot> getHashPlots() {
         return plots;
     }
 
@@ -63,11 +64,33 @@ public class BusinessPlots {
         });
         return fs.get(0);
     }
+    
+    /**
+     * Add the Plot to the Database and to the Server.
+     * @param area
+     * @return
+     * @throws SQLException
+     */
     public BusinessPlot addPlot(Area area) throws SQLException {
         BusinessPlot fp = new BusinessPlot(area);
         plots.put(area, fp);
         plugin.Databases.Business.TabelPlots.add(fp);
+        Server.addArea(area, true);
         return fp; 
+    }
+    
+    public boolean removePlot(Area area) throws SQLException {
+        Server.removeArea(area);
+        plugin.Databases.Business.TabelPlots.remove(area.getID());
+        return plots.remove(area) != null;
+    }
+    
+    void removeAllBusinessPlots(Business b) throws SQLException{
+        plugin.Databases.Business.TabelPlots.removeByBusiness(b.getID());
+        for (BusinessPlot plot : getAllPlotsFromBusiness(b)) {
+            Server.removeArea(plot.getArea());
+            plots.remove(plot.getArea());
+        }
     }
 
     public class BusinessPlot {
@@ -76,6 +99,9 @@ public class BusinessPlots {
         private String name;
         private long price;
         private Business factory;
+        private String LeaveMsg;
+        private String EnterMsg;
+        private String Titel;
 
         public BusinessPlot(Area area) {
             this.area = area;

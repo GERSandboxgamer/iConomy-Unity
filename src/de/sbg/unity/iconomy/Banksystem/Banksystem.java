@@ -4,6 +4,7 @@ import de.sbg.unity.iconomy.Npc.NpcSystem;
 import de.sbg.unity.iconomy.Events.Business.AddBusinessAccount;
 import de.sbg.unity.iconomy.Events.Money.PlayerAddBankEvent;
 import de.sbg.unity.iconomy.Business.Business;
+import de.sbg.unity.iconomy.Exeptions.SQLCreateNoBusinessAccountException;
 import de.sbg.unity.iconomy.Utils.BusinessAccountPermission;
 import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
 import de.sbg.unity.iconomy.iConomy;
@@ -311,8 +312,9 @@ public class Banksystem {
          * be created.
          * @throws SQLException If a database error occurs.
          * @throws IOException If an I/O error occurs.
+         * @throws de.sbg.unity.iconomy.Exeptions.SQLCreateNoBusinessAccountException
          */
-        public BusinessAccount addBusinessAccount(Player player, Business factory) throws SQLException, IOException {
+        public BusinessAccount addBusinessAccount(Player player, Business factory) throws SQLException, IOException, SQLCreateNoBusinessAccountException {
             if (!hasBusinessAccount(factory)) {
                 int id = plugin.Databases.Business.TabBank.add(factory);
                 AddBusinessAccount evt = new AddBusinessAccount(player, factory);

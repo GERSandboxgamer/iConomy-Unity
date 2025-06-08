@@ -52,7 +52,7 @@ public class icDatabases {
                 for (StackTraceElement st : ex.getStackTrace()) {
                     Console.sendErr("DB-SQL", st.toString());
                 }
-                //plugin.StopPluginByDB = true;
+                plugin.StopPluginByDB = true;
                 Console.sendErr("SERVER", "STOP SERVER!");
                 Console.sendErr("DB-SQL", "=====================================");
                 //Server.shutdown();
@@ -65,7 +65,7 @@ public class icDatabases {
                 for (StackTraceElement st : ex.getStackTrace()) {
                     Console.sendErr("DB-IO", st.toString());
                 }
-                //plugin.StopPluginByDB = true;
+                plugin.StopPluginByDB = true;
                 Console.sendErr("SERVER", "STOP SERVER!");
                 Console.sendErr("DB-IO", "=====================================");
                 //Server.shutdown();

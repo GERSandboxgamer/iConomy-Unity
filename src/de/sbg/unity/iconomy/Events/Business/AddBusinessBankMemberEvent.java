@@ -25,12 +25,14 @@ public class AddBusinessBankMemberEvent extends Event implements Cancellable{
 
     @Override
     public boolean isCancelled() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return cancelled;
     }
 
     @Override
     public void setCancelled(boolean bln) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        cancelled = bln;
     }
+
+    
     
 }

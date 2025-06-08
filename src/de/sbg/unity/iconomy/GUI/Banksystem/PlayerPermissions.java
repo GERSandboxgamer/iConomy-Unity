@@ -3,7 +3,7 @@ package de.sbg.unity.iconomy.GUI.Banksystem;
 import de.sbg.unity.iconomy.Banksystem.BankAccount;
 import de.sbg.unity.iconomy.Banksystem.BankMember;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
-import de.sbg.unity.iconomy.Exeptions.NotPlayerAccountExeption;
+import de.sbg.unity.iconomy.Exeptions.NotPlayerAccountException;
 import de.sbg.unity.iconomy.GUI.List.PlayerList;
 import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
 import de.sbg.unity.iconomy.iConomy;
@@ -245,8 +245,8 @@ public class PlayerPermissions extends MenuElement implements Listener {
 
         } else {
             try {
-                throw new NotPlayerAccountExeption();
-            } catch (NotPlayerAccountExeption ex) {
+                throw new NotPlayerAccountException();
+            } catch (NotPlayerAccountException ex) {
                 icConsole Console = new icConsole(plugin);
                 Console.sendErr(ex.getMessage());
                 for (StackTraceElement st : ex.getStackTrace()) {

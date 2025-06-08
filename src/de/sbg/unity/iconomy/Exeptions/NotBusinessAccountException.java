@@ -4,8 +4,8 @@ package de.sbg.unity.iconomy.Exeptions;
  *
  * @hidden  
  */
-public class NotBusinessAccountExeption extends Exception{
-    public NotBusinessAccountExeption() {
+public class NotBusinessAccountException extends Exception{
+    public NotBusinessAccountException() {
         super("The BankAccount is not a FactoryAccount!");
     }
 }
