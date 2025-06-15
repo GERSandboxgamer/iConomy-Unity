@@ -3,7 +3,7 @@ package de.sbg.unity.iconomy.Banksystem;
 import java.util.EnumSet;
 import java.util.Set;
 import net.risingworld.api.Server;
-import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
+import de.sbg.unity.iconomy.Permissions.PlayerAccountPermission;
 
 public class BankMember {
 

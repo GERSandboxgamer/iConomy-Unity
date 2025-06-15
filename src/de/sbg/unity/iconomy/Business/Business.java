@@ -8,7 +8,7 @@ import de.sbg.unity.iconomy.Events.Business.BusinessAddCashEvent;
 import de.sbg.unity.iconomy.Events.Business.BusinessRemoveCashEvent;
 import de.sbg.unity.iconomy.Events.Business.RemoveBusinessMemberEvent;
 import de.sbg.unity.iconomy.Events.Business.RemoveOwnerEvent;
-import de.sbg.unity.iconomy.Utils.BusinessPermission;
+import de.sbg.unity.iconomy.Permissions.BusinessPermission;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import de.sbg.unity.iconomy.iConomy;
 import java.util.ArrayList;
@@ -16,10 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import net.risingworld.api.objects.Area;
 import net.risingworld.api.objects.Player;
-import net.risingworld.api.utils.Quaternion;
-import net.risingworld.api.utils.Vector3f;
 
 /**
  * The Business class represents a business within the iConomy system. It
@@ -35,11 +32,9 @@ public class Business {
     private final iConomy plugin;
     private final List<String> Owners, Infos;
     private String Name;
-    private long Cash, ChestUID;
+    private long Cash;
     private final List<BusinessMember> Members;
     private final int ID;
-    private Vector3f Telepoint;
-    private Quaternion TelepointRotation;
     private final String businessBankID;
 
     public NoBusinessPlayerPermission noBusinessPlayerPermission;
@@ -471,67 +466,7 @@ public class Business {
      * @return True if the player is a worker, false otherwise.
      */
     public boolean isWorker(String uid) {
-        return Members.stream().anyMatch(fw -> (fw.hasPermission(BusinessPermission.WORK)));
-    }
-
-    // Teleport Management
-    /**
-     * Gets the teleport point of the business. Warning: Can return null.
-     *
-     * @return The teleport point as a Vector3f (or null).
-     */
-    public Vector3f getTelepoint() {
-        return Telepoint;
-    }
-
-    /**
-     * Sets the teleport point of the business.
-     *
-     * @param x The X coordinate.
-     * @param y The Y coordinate.
-     * @param z The Z coordinate.
-     */
-    public void setTelepoint(float x, float y, float z) {
-        setTelepoint(new Vector3f(x, y, z));
-    }
-
-    /**
-     * Sets the teleport point of the business.
-     *
-     * @param Telepoint The teleport point as a Vector3f.
-     */
-    public void setTelepoint(Vector3f Telepoint) {
-        this.Telepoint = Telepoint;
-    }
-
-    /**
-     * Gets the teleport rotation of the business. Warning: Can return null.
-     *
-     * @return The teleport rotation as a Quaternion (or null).
-     */
-    public Quaternion getTelepointRotation() {
-        return TelepointRotation;
-    }
-
-    /**
-     * Sets the teleport rotation of the business.
-     *
-     * @param x The X rotation.
-     * @param y The Y rotation.
-     * @param z The Z rotation.
-     * @param w The W rotation.
-     */
-    public void setTelepointRotation(float x, float y, float z, float w) {
-        setTelepointRotation(new Quaternion(x, y, z, w));
-    }
-
-    /**
-     * Sets the teleport rotation of the business.
-     *
-     * @param TelepointRotation The teleport rotation as a Quaternion.
-     */
-    public void setTelepointRotation(Quaternion TelepointRotation) {
-        this.TelepointRotation = TelepointRotation;
+        return Members.stream().anyMatch(fw -> (fw.hasPermission(BusinessPermission.WORKER)));
     }
 
     // Information Management
@@ -558,26 +493,6 @@ public class Business {
      */
     public void clearInfos() {
         Infos.clear();
-    }
-
-    // Chest Management
-    /**
-     * Gets the UID of the chest associated with the business, where workers can
-     * deposit items.
-     *
-     * @return The chest UID.
-     */
-    public long getChestUID() {
-        return ChestUID;
-    }
-
-    /**
-     * Sets the chest UID for the business.
-     *
-     * @param ChestUID The new chest UID.
-     */
-    public void setChestUID(long ChestUID) {
-        this.ChestUID = ChestUID;
     }
 
     /**

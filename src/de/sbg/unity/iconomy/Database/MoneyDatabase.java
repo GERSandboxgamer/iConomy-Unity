@@ -7,7 +7,7 @@ import de.sbg.unity.iconomy.Utils.AtmUtils;
 import de.sbg.unity.iconomy.Utils.AtmUtils.AtmType;
 import de.sbg.unity.iconomy.Utils.BankStatement;
 import de.sbg.unity.iconomy.Utils.DatabaseFormat;
-import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
+import de.sbg.unity.iconomy.Permissions.PlayerAccountPermission;
 import de.sbg.unity.iconomy.Utils.PrefabVorlage;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;

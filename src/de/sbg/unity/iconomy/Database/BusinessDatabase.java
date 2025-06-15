@@ -7,7 +7,7 @@ import de.sbg.unity.iconomy.Business.BusinessPlots.BusinessPlot;
 import de.sbg.unity.iconomy.Exeptions.SQLCreateNoBusinessAccountException;
 import de.sbg.unity.iconomy.Utils.BankStatement;
 import de.sbg.unity.iconomy.Utils.DatabaseFormat;
-import de.sbg.unity.iconomy.Utils.BusinessAccountPermission;
+import de.sbg.unity.iconomy.Permissions.BusinessAccountPermission;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import java.io.IOException;
@@ -54,6 +54,12 @@ public class BusinessDatabase {
 
     public void createDatabse() {
         Database.execute("PRAGMA foreign_keys=ON");
+
+        Database.execute("CREATE TABLE IF NOT EXISTS PluginInfo ("
+                + "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                + "Prop TEXT, "
+                + "PropValue TEXT"
+                + ");");
 
         Database.execute("CREATE TABLE IF NOT EXISTS Bank ("
                 + "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
@@ -126,9 +132,10 @@ public class BusinessDatabase {
                 + "Titel TEXT, "
                 + "TeleX FLOAT, TeleY FLOAT, TeleZ FLOAT, "
                 + "TelRotX FLOAT, TelRotY FLOAT, TelRotZ FLOAT, TelRotW FLOAT, "
-                + "ChestUID BIGINT, "
+                + "InputChestUID BIGINT, "
+                + "OutputChestUID BIGINT, "
                 + "Price BIGINT, "
-                + "PRIMARY KEY (BusinessID, Area, Plotname), "
+                + "PRIMARY KEY (ID, BusinessID, Area, Plotname), "
                 + "FOREIGN KEY (BusinessID) REFERENCES business(ID) ON DELETE CASCADE"
                 + ");");
         Database.execute("CREATE TABLE IF NOT EXISTS business_guest_permissions ("
@@ -137,16 +144,53 @@ public class BusinessDatabase {
                 + "PRIMARY KEY (business_id, permission), "
                 + "FOREIGN KEY (business_id) REFERENCES Business(ID) ON DELETE CASCADE"
                 + ");");
-        
-//        Database.execute("CREATE TABLE IF NOT EXISTS business_plot_members ("
-//                + "plot_ID INTEGER NOT NULL, "
-//                + "member_uid TEXT NOT NULL, "
-//                + "EnterMsg TEXT NOT NULL, "
-//                + "LeaveMsg TEXT NOT NULL, "
-//                + "PRIMARY KEY (plot_ID, member_uid), "
-//                + "FOREIGN KEY (plot_ID) REFERENCES Plots(ID) ON DELETE CASCADE"
+
+        Database.execute("CREATE TABLE IF NOT EXISTS business_plot_permission ("
+                + "plot_ID INTEGER NOT NULL, "
+                + "member_uid TEXT NOT NULL, "
+                + "permission TEXT NOT NULL, "
+                + "PRIMARY KEY (plot_ID, member_uid), "
+                + "FOREIGN KEY (plot_ID) REFERENCES Plots(ID) ON DELETE CASCADE"
+                + ");");
+
+    }
+    
+//    Database.execute("CREATE TABLE IF NOT EXISTS PluginInfo ("
+//                + "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+//                + "Prop TEXT, "
+//                + "PropValue TEXT"
 //                + ");");
 
+    private class DatabaseUpdate {
+        
+        private final boolean update;
+        private final Database db;
+        private final iConomy plugin;
+        private DatabaseUpdate(iConomy plugin, icConsole console, Database db) {
+            update = false;
+            this.plugin = plugin;
+            this.db = db;
+        }
+        
+        private void doDatabaseUpdate() throws SQLException {
+            if (update) {
+                String dbVersion = "X";
+                
+                try (ResultSet result = db.executeQuery("SELECT * FROM 'PluginInfo' WHERE Prop = 'Version'")) {
+                    while (result.next()) {
+                        dbVersion = result.getString("PropValue");
+                    }
+                    if (dbVersion.equals("X")) {
+                        db.executeUpdate("INSERT INTO PluginInfo (Prop, PropValue) VALUES ('Version', '" + plugin.getDescription("version") + "')");
+                        db.executeUpdate("INSERT INTO PluginInfo (Prop, PropValue) VALUES ('PluginName', '" + plugin.getDescription("name") + "')");
+                        return;
+                    }
+                }
+                if (!dbVersion.equals(plugin.getDescription("version"))) {
+                    
+                }
+            }
+        }
     }
 
     public class TabelBank {
@@ -189,8 +233,7 @@ public class BusinessDatabase {
             pstmt.close();
         }
 
-        public void loadAllFromDatabase(HashMap<Business, BusinessAccount> BusinessAccounts)
-                throws SQLException, IOException, ClassNotFoundException {
+        public void loadAllFromDatabase(HashMap<Business, BusinessAccount> BusinessAccounts) throws SQLException, IOException, ClassNotFoundException {
             try (ResultSet result = db.executeQuery("SELECT * FROM 'Bank'")) {
                 while (result.next()) {
                     int id = result.getInt("ID");
@@ -330,6 +373,7 @@ public class BusinessDatabase {
 
         /**
          * Remove the Business form the Database and all Plots
+         *
          * @param b
          * @throws SQLException
          */
@@ -340,11 +384,11 @@ public class BusinessDatabase {
         }
 
         public void loadAllFromDatabase(HashMap<Integer, Business> BusinessList) throws SQLException, IOException, ClassNotFoundException {
-            
+
         }
 
         public void saveAllToDatabase(Collection<Business> Businesss) throws SQLException, IOException {
-            
+
         }
     }
 
@@ -388,6 +432,7 @@ public class BusinessDatabase {
 
         /**
          * Remove Area from Database and from the Server
+         *
          * @param areaID
          * @throws SQLException
          */
@@ -396,8 +441,8 @@ public class BusinessDatabase {
             pstmt.executeUpdate();
             pstmt.close();
         }
-        
-        public void removeByBusiness(int businessID)  throws SQLException {
+
+        public void removeByBusiness(int businessID) throws SQLException {
             pstmt = conn.prepareStatement("DELETE FROM Plots WHERE BusinessID=" + businessID);
             pstmt.executeUpdate();
             pstmt.close();

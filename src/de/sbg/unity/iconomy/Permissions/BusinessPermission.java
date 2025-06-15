@@ -1,8 +1,10 @@
+package de.sbg.unity.iconomy.Permissions;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package de.sbg.unity.iconomy.Utils;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,12 +25,15 @@ public enum BusinessPermission {
     RENAME_FACTORY,
     CHANGE_OWNER,
     CHANGE_PLOTS,
-    EDIT_ACTION,
-    BUILD,
-    TRADE,
-    WORK;
+    EDIT_ACTION_ALL,
+    BUILD_ALL,
+    TRADE_ALL,
+    WORK_ALL,
+    WORKER,
+    TRADER;
     
     public static List<String> getAllPermisionAsString(){
         return Arrays.stream(BusinessPermission.values()).map(Enum::name).collect(Collectors.toList());
     }
+    
 }

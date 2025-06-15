@@ -1,6 +1,6 @@
 package de.sbg.unity.iconomy.Banksystem;
 
-import de.sbg.unity.iconomy.Utils.BusinessAccountPermission;
+import de.sbg.unity.iconomy.Permissions.BusinessAccountPermission;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;

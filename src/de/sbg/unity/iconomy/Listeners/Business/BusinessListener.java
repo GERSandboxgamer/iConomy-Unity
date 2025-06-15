@@ -1,9 +1,9 @@
 package de.sbg.unity.iconomy.Listeners.Business;
 
-
 import de.sbg.unity.iconomy.Business.Business;
 import de.sbg.unity.iconomy.Business.Business.BusinessInfoMessage;
-import de.sbg.unity.iconomy.Utils.BusinessPermission;
+import de.sbg.unity.iconomy.Business.BusinessPlots.BusinessPlot;
+import de.sbg.unity.iconomy.Permissions.BusinessPermission;
 import de.sbg.unity.iconomy.iConomy;
 import net.risingworld.api.events.EventMethod;
 import net.risingworld.api.events.Listener;
@@ -26,6 +26,7 @@ public class BusinessListener implements Listener {
         Player player = event.getPlayer();
         Area area = event.getArea();
         if (plugin.Business.isBusinessPlot(area)) {
+            BusinessPlot bp = plugin.Business.businessPlots.getPlot(area);
             Business b = plugin.Business.getBusinessByPlot(player);
             if (!b.isOwner(player) && !(b.isMember(player) && b.getMember(player).hasPermission(BusinessPermission.ENTER_ALL_PLOTS)) && !b.noBusinessPlayerPermission.hasPermission(BusinessPermission.ENTER_ALL_PLOTS)) {
                 event.setCancelled(true);
@@ -33,30 +34,33 @@ public class BusinessListener implements Listener {
             } else {
                 player.showLocationTicker("Firma: " + b.getName(), 5); //TODO Lang Business
                 b.addInfo(new BusinessInfoMessage(player).PlayerEnterPlot);
-                String msg;
-                if (b.isMember(player)) {
-                    msg = b.getMember(player).;
-                    if (msg != null) {
-                        player.sendTextMessage(b.getName() + ": " + msg);
-                    }
-                } else if (!b.isOwner(player)) {
-                    msg = b.getPlayerPermissions().EnterMessage;
-                    if (msg != null) {
-                        player.sendTextMessage(b.getName() + ": " + msg);
-                    }
-                }
-                
+                String msg = bp.getEnterMsg();
+                String titel = bp.getTitel();
+
             }
         }
     }
-    
+
     @EventMethod
     public void onPlayerLeaveBusinessPlot(PlayerLeaveAreaEvent event) {
         Player player = event.getPlayer();
         Area area = event.getArea();
-       
+        if (plugin.Business.isBusinessPlot(area)) {
+            BusinessPlot bp = plugin.Business.businessPlots.getPlot(area);
+            Business b = plugin.Business.getBusinessByPlot(player);
+            if (!b.isOwner(player) && !(b.isMember(player) && b.getMember(player).hasPermission(BusinessPermission.LEAVE_ALL_PLOTS)) && !b.noBusinessPlayerPermission.hasPermission(BusinessPermission.LEAVE_ALL_PLOTS)) {
+                event.setCancelled(true);
+                player.showStatusMessage("Du darfst das Firmengelände nicht verlassen!", 5); //TODO Lang Business
+            } else {
+                player.showLocationTicker("Firma: " + b.getName(), 5); //TODO Lang Business
+                b.addInfo(new BusinessInfoMessage(player).PlayerEnterPlot);
+                String msg = bp.getEnterMsg();
+                String titel = bp.getTitel();
+
+            }
+        }
     }
-    
+
     @EventMethod
     public void onPlayerBusinessCommandEvent(PlayerCommandEvent event) {
         Player player = event.getPlayer();
@@ -91,6 +95,6 @@ public class BusinessListener implements Listener {
                 }
             }
         }
-        
-    }         
+
+    }
 }

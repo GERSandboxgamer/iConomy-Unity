@@ -5,7 +5,7 @@ import de.sbg.unity.iconomy.Banksystem.BankMember;
 import de.sbg.unity.iconomy.Banksystem.PlayerAccount;
 import de.sbg.unity.iconomy.Exeptions.NotPlayerAccountException;
 import de.sbg.unity.iconomy.GUI.List.PlayerList;
-import de.sbg.unity.iconomy.Utils.PlayerAccountPermission;
+import de.sbg.unity.iconomy.Permissions.PlayerAccountPermission;
 import de.sbg.unity.iconomy.iConomy;
 import de.sbg.unity.iconomy.icConsole;
 import net.risingworld.api.Server;

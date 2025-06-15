@@ -4,6 +4,7 @@ import de.sbg.unity.iconomy.Banksystem.BusinessAccount;
 import de.sbg.unity.iconomy.Events.Money.RemoveCashEvent;
 import de.sbg.unity.iconomy.Exeptions.BusinessAlreadyExistsException;
 import de.sbg.unity.iconomy.Business.Business;
+import de.sbg.unity.iconomy.Exeptions.SQLCreateNoBusinessAccountException;
 import de.sbg.unity.iconomy.Utils.TransferResult;
 import static de.sbg.unity.iconomy.Utils.TransferResult.NotEnoughMoney;
 import static de.sbg.unity.iconomy.Utils.TransferResult.Successful;
@@ -518,6 +519,14 @@ public class SpeakSystem {
                     Console.sendErr("AddBusinessAccount-IO", ex.getMessage());
                     for (StackTraceElement el : ex.getStackTrace()) {
                         Console.sendErr("AddBusinessAccount-IO", el.toString());
+                    }
+                    Console.sendErr("AddBusinessAccount-IO", "========== iConomy-Error ==========");
+                    plugin.GUI.speakGuiSystem.show(player, npc, id_13());
+                } catch (SQLCreateNoBusinessAccountException ex) {
+                    Console.sendErr("SQLCreateNoBusinessAccountException-SQL", "========== iConomy-Error ==========");
+                    Console.sendErr("SQLCreateNoBusinessAccountException-SQL", ex.getMessage());
+                    for (StackTraceElement el : ex.getStackTrace()) {
+                        Console.sendErr("SQLCreateNoBusinessAccountException-SQL", el.toString());
                     }
                     Console.sendErr("AddBusinessAccount-IO", "========== iConomy-Error ==========");
                     plugin.GUI.speakGuiSystem.show(player, npc, id_13());

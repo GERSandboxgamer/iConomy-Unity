@@ -1,4 +1,4 @@
-package de.sbg.unity.iconomy.Utils;
+package de.sbg.unity.iconomy.Permissions;
 
 import java.util.Arrays;
 import java.util.List;

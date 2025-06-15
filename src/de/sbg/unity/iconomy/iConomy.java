@@ -31,12 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import net.risingworld.api.Plugin;
 import net.risingworld.api.Server;
-import net.risingworld.api.World;
 import net.risingworld.api.assets.AssetBundle;
 import net.risingworld.api.assets.PrefabAsset;
 import net.risingworld.api.events.Listener;
-import net.risingworld.api.objects.Area;
 import net.risingworld.api.objects.Player;
+import onlinemarket.OnlineMarket;
 
 /**
  * The iConomy class is the main plugin class responsible for managing the
@@ -125,6 +124,10 @@ public class iConomy extends Plugin {
     public void onEnable() {
         Console = new icConsole(this);
         Console.sendInfo("Enabled");
+        
+        //OnlineMarket om = (OnlineMarket)getPluginByName("OnlineMarket");
+        
+        
         this.moneyFormat = new MoneyFormate(this, Console);
         this.tools = (ToolsAPI) getPluginByName("ToolsAPI");
         if (tools != null) {
